@@ -1,5 +1,5 @@
 ---
-title: Truchas Bulb: Mandelbulb Graphix
+title: "Truchas Bulb - Mandelbulb Graphix"
 author: Steve
 type: blog
 layout: post
