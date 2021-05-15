@@ -1,0 +1,134 @@
+/* typewriter font */
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+/* fancy futur font1 */
+@import url('https://fonts.googleapis.com/css2?family=Megrim&display=swap');
+/* fancy futur font2 */
+@import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
+/* rohl dhal font */
+@import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas&display=swap');
+/* handwriting font 1 */
+@import url('https://fonts.googleapis.com/css2?family=Swanky+and+Moo+Moo&display=swap');
+/* nice font */
+@import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
+
+p {
+  font-size: 19px;
+  font-family:sans-serif;
+}
+
+h1 {
+  font-family:'Special Elite',sans-serif;
+  font-size:70px;
+}
+
+h2 {
+  font-family:'Special Elite',sans-serif;
+  font-size:45px;
+}
+
+h4 {
+  font-family:'Special Elite',sans-serif;
+  font-size:25px;
+  color:#000;
+  margin-bottom:5px;
+}
+
+h5 {
+  font-family:'Special Elite',sans-serif;
+  font-size:25px;
+  color:#777;
+  margin-bottom:5px;
+}
+
+blockquote {
+  text-indent:0mm;
+}
+
+pquote {
+  font-size: 17px;
+  font-family:'Special Elite',sans-serif;
+  display:block;
+  margin-top:60px;
+  /* text-indent:25px; */
+  /* margin-left:35px; */
+}
+
+b {
+  font-weight:700;
+}
+
+haiku {
+    font-family:'Swanky and Moo Moo',sans-serif;
+    font-size:22px;
+    margin:80px;
+}
+
+pagelink {
+    font-family:'Special Elite',sans-serif;
+    font-size:20px;
+    color:#444
+}
+
+pagelinkActive {
+  font-family:'Special Elite',sans-serif;
+  font-size:21px;
+  color:black;
+}
+
+
+.fly {
+  position:absolute;
+  top:100px;
+  left:140%;
+}
+
+/* sidebar block (build for fly) */
+.rightbar {
+  height:100%;
+  width:120px;
+  position:fixed;
+  z-index:1; /* stay ontop */
+  top: 0;
+  right: 0;
+}
+
+/* The sidebar menu */
+.sidenav {
+  height: 100%; /* Full-height: remove this if you want "auto" height */
+  width: 120px; /* Set the width of the sidebar */
+  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  background-color: #fff; /* was black 111 */ 
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 150px;
+  padding-left: 10px;
+}
+
+/* The navigation menu links */
+.sidenav pagelink {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav pagelink:hover {
+  color: #000;
+}
+
+/* Style page content */
+.main {
+  margin-left: 120px; /* Same as the width of the sidebar */
+  width:16cm;
+  padding: 0px 10px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+} 
