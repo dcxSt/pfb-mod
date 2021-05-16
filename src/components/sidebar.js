@@ -14,15 +14,6 @@ export default function Sidenav() {
             </Link>
             <br></br>
             <Link
-            to="/about/"
-            style={{ color:"#777",textDecorationLine:"none",fontFamily:"Special Elite" }}
-            activeStyle={{ color:"#000",textDecorationLine:"none",fontFamily:"Special Elite" }}
-            partiallyActive={true}
-            >
-                About me
-            </Link>
-            <br></br>
-            <Link
             to="/hokku/"
             style={{ color:"#777",textDecorationLine:"none",fontFamily:"Special Elite" }}
             activeStyle={{ color:"#000",textDecorationLine:"none",fontFamily:"Special Elite" }}
@@ -38,6 +29,15 @@ export default function Sidenav() {
             partiallyActive={true}
             >
                 Writing
+            </Link>
+            <br></br>
+            <Link
+            to="/projects/"
+            style={{ color:"#777",textDecorationLine:"none",fontFamily:"Special Elite" }}
+            activeStyle={{ color:"#000",textDecorationLine:"none",fontFamily:"Special Elite" }}
+            partiallyActive={true}
+            >
+                Projects
             </Link>
             <br></br>
             <Link

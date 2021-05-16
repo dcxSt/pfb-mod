@@ -6,7 +6,7 @@ import "../index.css"
 var hokku = require('../content/hokku.json');
 console.log(hokku);
 
-export default function About() {
+export default function Hokku() {
     return (
         <div style={{ color:`black`,margin:`3rem auto` }}>
             <Sidenav />
