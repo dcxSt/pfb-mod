@@ -1,5 +1,5 @@
 ---
-title: Self refferential active symbols.
+title: Some thoughts on Zen and Meditation.
 author: Steve
 type: blog
 layout: post
@@ -8,10 +8,20 @@ date: "2021-04-11"
 
 # DRAFT 
 
-In his book 'GEB - the Eternal Golden Braid, Douglas Hofstadter introduces the notion of an 'acvtive symbol' which lives inside your brain, it is the couterpart to a 'passive symbol' that lives on a page. A passive symbol has no meaning in and of it's self, however an active symbol is part of the system of thoughts of a larger system. In this blogpost we use the word 'model' pseudo-synonymously with 'acvite symbol'. 
+In his book <i>Godel Escher Bach</i>, Douglas Hofstadter introduces the notion of an 'active symbol' as a way of thinking about the brain. 
 
-> The five colours make people's eyes blind,\
-> The five sounds make people's ears deaf. 
+> <i>active elements which can store information and transmit it and recieve it from other active elements. Thus we have active symbols, rather than passive typographical symbols. In the brain the rules are mixed right in with the symbols themselves, whereas on paper, the symbols are static entities, and the rules are in our heads. </i>
+
+<i>D.H. -GEB</i>
+
+Thinking can be understood at a high level of abstraction as the interplay of active symbols in your brain. So when you think of cheese, (theoretically) physically discernable active symbols involved with thoughts of cheese arises in the circuitry of your brain. 
+
+The concept of active symbol is useful because, although it's scientific value is questionable, it describes how many scientifically minded people (physicalists) think about their thoughts. With it we can make (slightly) more precise many vague notions that we may have about how our brain processes information.
+
+In this paradigm, learning a fact about the world is like tr
+
+> <i>The five colours make people's eyes blind,\
+> The five sounds make people's ears deaf.</i> 
 
 *Zen saying*
 
