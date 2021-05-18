@@ -8,7 +8,7 @@ export default function Quotes() {
             <div class="main">
                 <h1>Nuggets of gold</h1>
                 <pquote>
-                <it>Crab:</it> It seems to me that ants are free only within certain constraints. For example, they are free to wander, to brush against each other, to pick up small items, to work on trails, and so on. But they never step out of that small world, that ant-system, which they are in. It would never occur to them, for they don't have the mentality to imagine anything of the kind. Thus the ants are very reliable components, in the sense that you can depend on them to perform certain kinds of tasks in certain ways. <br/> <it>Achilles:</it> But even so, within those limits they are still free, and they just act at random, running about incoherently without any regard for the thought mechanisms of a higher-level being which Dr. Anteater asserts they are merely components of.<br/><b>Douglas Hofstadter (in GEB)</b>
+                <i>Crab:</i> It seems to me that ants are free only within certain constraints. For example, they are free to wander, to brush against each other, to pick up small items, to work on trails, and so on. But they never step out of that small world, that ant-system, which they are in. It would never occur to them, for they don't have the mentality to imagine anything of the kind. Thus the ants are very reliable components, in the sense that you can depend on them to perform certain kinds of tasks in certain ways. <br/><br/> <i>Achilles:</i> But even so, within those limits they are still free, and they just act at random, running about incoherently without any regard for the thought mechanisms of a higher-level being which Dr. Anteater asserts they are merely components of.<br/><br/><b>Douglas Hofstadter (in GEB)</b>
                 </pquote>
                 <pquote>
                 Man suffers only because he takes seriously what the gods made for fun.<br/><br/><b>Alan Watts</b>
@@ -43,7 +43,7 @@ export default function Quotes() {
                 Bohr has brought to my attention that the uncertainty in our observation does not arise exclusively from the occurrence of discontinuities, but is tied directly to the demand that we ascribe equal validity to the quite different experiments which show up in the particulate theory on one hand, and the wave theory on the other hand.<br/><br/><b>Heisenberg Paper, footnote</b><br/><br/>I like this quote because it reveals something about how physics was done back then.
                 </pquote>
                 <pquote style={{ textAlign:`left` }}>
-                <b>We must learn to love. </b>
+                <i>We must learn to love. </i>
                 This is our experience of music: we must first <i>learn to hear</i>, make out and distinguish a figure and a melody at all, to isolate and demarcate it as a living thing in its own right; then it requires a certain amount of effort and goodwill for us to tolerate it despite its strangeness; we need to exercise patience towards its aspect and expression, and generosity of spirit towards what is odd about it - finallythere comes a time when we are accustomed to it, have come to expect it, and we begin to suspect that we would miss it if it were gone; and now it continues to work its irresisteible magic on us more and more, and does not stop until we have become its abject and enraptured lovers, who want nothing more from the world than to experience it again and again. 
                 <br/><br/><b>Nietzsche (334)</b>
                 </pquote>
@@ -102,13 +102,18 @@ export default function Quotes() {
 
                 <pquote style={{ textAlign:`left` }}>
                 The law that entropy always increases, holds, I think, the supreme position among laws of Nature. If someone points out to you that your pet theory of the universe is in disagreement with Maxell's equations - then so much the worse for Maxell's equations. If it is found to be contradicted by observation - wll, these experimentalists do bungle things sometimes. But if your theory is found to be against the Second Law of Thermodynamics I can give you no hope; there is nothing for it but to collapse in deepest humiliation.<br/><br/>
-                <b>Sir Arthur Eddington</b></pquote>
+                <b>Sir Arthur Eddington</b>
+                </pquote>
 
                 <pquote style={{ textAlign:`left` }}>
                 <i>Haiku</i> and <i>waka</i> poems convey perhaps more easily than painting the subtle differences between the four moods of <i>sabi</i>, <i>wabi</i>, <i>aware</i>, and <i>yugen</i>. The quiet, thrilling loneliness of <i>sabi</i> is obvious in <br/><br/>
+                
                 <haiku style={{margin:`85px`}}>On a withered branch<br/></haiku><haiku style={{margin:`105px`}}>A crow is perched,<br/></haiku><haiku style={{margin:`125px`}}>In the autumn evening.</haiku>
+                
                 <br/><br/>But it is less obvious and therefore deeper in <br/><br/>
+
                 <haiku style={{margin:`85px`}}>With the evening breeze,<br/></haiku><haiku style={{margin:`105px`}}>The water laps against<br/></haiku><haiku style={{margin:`125px`}}>The heron's legs.</haiku><br/>
+                
                 <blockquote><i>In the dark forest<br/><br/>A berry drops:<br/><br/>The sound of the water.</i></blockquote>
                 <i>Sabi</i> is, however, loneliness in the sense of Bhuddhist detachment, of seeing all things happening "by themselves" in miraculous spontaneity. With this goes that sense of deep, illimitable quietude which descends with a long fall of snow, swallowing all sounds in layer upon layer of softness.
                 <blockquote><i>Sleet falling;<br/><br/>Fathomless, infinite<br/><br/>Loneliness.</i></blockquote>
@@ -131,7 +136,8 @@ export default function Quotes() {
                 <blockquote><i>A trout leaps;<br/><br/>Clouds are moving<br/><br/>In the bed of the stream.</i></blockquote>
                 Or an example of <i>yugen</i> in the <i>Zenrin</i> poems:
                 <blockquote><i>Wind subsiding, the flowers still fall;<br/><br/>Bird crying, the mountain silence deepens.</i></blockquote>
-                <br/><br/><b>Alan Watts - The Way of Zen</b></pquote>
+                <br/><br/><b>Alan Watts - The Way of Zen</b>
+                </pquote>
 
                 <pquote>
                 Whatever runs counter<br/><br/>To the mind and will of ordinary people<br/><br/>Hinders the Law of Men<br/><br/>And the Law of Buddha.<br/><br/>

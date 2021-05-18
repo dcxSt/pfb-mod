@@ -1,8 +1,7 @@
 ---
 title: Some thoughts on Zen and Meditation.
-author: Steve
+author: Stephen Fay
 type: blog
-layout: post
 date: "2021-04-11"
 ---
 
