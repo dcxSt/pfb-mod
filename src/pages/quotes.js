@@ -112,11 +112,12 @@ export default function Quotes() {
                 
                 <br/><br/>But it is less obvious and therefore deeper in <br/><br/>
 
-                <haiku style={{margin:`85px`}}>With the evening breeze,<br/></haiku><haiku style={{margin:`105px`}}>The water laps against<br/></haiku><haiku style={{margin:`125px`}}>The heron's legs.</haiku><br/>
+                <haiku style={{margin:`85px`}}>With the evening breeze,<br/></haiku><haiku style={{margin:`105px`}}>The water laps against<br/></haiku><haiku style={{margin:`125px`}}>The heron's legs.</haiku><br/><br/>
                 
-                <blockquote><i>In the dark forest<br/><br/>A berry drops:<br/><br/>The sound of the water.</i></blockquote>
-                <i>Sabi</i> is, however, loneliness in the sense of Bhuddhist detachment, of seeing all things happening "by themselves" in miraculous spontaneity. With this goes that sense of deep, illimitable quietude which descends with a long fall of snow, swallowing all sounds in layer upon layer of softness.
-                <blockquote><i>Sleet falling;<br/><br/>Fathomless, infinite<br/><br/>Loneliness.</i></blockquote>
+                <haiku style={{margin:`85px`}}>In the dark forest<br/></haiku><haiku style={{margin:`105px`}}>A berry drops:<br/></haiku><haiku style={{margin:`125px`}}>The sound of the water.</haiku><br/><br/>
+                <i>Sabi</i> is, however, loneliness in the sense of Bhuddhist detachment, of seeing all things happening "by themselves" in miraculous spontaneity. With this goes that sense of deep, illimitable quietude which descends with a long fall of snow, swallowing all sounds in layer upon layer of softness.<br/><br/>
+
+                <haiku style={{margin:`85px`}}>Sleet falling;<br/></haiku><haiku style={{margin:`105px`}}>Fathomless, infinite<br/></haiku><haiku style={{margin:`125px`}}>Loneliness.</haiku><br/><br/>
                 <i>Wabi</i>, the unexpected recognition of the faithful "suchness" of very ordinary things, especially when the gloom of the future has momentarily checked our ambitiousness, is perhaps the mood of
                 <blockquote><i>A brushwood gate,<br/><br/>And for a lock-<br/><br/>This snail.</i></blockquote>
                 <blockquote><i>The woodpecker<br/><br/>Keeps on in the same place:<br/><br/>Day is closing.</i></blockquote>

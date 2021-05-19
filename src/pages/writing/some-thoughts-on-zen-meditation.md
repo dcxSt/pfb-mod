@@ -2,7 +2,7 @@
 title: Some thoughts on Zen and Meditation.
 author: Stephen Fay
 type: blog
-date: "2021-04-11"
+date: "2021-05-11"
 ---
 
 # DRAFT 
@@ -13,11 +13,13 @@ In his book <i>Godel Escher Bach</i>, Douglas Hofstadter introduces the notion o
 
 <i>D.H. -GEB</i>
 
-Thinking can be understood at a high level of abstraction as the interplay of active symbols in your brain. So when you think of cheese, (theoretically) physically discernable active symbols involved with thoughts of cheese arises in the circuitry of your brain. 
+Thinking can be understood as the interplay of active symbols in your brain. So when you think of cheese, (theoretically) physically discernable active symbols involved with thoughts of cheese arises in the circuitry of your brain. 
 
 The concept of active symbol is useful because, although it's scientific value is questionable, it describes how many scientifically minded people (physicalists) think about their thoughts. With it we can make (slightly) more precise many vague notions that we may have about how our brain processes information.
 
 In this paradigm, learning a fact about the world is like tr
+
+In this essay, we try to understand the zen teachings through
 
 > <i>The five colours make people's eyes blind,\
 > The five sounds make people's ears deaf.</i> 

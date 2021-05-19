@@ -68,6 +68,12 @@ haiku {
     margin:80px;
 }
 
+poem {
+  font-family:'Swanky and Moo Moo',sans-serif;
+  font-size:22px;
+  margin:0px;
+}
+
 pagelink {
     font-family:'Special Elite',sans-serif;
     font-size:20px;
