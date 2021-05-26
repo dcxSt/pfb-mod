@@ -119,25 +119,25 @@ export default function Quotes() {
 
                 <haiku style={{margin:`85px`}}>Sleet falling;<br/></haiku><haiku style={{margin:`105px`}}>Fathomless, infinite<br/></haiku><haiku style={{margin:`125px`}}>Loneliness.</haiku><br/><br/>
                 <i>Wabi</i>, the unexpected recognition of the faithful "suchness" of very ordinary things, especially when the gloom of the future has momentarily checked our ambitiousness, is perhaps the mood of
-                <blockquote><i>A brushwood gate,<br/><br/>And for a lock-<br/><br/>This snail.</i></blockquote>
-                <blockquote><i>The woodpecker<br/><br/>Keeps on in the same place:<br/><br/>Day is closing.</i></blockquote>
-                <blockquote><i>Winter desolation;<br/><br/>In the rain-water tub,<br/><br/>Sparrows are walking.</i></blockquote>
-                <i>Aware</i> is not quote grief, and not quite nostalgia in the usual sense of longing for the return of a beloved past. <i>Aware</i> is the echo of what has passed and of what was loved, giving them a resonance such as a great cathedral gives to a choir, so that they would be the poorer without it. 
-                <blockquote><i>No one lives at the Barrier of Fuha;<br/><br/>The wooden penthouse is fallen away;<br/><br/>All that remains<br/><br/>Is the autumn wind.</i></blockquote>
-                <blockquote><i>The evening haze;<br/><br/>Thinking of past things,<br/><br/>How far-off they are!</i></blockquote>
-                <i>Aware</i> is the moment of crisis between seeing the transience of the world with sorrow and regret, and seeing it as the very form of the Great Void.
-                <blockquote><i>The stream hides itself<br/><br/>In the grasses<br/><br/>Of departing autumn.</i></blockquote>
-                <blockquote><i>Leaves falling,<br/><br/>Lie on one another;<br/><br/>The rain beats on the rain.</i></blockquote>
-                That moment of transition is just about to "cross over" in the <i>haiku</i> written by Issa upon the death of his child:
-                <blockquote><i>This dewdrop world-<br/><br/>It may be a dewdrop,<br/><br/>And yet-and yet-</i></blockquote>
+                <haiku style={{margin:`85px`}}>A brushwood gate,<br/></haiku><haiku style={{margin:`105px`}}>And for a lock-<br/></haiku><haiku style={{margin:`125px`}}>This snail.</haiku><br/><br/>
+                <haiku style={{margin:`85px`}}>The woodpecker<br/></haiku><haiku style={{margin:`105px`}}>Keeps on in the same place:<br/></haiku><haiku style={{margin:`125px`}}>Day is closing.</haiku><br/><br/>
+                <haiku style={{margin:`85px`}}>Winter desolation;<br/></haiku><haiku style={{margin:`105px`}}>In the rain-water tub,<br/></haiku><haiku style={{margin:`125px`}}>Sparrows are walking.</haiku><br/><br/>
+                <i>Aware</i> is not quote grief, and not quite nostalgia in the usual sense of longing for the return of a beloved past. <i>Aware</i> is the echo of what has passed and of what was loved, giving them a resonance such as a great cathedral gives to a choir, so that they would be the poorer without it. <br/><br/>
+                <haiku style={{margin:`85px`}}>No one lives at the Barrier of Fuha;<br/></haiku><haiku style={{margin:`85px`}}>The wooden penthouse is fallen away;<br/></haiku><haiku style={{margin:`85px`}}>All that remains<br/></haiku><haiku style={{margin:`85px`}}>Is the autumn wind.</haiku><br/><br/>
+                <haiku style={{margin:`85px`}}>The evening haze;<br/></haiku><haiku style={{margin:`105px`}}>Thinking of past things,<br/></haiku><haiku style={{margin:`125px`}}>How far-off they are!</haiku><br/><br/>
+                <i>Aware</i> is the moment of crisis between seeing the transience of the world with sorrow and regret, and seeing it as the very form of the Great Void.<br/><br/>
+                <haiku style={{margin:`85px`}}>The stream hides itself<br/></haiku><haiku style={{margin:`105px`}}>In the grasses<br/></haiku><haiku style={{margin:`125px`}}>Of departing autumn.</haiku><br/><br/>
+                <haiku style={{margin:`85px`}}>Leaves falling,<br/></haiku><haiku style={{margin:`105px`}}>Lie on one another;<br/></haiku><haiku style={{margin:`125px`}}>The rain beats on the rain.</haiku><br/><br/>
+                That moment of transition is just about to "cross over" in the <i>haiku</i> written by Issa upon the death of his child:<br/><br/>
+                <haiku style={{margin:`85px`}}>This dewdrop world-<br/></haiku><haiku style={{margin:`105px`}}>It may be a dewdrop,<br/></haiku><haiku style={{margin:`125px`}}>And yet-and yet-</haiku><br/><br/>
                 Since <i>yugen</i> signifies a kind of mystery, it is the most baffling of all to describe, and the poems must speak for themselves.
-                <blockquote><i>The sea darkens;<br/><br/>The voices of the wild ducks<br/><br/>Are faintly white.</i></blockquote>
-                <blockquote><i>The skylark:<br/><br/>Its voice alone fell,<br/><br/>Leaving nothing behind.</i></blockquote>
-                <blockquote><i>In the dense mist,<br/><br/>What is being shouted<br/><br/>Between hill and boat?</i></blockquote>
-                <blockquote><i>A trout leaps;<br/><br/>Clouds are moving<br/><br/>In the bed of the stream.</i></blockquote>
-                Or an example of <i>yugen</i> in the <i>Zenrin</i> poems:
-                <blockquote><i>Wind subsiding, the flowers still fall;<br/><br/>Bird crying, the mountain silence deepens.</i></blockquote>
-                <br/><br/><b>Alan Watts - The Way of Zen</b>
+                <haiku style={{margin:`85px`}}>The sea darkens;<br/></haiku><haiku style={{margin:"105px"}}>The voices of the wild ducks<br/></haiku><haiku style={{margin:`125px`}}>Are faintly white.</haiku><br/><br/>
+                <haiku style={{margin:`85px`}}>The skylark:<br/></haiku><haiku style={{margin:`105px`}}>Its voice alone fell,<br/></haiku><haiku style={{margin:`125px`}}>Leaving nothing behind.</haiku><br/><br/>
+                <haiku style={{margin:`85px`}}>In the dense mist,<br/></haiku><haiku style={{margin:`105px`}}>What is being shouted<br/></haiku><haiku style={{margin:`125px`}}>Between hill and boat?</haiku><br/><br/>
+                <haiku style={{margin:`85px`}}>A trout leaps;<br/></haiku><haiku style={{margin:`105px`}}>Clouds are moving<br/></haiku><haiku style={{margin:`125px`}}>In the bed of the stream.</haiku><br/><br/>
+                Or an example of <i>yugen</i> in the <i>Zenrin</i> poems:<br/><br/>
+                <haiku style={{margin:`85px`}}>Wind subsiding, the flowers still fall;<br/></haiku><haiku style={{margin:`85px`}}>Bird crying, the mountain silence deepens.</haiku><br/><br/>
+                <b>Alan Watts - The Way of Zen</b>
                 </pquote>
 
                 <pquote>
@@ -146,8 +146,8 @@ export default function Quotes() {
                 </pquote>
 
                 <pquote>
-                The wild geese do not intend to cast their reflection;<br/><br/>
-                The water has no mind to receive their image.<br/><br/>
+                <haiku style={{margin:`85px`}}>The wild geese do not intend to cast their reflection;</haiku><br/>
+                <haiku style={{margi:`85px`}}>The water has no mind to receive their image.</haiku><br/><br/>
                 <b>Zenrin poem</b>
                 </pquote>
 
