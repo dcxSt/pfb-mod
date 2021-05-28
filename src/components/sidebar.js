@@ -23,6 +23,14 @@ export default function Sidenav() {
             </Link>
             <br></br>
             <Link
+            to="/senryu/"
+            style={{ color:"#777",textDecorationLine:"none",fontFamily:"Special Elite" }}
+            activeStyle={{ color:"#000",textDecorationLine:"none",fontFamily:"Special Elite" }}
+            partiallyActive={true}>
+                Senryu
+            </Link>
+            <br></br>
+            <Link
             to="/writing/"
             style={{ color:"#777",textDecorationLine:"none",fontFamily:"Special Elite" }}
             activeStyle={{ color:"#000",textDecorationLine:"none",fontFamily:"Special Elite" }}
