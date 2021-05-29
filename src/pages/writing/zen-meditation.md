@@ -28,7 +28,7 @@ In Zen and Bhuddism people practice taming their active symbols so that they are
 
 *Schuzan*
 
-It's a trick question because opposing reality is akin to stating the fact. If you state the fact 'the sky is blue' you are opposing reality -- not only do you ignore all the other possible facts like, 'the air is thin', but even before you make the statement when your brain is busy translating the raw experiance into utterable 'facts', the reality of the experiance is not being lived, in other words, your mind is processing active symbols rather than recieving the sensory data without judgement. 
+It's a trick question because opposing reality is akin to stating the fact. If you state the fact 'it is your short staff' you are opposing reality -- not only do you ignore all the other possible facts like, 'your staff is wooden', but even before you make the statement your brain translates the raw experiance into utterable 'facts', the reality of the experiance is not being lived, in other words, your mind is processing active symbols which correspond the the facts you percieve rather than recieving the input without alteration. 
 
 If you never take a break from this kind of analytic thinking your psyche will become tethered to a house of cards: ideas you have about yourself and your place in the world, the ego. Someone with a large ego is constantly 'opposing reality' by interpreting all their experiances as being about them; when someone tells them something they think, how is this actionable, what does it have to do with me, wheras if you say the same thing to a zen monk they will pay more attention to the sound of your voice and allow their brain to make sense of your words effortlessly.
 
