@@ -43,7 +43,7 @@ def zero_padding(w2d,n_zeros=1024):
     pad = np.zeros((len(w2d),n_zeros))
     return np.concatenate([w2d,pad],axis=1)
 
-def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None):
+def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all"):
     """Images the eigenvalues of a window function
     
     Parameters
@@ -56,24 +56,32 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None):
         Window
     name : string
         Name of the window, if passed the figure displaed will be saved in ./figures/
-        
+    show : string
+        Determines what to plot:
+            "all" - will show four subplots = window, eigenvalues + the boxcar plots
+            "window-eigen" - will show only the first two plots
+            "eigen" - will show only the eigenvalues
+
     Displays:
         eigenvalues corresponding to this window function.
         the window and it's ntap chunks (4 chunks)
         the DFT of the window (boxcar-like thing)
     """
     if ntap*lblock!=len(w):raise Exception("len window incompatible")
+    if show not in ("all","window-eigen","eigen"): raise Exception("\n\n'show' parameter invalid, please choose one of ['all','window-eigen','eigen']\n\n")
     w2d = chop_win(w,ntap,lblock)
     w2d_padded = zero_padding(w2d)
     ft = np.apply_along_axis(rfft,1,w2d_padded)
     ft_abs = np.abs(ft)
 
     print("rfft shape and timestream blocked shape",ft.shape,w2d_padded.shape) # sanity check
-    plt.subplots(figsize=(16,11))
+    figsize_dic = {"all":(16,11),"window-eigen":(16,5.5),"eigen":(6,5)}  
+    plt.subplots(figsize = figsize_dic[show]) 
+    subplots_dic = {"all":(221,222,223,224),"window-eigen":(121,122),"eigen":(None,111)}
     
     
     # plot the window and it's four slices
-    plt.subplot(2,2,1)
+    if show in ("all","window-eigen"):plt.subplot(subplots_dic[show][0])
     if ntap==4:
         chopped = chop_win(w).T
         plt.plot(chopped[0], alpha=0.5, color="red", label="segment 1")
@@ -91,7 +99,7 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None):
     plt.legend(bbox_to_anchor=(1, 1), loc=1, borderaxespad=0)
     
     # image plot
-    plt.subplot(2,2,2)
+    plt.subplot(subplots_dic[show][1])
     # put a cieling on values, so not too high...
     ft_abs_ceil = ft_abs.copy()
     count=0
@@ -112,20 +120,21 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None):
         plt.title("PFB Eigenvalues",fontsize=18)
         
     # plot the boxcar (fft)
-    bc = fftshift(fft(fftshift(w))) # the boxcar transform
-    plt.subplot(2,2,3)
-    plt.plot(bc)
-    plt.title("fft window",fontsize=18)
-    
-    plt.subplot(2,2,4)
-    plt.title("fft window zoom",fontsize=18)
-    plt.plot(bc[int(ntap*lblock/2-10):int(ntap*lblock/2+10)])
-    
-    plt.tight_layout()
+    if show=="all":
+        bc = fftshift(fft(fftshift(w))) # the boxcar transform
+        plt.subplot(subplots_dic[show][2])
+        plt.plot(bc)
+        plt.title("fft window",fontsize=18)
+        
+        plt.subplot(subplots_dic[show][3])
+        plt.title("fft window zoom",fontsize=18)
+        plt.plot(bc[int(ntap*lblock/2-10):int(ntap*lblock/2+10)])
+        
+        plt.tight_layout()
     
     plt.show()
     return
 
 #%% main if run
 if __name__ == "__main__":
-    image_eigenvalues(sinc_window())
+    image_eigenvalues(SINC_HANNING,show="eigen")
