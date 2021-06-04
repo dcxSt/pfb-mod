@@ -3,10 +3,11 @@ import numpy as np
 from scipy.fft import fftshift,fft
 
 NTAP = 4
-NCHAN = 1024
-LBLOCK = 2*NCHAN
+NCHAN = 1025 # there's a plus one here!!!
+LBLOCK = 2*(NCHAN-1)
 SINC = np.sinc(np.arange(-NTAP/2,NTAP/2,1/LBLOCK))
 if len(SINC) != NTAP*LBLOCK: raise Exception("incompatible length NTAP, LBLOCK")
+SINC_HANNING = SINC * np.hanning(NTAP*LBLOCK)
 BOXCAR_0 = fftshift(fft(fftshift(SINC)))
 PI = np.pi
 
