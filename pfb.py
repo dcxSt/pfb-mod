@@ -55,10 +55,25 @@ def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=sinc_hamming):
 
     return spec 
 
+def add_gaussian_noise(signal,sigma_proportion=0.001):
+    """Adds gausian noise with standard deviation of 
+        sigma_proportion times the mean of the absolute value signal
+            to signal
+    The reason is that depending on how long nchan is we can't guarantee what scale
+    signal will be on, because it's abs value increases with length like sqrt(n)
+    because that's how the FFT inside our pfb works
+
+    Params
+    signal : np.ndarray -- usually a 2 dimensional array
+    """
+    sigma = sigma_proportion * np.mean(np.abs(signal))
+    return signal + np.random.normal(0,sigma,size=signal.shape)
+
 # helper method for inverse pfb incase you get infinite values, put them to 10**100
 def behead_infinite_values(arr):
     idxs = np.where(arr==np.inf)[0]
     arr[idxs] = 10**100*np.ones(len(idxs))
+    print(len(idxs))
     return # don't have to return anything because arrays arr is a pointer
 
 # pseudoinverse pfb
@@ -83,9 +98,12 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=sinc_hamming):
     sw_ts = np.apply_along_axis(irfft,1,spec) 
     w = window(ntap,lblock) 
 
-    # temporary fill a list, change to numpy zeros later 
-    timestream = [] # np.zeros((lblock,sw_ts.shape[1]*ntap)) # initialize reconstructed timestream
-    # print("timstream shape init ",timestream.shape)
+    # # temporary fill a list, change to numpy zeros later 
+    # timestream = [] # np.zeros((lblock,sw_ts.shape[1]*ntap)) # initialize reconstructed timestream
+    nblocks = (sw_ts.shape[0] + ntap - 1)/ntap 
+    if nblocks==int(nblocks):nblocks=int(nblocks)
+    else: raise Exception("nblocks should be an integer!, Something went wrong")
+    timestream = np.zeros((lblock,nblocks*ntap),dtype=np.complex128) 
 
     # for loop for now so as not to make it too confusing
     for idx,(v,wslice) in enumerate(zip(sw_ts.T , w.reshape(ntap,lblock).T)):
@@ -96,28 +114,60 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=sinc_hamming):
         ft_wslice = fft(wslice_pad) 
         ft_wslice_recip = 1/ft_wslice
 
-        # get rid of infinite values
+        # get rid of infinite values if there are any, normaly not
         if np.inf in ft_wslice_recip: 
             print("\nin inverse pfb: {} np.inf value(s) encountered\n".format(len(np.where(ft_wslice_recip == np.inf))))
             behead_infinite_values(ft_wslice_recip) # get rid of infinity values, put them to 10**100
 
         gtilde = ifft(fft(np.concatenate((v,v[:ntap-1])))*ft_wslice_recip) # might be impossible so use rfft and irfft because not 'exactly' real, could use rfft on np.real(thing)
-        timestream.append(gtilde)# timestream[idx] = gtilde 
+        # timestream.append(gtilde)# timestream[idx] = gtilde # old
+        timestream[idx] = gtilde 
 
+
+    # print("shape, stimstream :",np.array(timestream).shape)
+    # input("input:")
     # print("timestream shape final ",timestream.shape)
-    timestream = np.array(timestream).T.flatten() 
+    # timestream = np.array(timestream).T.flatten() # old
 
-    return timestream
+    return timestream.T.flatten() # return the reconstructed timestream
 
 if __name__ == "__main__": 
-    # timestream = np.random.normal(size=LBLOCK*NTAP*10)
-    # generate a two-sine-waves timestream
-    ntime = 2**11
-    ta = np.linspace(0.0, ntime / 2048, ntime, endpoint=False) 
-    ts = np.sin(2*np.pi * ta * 122.0) + np.sin(2*np.pi * ta * 378.1 + 1.0) 
-    spec_pfb = forward_pfb(ts,17,ntap=4)
-    recovered_ts = inverse_pfb(spec_pfb,nchan=17,ntap=4)
-    res = recovered_ts - ts
+    # # generate a two-sine-waves timestream
+    # ntime = 2**11
+    # ta = np.linspace(0.0, ntime / 2048, ntime, endpoint=False) 
+    # ts = np.sin(2*np.pi * ta * 122.0) + np.sin(2*np.pi * ta * 378.1 + 1.0) 
+    # spec_pfb = forward_pfb(ts,17,ntap=4)
+    # recovered_ts = inverse_pfb(spec_pfb,nchan=17,ntap=4) 
+    # res = recovered_ts - ts
+
+    # time the script, takes about 1min 30seconds to run when lblock,ntap,nblocks = 2048,5,30000
+    from datetime import datetime as dt 
+    start_time = dt.today()
+
+    lblock,ntap,nblocks = 32,4,500
+    nchan = int(lblock/2+1) # assumes lblock is EVEN!
+    ts = np.random.normal(0,1,size=lblock*ntap*nblocks) # initiate the timestream as gaussian noise
+    spec_pfb = forward_pfb(ts,nchan,ntap) # pass it through the polyphase filter bank
+    quantization_noise = 0.005
+    spec_pfb = add_gaussian_noise(spec_pfb,sigma_proportion=quantization_noise) # add noise to the signal to simulate quantization
+    recovered_ts = inverse_pfb(spec_pfb,nchan,ntap) # pass the filtered signal through the inverse pfb
+    res = recovered_ts - ts 
+    np.save("./data/nchan{}_ntap{}_nblocks{}_recovered_ts".format(nchan,ntap,nblocks),recovered_ts)
+    np.save("./data/nchan{}_ntap{}_nblocks{}_input_ts".format(nchan,ntap,nblocks),ts)
+
+    end_time = dt.today()
+    print("Runtime : "+str(end_time-start_time))
+
+    # downsample to plot, otherwise too taxing on matplotlib
+    downsample = True
+    ds_factor = lblock*nblocks // 500000 # this number is essentially the number of points to plot
+    if ds_factor > 0 and downsample==True:
+        print("downsampling")
+        res = res[::ds_factor]
+        recovered_ts = recovered_ts[::ds_factor]
+        ts = ts[::ds_factor]
+
+
 
     # plot the residuals and everything
     import matplotlib.pyplot as plt
@@ -125,34 +175,35 @@ if __name__ == "__main__":
     plt.subplots(figsize=(12,8))
     plt.subplot(221)
     plt.title("Recovered Timestream\nCirculant Fourier Method",fontsize=20)
-    plt.plot(np.real(recovered_ts),color="black",lw=0.8)
+    plt.plot(np.real(recovered_ts),lw=0.3)
     plt.xlabel("time x sample_rate",fontsize=15)
     plt.ylabel("E field amplitude",fontsize=15)
 
     plt.subplot(222)
-    plt.title("Residuals",fontsize=20)
-    plt.plot(np.real(res),color="black",lw=0.8) 
+    plt.title("Gaussian Noise Timestream\nResiduals",fontsize=20)
+    plt.plot(np.real(res),lw=0.4) 
     plt.xlabel("time x sample_rate",fontsize=15)
     plt.ylabel("E field amplitude",fontsize=15)
 
     plt.subplot(223)
     plt.title("rfft",fontsize=20)
-    plt.plot(np.abs(np.fft.rfft(np.real(recovered_ts))),label="recovered timstream")
-    plt.plot(np.abs(np.fft.rfft(ts)),alpha=0.4,label="original timstream")
+    plt.plot(np.abs(np.fft.rfft(np.real(recovered_ts))),"-",lw=0.3,label="abs recovered timstream")
+    plt.plot(np.abs(np.fft.rfft(ts)),"-",lw=0.3,alpha=0.4,label="abs original timstream")
     plt.xlabel("frequency",fontsize=15)
     plt.ylabel("rfft amplitude",fontsize=15)
-    plt.legend()
+    plt.legend(loc="upper left")
 
     plt.subplot(224)
-    plt.title("rfft Residuals",fontsize=20)
-    plt.plot(np.abs(np.fft.rfft(np.real(res))),"k-",alpha=0.4,label="absolute value")
-    plt.plot(np.real(np.fft.rfft(np.real(res))),"g-",alpha=0.6,label="real")
-    plt.plot(np.imag(np.fft.rfft(np.real(res))),color="orange",alpha=0.6,label="imaginary")
+    if quantization_noise:plt.title("rfft Residuals\nQuantization noise {} percent".format(round(quantization_noise*100,1)),fontsize=20)
+    else:plt.title("rfft Residuals",fontsize=20)
+    plt.plot(np.abs(np.fft.rfft(np.real(res))),"k-",alpha=0.8,lw=0.7,label="absolute value")
+    plt.plot(np.real(np.fft.rfft(np.real(res))),"g--",alpha=0.5,lw=0.7,label="real")
+    plt.plot(np.imag(np.fft.rfft(np.real(res))),"--",color="orange",alpha=0.5,lw=0.7,label="imaginary")
     plt.xlabel("frequency",fontsize=15)
     plt.ylabel("rfft amplitude",fontsize=15)
-    plt.legend()
+    plt.legend(loc="lower left")
 
     plt.tight_layout()
-    # plt.savefig("figures/recovered_timestream_circulant_fourier_method_residuals")
+    plt.savefig("figures/recovered_timestream_residuals/gaussian_noise_nchan{}_ntap{}_nblocks{}_quantizationnoise{}percent.png".format(nchan,ntap,nblocks,np.round(quantization_noise*100,1)))
     plt.show()
     
