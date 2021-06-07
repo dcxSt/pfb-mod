@@ -9,6 +9,7 @@ SINC = np.sinc(np.arange(-NTAP/2,NTAP/2,1/LBLOCK))
 if len(SINC) != NTAP*LBLOCK: raise Exception("incompatible length NTAP, LBLOCK")
 SINC_HAMMING = SINC * np.hanning(NTAP*LBLOCK)
 BOXCAR_0 = fftshift(fft(fftshift(SINC)))
+
 PI = np.pi
 
 # useful for quantization loss optimizations

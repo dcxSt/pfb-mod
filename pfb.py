@@ -6,11 +6,13 @@ Author : Stephen Fay
 """
 
 from constants import * # in particular imports NTAP = 4 and LBLOCK = 2048
-from helper import sinc_hamming
+import helper 
 from scipy.fft import rfft,irfft,fft,ifft
+import windows 
+
 
 # forward pfb as implemented in Richard Shaw's notebook
-def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=sinc_hamming):
+def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=helper.sinc_hamming):
     """Performs the Chime PFB on a timestream
     
     Parameters
@@ -76,8 +78,15 @@ def behead_infinite_values(arr):
     print(len(idxs))
     return # don't have to return anything because arrays arr is a pointer
 
+def bump_up_zero_values(arr):
+    idxs = np.where(arr==0.0)[0]
+    # arr[idxs] = 10**(-100)*np.ones(len(idxs)) # this is overkill
+    arr[idxs] = 0.1 # in practice this is at most a single value
+    print(len(idxs))
+    return # don't have to return anything because arrays arr is a pointer
+
 # pseudoinverse pfb
-def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=sinc_hamming):
+def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=helper.sinc_hamming):
     """Performs pseudo inverse pfb, assumes circulant boundary conditions
 
     Parameters
@@ -96,7 +105,7 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=sinc_hamming):
    # sw_ts is what is returnd by applying sw matrix  to the original timstream chunk 
    # each subarray is like [g(1+4k)w1+g(17+4k)w17, ... ,g(16+2k)w16,g(32+4k)w32] ... i think
     sw_ts = np.apply_along_axis(irfft,1,spec) 
-    w = window(ntap,lblock) 
+    win = window(ntap,lblock) 
 
     # # temporary fill a list, change to numpy zeros later 
     # timestream = [] # np.zeros((lblock,sw_ts.shape[1]*ntap)) # initialize reconstructed timestream
@@ -106,18 +115,21 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=sinc_hamming):
     timestream = np.zeros((lblock,nblocks*ntap),dtype=np.complex128) 
 
     # for loop for now so as not to make it too confusing
-    for idx,(v,wslice) in enumerate(zip(sw_ts.T , w.reshape(ntap,lblock).T)):
+    for idx,(v,wslice) in enumerate(zip(sw_ts.T , win.reshape(ntap,lblock).T)):
         wslice_pad = np.roll(np.concatenate([np.flip(wslice),np.zeros(len(v)+ntap-1-len(wslice))]),-3) # flip, pad with zeros, roll
         # see pfb writup inverting pfb section for why we flip and roll
 
         # I think we can possibly use rfft and irfft, do this after implementation...
         ft_wslice = fft(wslice_pad) 
+        if 0.0 in ft_wslice:
+            print("\nin inverse pfb: {} 0.0 values(s) encountered\n".format(len(np.where(ft_wslice == 0.0))))
+            bump_up_zero_values(ft_wslice) # get rid of any zeros, replace with 10**(-100)
         ft_wslice_recip = 1/ft_wslice
 
-        # get rid of infinite values if there are any, normaly not
-        if np.inf in ft_wslice_recip: 
-            print("\nin inverse pfb: {} np.inf value(s) encountered\n".format(len(np.where(ft_wslice_recip == np.inf))))
-            behead_infinite_values(ft_wslice_recip) # get rid of infinity values, put them to 10**100
+        # # get rid of infinite values if there are any, normaly not
+        # if np.inf in ft_wslice_recip: 
+        #     print("\nin inverse pfb: {} np.inf value(s) encountered\n".format(len(np.where(ft_wslice_recip == np.inf))))
+        #     behead_infinite_values(ft_wslice_recip) # get rid of infinity values, put them to 10**100
 
         gtilde = ifft(fft(np.concatenate((v,v[:ntap-1])))*ft_wslice_recip) # might be impossible so use rfft and irfft because not 'exactly' real, could use rfft on np.real(thing)
         # timestream.append(gtilde)# timestream[idx] = gtilde # old
@@ -145,15 +157,21 @@ if __name__ == "__main__":
     start_time = dt.today()
 
     lblock,ntap,nblocks = 32,4,500
+
+    pfb_window = windows.william_wallace # select the window for the PFB and it's inverse
+    # pfb_window = helper.sinc_window # select the window for the PFB and it's inverse
+
     nchan = int(lblock/2+1) # assumes lblock is EVEN!
     ts = np.random.normal(0,1,size=lblock*ntap*nblocks) # initiate the timestream as gaussian noise
-    spec_pfb = forward_pfb(ts,nchan,ntap) # pass it through the polyphase filter bank
-    quantization_noise = 0.005
+    spec_pfb = forward_pfb(ts,nchan,ntap,window=pfb_window) # pass it through the polyphase filter bank
+    quantization_noise = 0.01
     spec_pfb = add_gaussian_noise(spec_pfb,sigma_proportion=quantization_noise) # add noise to the signal to simulate quantization
-    recovered_ts = inverse_pfb(spec_pfb,nchan,ntap) # pass the filtered signal through the inverse pfb
+    recovered_ts = inverse_pfb(spec_pfb,nchan,ntap,window=pfb_window) # pass the filtered signal through the inverse pfb
     res = recovered_ts - ts 
-    np.save("./data/nchan{}_ntap{}_nblocks{}_recovered_ts".format(nchan,ntap,nblocks),recovered_ts)
-    np.save("./data/nchan{}_ntap{}_nblocks{}_input_ts".format(nchan,ntap,nblocks),ts)
+
+    # save the input and output
+    # np.save("./data/nchan{}_ntap{}_nblocks{}_recovered_ts".format(nchan,ntap,nblocks),recovered_ts)
+    # np.save("./data/nchan{}_ntap{}_nblocks{}_input_ts".format(nchan,ntap,nblocks),ts)
 
     end_time = dt.today()
     print("Runtime : "+str(end_time-start_time))
@@ -174,7 +192,7 @@ if __name__ == "__main__":
     # Residuals
     plt.subplots(figsize=(12,8))
     plt.subplot(221)
-    plt.title("Recovered Timestream\nCirculant Fourier Method",fontsize=20)
+    plt.title("Recovered Timestream\nCirculant Fourier Method\nWindow : {}".format(pfb_window.__name__),fontsize=20)
     plt.plot(np.real(recovered_ts),lw=0.3)
     plt.xlabel("time x sample_rate",fontsize=15)
     plt.ylabel("E field amplitude",fontsize=15)
@@ -204,6 +222,6 @@ if __name__ == "__main__":
     plt.legend(loc="lower left")
 
     plt.tight_layout()
-    plt.savefig("figures/recovered_timestream_residuals/gaussian_noise_nchan{}_ntap{}_nblocks{}_quantizationnoise{}percent.png".format(nchan,ntap,nblocks,np.round(quantization_noise*100,1)))
+    # plt.savefig("figures/recovered_timestream_residuals/gaussian_noise_window_{}_nchan{}_ntap{}_nblocks{}_quantizationnoise{}percent.png".format(pfb_window.__name__,nchan,ntap,nblocks,np.round(quantization_noise*100,1)))
     plt.show()
     

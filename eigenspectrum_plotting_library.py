@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fft import rfft,fft,fftshift
+from scipy.signal import gaussian 
 from constants import *
+import helper
 
 #%% some windows for experimentation
 
@@ -34,16 +36,7 @@ def wabble(r=np.pi/4,sigma=0.2,ntap=NTAP,lblock=LBLOCK):
 
 #%% display eigenvalue image
 
-def chop_win(w,ntap=4,lblock=2048):
-    """Chop lblock bits of len ntap of window to get ready for DFT"""
-    if ntap*lblock!=len(w):raise Exception("len window incompatible")
-    return np.reshape(w,(ntap,lblock)).T
-
-def zero_padding(w2d,n_zeros=1024):
-    pad = np.zeros((len(w2d),n_zeros))
-    return np.concatenate([w2d,pad],axis=1)
-
-def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all"):
+def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all",ghost=None):
     """Images the eigenvalues of a window function
     
     Parameters
@@ -69,8 +62,8 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all"):
     """
     if ntap*lblock!=len(w):raise Exception("len window incompatible")
     if show not in ("all","window-eigen","eigen"): raise Exception("\n\n'show' parameter invalid, please choose one of ['all','window-eigen','eigen']\n\n")
-    w2d = chop_win(w,ntap,lblock)
-    w2d_padded = zero_padding(w2d)
+    w2d = helper.chop_win(w,ntap,lblock)
+    w2d_padded = helper.zero_padding(w2d)
     ft = np.apply_along_axis(rfft,1,w2d_padded)
     ft_abs = np.abs(ft)
 
@@ -83,16 +76,17 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all"):
     # plot the window and it's four slices
     if show in ("all","window-eigen"):plt.subplot(subplots_dic[show][0])
     if ntap==4:
-        chopped = chop_win(w).T
+        chopped = helper.chop_win(w).T
         plt.plot(chopped[0], alpha=0.5, color="red", label="segment 1")
         plt.plot(chopped[1], alpha=0.5, color="blue", label="segment 2")
         plt.plot(chopped[2], alpha=0.5, color="green", label="segment 3")
         plt.plot(chopped[3], alpha=0.5, color="orange", label="segment 4")
 
         plt.plot(np.linspace(0,lblock,len(w)),w,"-k",label="full window")
+        if type(ghost)==type(np.array([0])):plt.plot(np.linspace(0,lblock,len(ghost)),ghost,"-.",color="grey",alpha=0.7,label="ghost")
     else:
         plt.plot(w,"-k",label="full window")
-    
+
     if name:
         plt.title("window {}".format(name),fontsize=18)
     else:plt.title("window",fontsize=18)
@@ -112,13 +106,7 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all"):
     plt.xlabel("sample number",fontsize=16)
     plt.ylabel("rfft abs",fontsize=16)
     plt.colorbar()
-    if name:
-        plt.title("PFB Eigenvalues\n{}".format(name),fontsize=18)
-        plt.savefig("./figures/pfb-colorplot-{}-window.png".format(name))
-        np.save("./figures/{}-window".format(name),w)
-    else:
-        plt.title("PFB Eigenvalues",fontsize=18)
-        
+       
     # plot the boxcar (fft)
     if show=="all":
         bc = fftshift(fft(fftshift(w))) # the boxcar transform
@@ -129,12 +117,19 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all"):
         plt.subplot(subplots_dic[show][3])
         plt.title("fft window zoom",fontsize=18)
         plt.plot(bc[int(ntap*lblock/2-10):int(ntap*lblock/2+10)])
+        if type(ghost)==np.array([0]):plt.plot(helper.window_to_box(ghost)[int(ntap*lblock/2-10):int(ntap*lblock/2+10)])
         
         plt.tight_layout()
+    if name:
+        plt.title("PFB Eigenvalues\n{}".format(name),fontsize=18)
+        plt.savefig("./figures/{}.png".format(name))
+        np.save("./figures/{}.npy".format(name),w)
+    else:
+        plt.title("PFB Eigenvalues",fontsize=18)
     
     plt.show()
     return
 
 #%% main if run
 if __name__ == "__main__":
-    image_eigenvalues(SINC_HANNING,show="eigen")
+    image_eigenvalues(SINC_HAMMING,show="all")

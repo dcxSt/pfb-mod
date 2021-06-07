@@ -154,40 +154,9 @@ def leak_loss(window):
 
 #%% A Gradient descent epoch
 
-def loss_function(window):
+def loss_function(window,b):
     return q_loss_method_0(quantization_sample_fourier_values(window,n_samples=N_SAMPLES,n_thetas=N_THETAS))
 
-# depricated
-def nabla_loss_old(window):
-    short_box = rfft(window)
-    len_short_box = len(short_box)
-    window_loss = loss_function(window) 
-    
-    rng = np.random.default_rng() # no repetes random numbers
-    sample_dims = rng.choice(len_short_box,size=N_SAMPLES_DIM, replace=False)
-    unitvecs = [np.zeros(len_short_box) for i in range(N_SAMPLES_DIM)]
-    
-    for vec,i in zip(unitvecs,sample_dims):
-        vec[i] += 1
-
-    # take the partial derivative along each unit vector in the sample
-
-    epsilon = EPSILON # distance in finite distance computation
-    neighbours_box = np.array([short_box + epsilon*vec for vec in unitvecs]) # finite difference derivative
-
-    # compute the parial derivatives along each unitvec
-    # this is the step that takes a long time and needs optimization
-    neighbours_window = np.apply_along_axis(irfft,1,neighbours_box) # this also takes time..., ugh
-    partial_ds = (np.apply_along_axis(loss_function,1,neighbours_window) - window_loss)/epsilon
-
-    nabla = np.zeros(NTAP*LBLOCK)
-
-    nabla_box = np.zeros(len_short_box)
-    for j,partial in zip(sample_dims,partial_ds):
-        nabla_box[j] += partial
-    nabla = irfft(nabla_box)
-
-    return nabla
 
 # compute the gradient 
 def nabla_loss(window):
@@ -195,7 +164,7 @@ def nabla_loss(window):
     short_box = box[:N_DIM] # select the part of the box that matters
     remainder_box = box[N_DIM:] # for now it's 4 but we can make bigger
     len_short_box = len(short_box) # this is the dimension of our space
-    window_loss = loss_function(window) 
+    window_loss = loss_function(window,short_box) 
 
     unitvecs = np.identity(len_short_box) # the unit vectors
     epsilon = 20.0 # distance in finite distance computation
@@ -204,8 +173,11 @@ def nabla_loss(window):
     neighbours_box = np.concatenate((neighbours_box,np.repeat([remainder_box],len_short_box,axis=0)),axis=1)# pad it, optionally could also pad with zeros
 
     neighbours_window = ifftshift(irfft(neighbours_box))
-    partial_ds = (np.apply_along_axis(loss_function,1,neighbours_window) - window_loss)/epsilon
-    partial_ds = gaussian(2*len(partial_ds),2.0)[len(partial_ds):] # multiply by gaussian window to supress leaking
+    partial_ds = []
+    for w,b in zip(neighbours_window,neighbours_box):
+        partial_ds.append(loss_function(w,b[:N_DIM]))
+    partial_ds = np.array(partial_ds)
+    partial_ds = gaussian(2*len(partial_ds),2.0)[len(partial_ds):] * partial_ds # multiply by gaussian window to supress leaking
 
     nabla = np.concatenate((partial_ds,np.zeros(len(remainder_box)))) # this one has to be np.zeros
     nabla = ifftshift(irfft(nabla)) # ft nabla to put it into window space
@@ -222,12 +194,13 @@ def update_step(window):
 
 def gradient_descent(window,iterations=ITERATIONS):
     w = window.copy()
-    loss = loss_function(w)
+    b = helper.window_to_box(w)[:N_DIM]
+    loss = loss_function(w,b)
     print(loss) #trace
     losstrace = [loss]
     for i in range(iterations):
         w = update_step(w) 
-        loss = loss_function(w)
+        loss = loss_function(w,b)
         print("loss :",loss)
         losstrace.append(loss)
 
@@ -237,14 +210,14 @@ def gradient_descent(window,iterations=ITERATIONS):
 if __name__ == "__main__":
     # image_eigenvalues(sinc_window()) 
     # Gradient descent
-    # curr_window = SINC
-    # curr_box = BOXCAR_0
-    import os
-    wind_name = os.listdir("descent-output")
-    wind_name.sort()
-    wind_name = wind_name[-1]
-    curr_window = np.load("descent-output/"+wind_name) 
-    curr_box = helper.window_to_box(curr_window) 
+    curr_window = SINC
+    curr_box = BOXCAR_0
+    # import os
+    # wind_name = os.listdir("descent-output")
+    # wind_name.sort()
+    # wind_name = wind_name[-1]
+    # curr_window = np.load("descent-output/"+wind_name) 
+    # curr_box = helper.window_to_box(curr_window) 
 
     # curr_window = np.load("./descent-output/window_2021-06-03_18.57.38.npy")
     # curr_box = helper.window_to_box(curr_window)
