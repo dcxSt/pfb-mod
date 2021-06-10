@@ -14,7 +14,7 @@ export default function Writing({ data }) {
                     if (node.fileAbsolutePath.includes('writing'))
                         return (
                             <div key={node.id}>
-                                <Link to={node.fields.slug} style={{ color:"inherit",textDectoration:"none",textDecorationLine:"none"}}><h4>{node.frontmatter.title} <span style={{color:"#777"}}> -{node.timeToRead} minuet read</span></h4></Link>
+                                <Link to={node.fields.slug} style={{ color:"inherit",textDectoration:"none",textDecorationLine:"none"}}><h4>{node.frontmatter.title} <span style={{color:"#777"}}> type : {node.frontmatter.type}</span></h4></Link>
                                 {node.excerpt}
                             </div>
                         )
@@ -35,6 +35,7 @@ export const query = graphql`
                 frontmatter {
                     title
                     date
+                    type
                 }
                 fileAbsolutePath
                 timeToRead

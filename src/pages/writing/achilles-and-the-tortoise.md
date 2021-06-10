@@ -1,7 +1,7 @@
 ---
 title: Achilles and the Tortoise, a Hofstatder Dialogue.
 author: Steve
-type: blog
+type: fan fiction 
 layout: post
 date: "2020-07-24"
 ---

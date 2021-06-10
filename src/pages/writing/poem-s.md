@@ -1,5 +1,5 @@
 ---
-title: "Poem S"
+title: "S"
 type: "poem"
 author: "Stephen Fay"
 date: "2018-04-15"

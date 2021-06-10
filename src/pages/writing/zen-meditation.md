@@ -1,7 +1,7 @@
 ---
 title: Zen meditation
 author: Stephen Fay
-type: blog
+type: "essay"
 date: "2021-05-11"
 ---
 

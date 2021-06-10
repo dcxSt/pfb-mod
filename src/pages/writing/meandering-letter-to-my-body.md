@@ -1,17 +1,17 @@
 ---
 title: "A Meandering Letter to my Body"
-type: "low fidelity"
+type: "essay"
 author: "Stephen Fay"
 date: "2021-04-23"
 ---
 
 Dear body,
 
-Thanks for carrying me around the place. Who even am I to be carried by you, it seems rather presumptuous to think of myself -your mind, as a seperate enetity. Maybe you would object if you had the capacity to, but you can't because by definition you don't have the facaulty of thought, that belongs to me.
+Thanks for carrying me around the place. Who even am I to be carried by you? It seems presumptuous to think of myself -your mind, as a seperate enetity. Maybe you would object if you had the capacity to, but the facaulty of thought belongs to *me*.
 
-But you have so much power over me. Watching Robert Sapolsky's lectures has made me aware of just how much leverage you have over me. The ideal situation would be for us to get along, I take care of you and you take care of me. Of course if I get to egoistic and don't take care of you, you'll react not only by limiting my physical performance, but limiting my states of mind, enabling torpor and languor to set in.
+You have so much power over me. Watching Robert Sapolsky's lectures has made me aware of just how much leverage you have over me. The ideal situation would be for us to get along, I take care of you and you take care of me. If I don't take care of you, you'll react by limiting my physical performance, and my states of mind, enabling torpor and languor to set in.
 
-Thinking about you as a seperate entity is quite strange. What are you anyway, if not me. Are you an interface that allows me to take in sensory data from the outside world. Paraphrasing Alan Watts - the only things that I know, the only things I have ever experianced are states of my nervous system. Every experiance of mine corresponds to the state of a nervous system which presumably grew into me. Appying cartesian scepticism leads us to ask: (a) how can I know that this current state was caused by something before it, i.e. how can I know that there is a past or a future from the present moment? (b) how can I know that other people exist? (solipsism).
+Thinking about you as a seperate entity is quite strange. What are you anyway, if not me. Are you an interface that allows me to take in sensory data from the outside world. Paraphrasing Alan Watts - the only things that I know, the only things I have ever experianced are states of my nervous system. Every experiance of mine corresponds to the state of a nervous system which presumably grew into me. Appying cartesian scepticism leads us to ask: (a) how can I know that this current state was caused by something before it -- how can I know that there is a past or a future from the present moment? (b) how can I know that other people exist? (solipsism).
 
 It seems obvious to me that there is something wrong with these statements (they do not ring true / feel right / appeal to my tastes). Lets start with (a).
 
