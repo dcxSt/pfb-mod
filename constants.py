@@ -1,6 +1,6 @@
 # this module is to be imported
-import numpy as np
-from scipy.fft import fftshift,fft
+import jax.numpy as np # differentiable numpy library
+from jax.numpy.fft import fftshift,fft,rfft 
 
 NTAP = 4
 NCHAN = 1025 # there's a plus one here!!!
@@ -9,8 +9,10 @@ SINC = np.sinc(np.arange(-NTAP/2,NTAP/2,1/LBLOCK))
 if len(SINC) != NTAP*LBLOCK: raise Exception("incompatible length NTAP, LBLOCK")
 SINC_HAMMING = SINC * np.hanning(NTAP*LBLOCK)
 BOXCAR_0 = fftshift(fft(fftshift(SINC)))
+BOXCAR_R_4X = rfft(fftshift(np.concatenate([SINC,np.zeros(int(len(SINC)*4.0))])))
 
 PI = np.pi
+E = np.exp(1)
 
 # useful for quantization loss optimizations
 SINPI = 0
