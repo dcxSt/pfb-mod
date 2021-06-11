@@ -1,9 +1,10 @@
-import numpy as np
+import jax.numpy as np # still gotta test to see if old method work with this 
+import numpy 
 import matplotlib.pyplot as plt
 from scipy.fft import rfft,fft,fftshift
 from scipy.signal import gaussian 
 from constants import *
-import helper
+import helper as h
 
 #%% some windows for experimentation
 
@@ -62,8 +63,8 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all",ghost=None)
     """
     if ntap*lblock!=len(w):raise Exception("len window incompatible")
     if show not in ("all","window-eigen","eigen"): raise Exception("\n\n'show' parameter invalid, please choose one of ['all','window-eigen','eigen']\n\n")
-    w2d = helper.chop_win(w,ntap,lblock)
-    w2d_padded = helper.zero_padding(w2d)
+    w2d = h.chop_win(w,ntap,lblock)
+    w2d_padded = h.zero_padding(w2d)
     ft = np.apply_along_axis(rfft,1,w2d_padded)
     ft_abs = np.abs(ft)
 
@@ -76,7 +77,7 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all",ghost=None)
     # plot the window and it's four slices
     if show in ("all","window-eigen"):plt.subplot(subplots_dic[show][0])
     if ntap==4:
-        chopped = helper.chop_win(w).T
+        chopped = h.chop_win(w).T
         plt.plot(chopped[0], alpha=0.5, color="red", label="segment 1")
         plt.plot(chopped[1], alpha=0.5, color="blue", label="segment 2")
         plt.plot(chopped[2], alpha=0.5, color="green", label="segment 3")
@@ -117,7 +118,7 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all",ghost=None)
         plt.subplot(subplots_dic[show][3])
         plt.title("fft window zoom",fontsize=18)
         plt.plot(bc[int(ntap*lblock/2-10):int(ntap*lblock/2+10)])
-        if type(ghost)==np.array([0]):plt.plot(helper.window_to_box(ghost)[int(ntap*lblock/2-10):int(ntap*lblock/2+10)])
+        if type(ghost)==np.array([0]):plt.plot(h.window_to_box(ghost)[int(ntap*lblock/2-10):int(ntap*lblock/2+10)])
         
         plt.tight_layout()
     if name:
@@ -129,6 +130,92 @@ def image_eigenvalues(w,ntap=NTAP,lblock=LBLOCK,name=None,show="all",ghost=None)
     
     plt.show()
     return
+
+def image_eig2(window,save_fig=False):
+    """Images the eigenvalues of a window function
+    
+    Parameters
+    ----------
+    window : np.array[ntap * lblock] (assumes 4*2048)
+        Window
+    save_fig : boolean
+        if true will save figure and window array with datetime tag
+    """
+    from datetime import datetime as dt
+    strdatetime = dt.today().strftime("%Y-%m-%d_%H.%M.%S")
+
+    ### Loss and reward functions
+
+    mat_eig = h.r_window_to_matrix_eig(window)
+    thresh_025 = np.count_nonzero(np.abs(mat_eig)<0.25)
+    thresh_001 = np.count_nonzero(np.abs(mat_eig)<0.1)
+
+    # ### modified spectrum
+    plt.subplots(figsize=(16,10))
+
+    ### window
+
+    plt.subplot(221)
+    plt.plot(abs(window),"k-.",alpha=0.3,label="abs")
+    plt.plot(np.imag(window),alpha=0.4,color="orange",label="imaginary")
+    plt.plot(SINC,color="grey",alpha=0.6,label="sinc")
+    plt.plot(window,"b-",label="real")
+    plt.title("Window\n{}".format(strdatetime),fontsize=20)
+    plt.legend()
+
+    ### eig plot
+
+    plt.subplot(222)
+    rft = h.r_window_to_matrix_eig(window).T
+    rft = numpy.array(rft)
+    rft[0][0]=0.0 # make one of them zero to adjust the scale of the plot
+    plt.imshow(np.abs(rft),cmap="gist_ncar",aspect="auto")
+    plt.title("Eigenvalues\nLoss Eig : {}(0.207)\nThresh 0.25 : {} (9519)\nThresh 0.1 : {} (1529)".format(round(0.0,3),thresh_025,thresh_001),fontsize=20)
+    # in above line 0.0 should be l_eig
+    plt.colorbar()
+
+    ### box
+
+    box = h.window_pad_to_box(window,10.0)
+    short_box = box[int(len(box)/2-250):int(len(box)/2+250)]
+    # scale = max(np.abs(short_box)) # this is the scale of the fitler, determines where we put lines
+
+    box_sinc = h.window_pad_to_box(SINC,10.0)
+    short_box_sinc = box_sinc[int(len(box_sinc)/2-250):int(len(box_sinc)/2+250)]
+    scale = max(np.abs(short_box_sinc)) # now we can scale everyone down to where to peak in logplot is zero
+    box,short_box,box_sinc,short_box_sinc = box/scale,short_box/scale,box_sinc/scale,short_box_sinc/scale
+
+    ### plot the box
+
+    plt.subplot(223)
+    plt.semilogy(np.abs(short_box_sinc),"b-",alpha=0.7,label="sinc")
+    plt.semilogy(np.abs(short_box),"k-",alpha=0.7,label="window")
+    # plt.title("log Box zoom\nWidth Loss : {} \tHeight Loss : {}".format(round(l_width,3),round(l_height,3)),fontsize=20)
+    plt.title("log Box zoom",fontsize=20)
+    plt.grid(which="both")
+    plt.legend()
+
+
+    plt.subplot(224)
+    plt.semilogy(np.abs(box_sinc),"b-",alpha=0.5,label="sinc")
+    plt.semilogy(np.abs(box),"k-",alpha=0.5,label="window")
+    plt.semilogy(np.ones(len(box))*10**(-5),color="green",alpha=0.5,label="10^-5")
+    plt.semilogy(np.ones(len(box))*10**(-6),color="green",alpha=0.5,label="10^-6")
+    plt.title("log Box",fontsize=20)
+    # plt.title("log Box",fontsize=20)
+    plt.grid(which="both")
+    plt.legend()
+
+    plt.tight_layout()
+
+    if save_fig==True:
+        np.save("figures/experiments/series4_{}.npy".format(strdatetime),window)
+        print("saved window")
+        plt.savefig("figures/experiments/series5_{}.png".format(strdatetime))
+        print("saved figure")
+
+    plt.show()
+
 
 #%% main if run
 if __name__ == "__main__":
