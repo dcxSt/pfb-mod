@@ -8,6 +8,9 @@ export default function Quotes() {
             <div class="main">
                 <h1>Nuggets of gold</h1>
                 <pquote>
+                Zen is the essence of Christianity, of Buddhism, of culture, of all that is good in the daily life of ordinary people. But that does not mean that we are not to smash it flat if we get the slightest opportunity. And we are not going to attack foxy (false) Zen, or the hypocrites and time-servers who support it, but Zen itself in its highest and sublimest forms. Nothing is sacred but one's own foolish and contradictory induitions. By "induition" is meant here that which I myself find in common with all so-called "great men" without exception, and with a good many "little" men. It is thus purely subjective, dangerous, and indeed variable, but the great thing is to have courage, and say again and again, "All that can be shaken shall be shaken!" and if nothing remains, let it be so.<br/><br/><b>R. H. Blyth</b> 27 Aug. 1959
+                </pquote>
+                <pquote>
                 <i>Crab:</i> It seems to me that ants are free only within certain constraints. For example, they are free to wander, to brush against each other, to pick up small items, to work on trails, and so on. But they never step out of that small world, that ant-system, which they are in. It would never occur to them, for they don't have the mentality to imagine anything of the kind. Thus the ants are very reliable components, in the sense that you can depend on them to perform certain kinds of tasks in certain ways. <br/><br/> <i>Achilles:</i> But even so, within those limits they are still free, and they just act at random, running about incoherently without any regard for the thought mechanisms of a higher-level being which Dr. Anteater asserts they are merely components of.<br/><br/><b>Douglas Hofstadter (in GEB)</b>
                 </pquote>
                 <pquote>
@@ -118,7 +121,7 @@ export default function Quotes() {
                 <i>Sabi</i> is, however, loneliness in the sense of Bhuddhist detachment, of seeing all things happening "by themselves" in miraculous spontaneity. With this goes that sense of deep, illimitable quietude which descends with a long fall of snow, swallowing all sounds in layer upon layer of softness.<br/><br/>
 
                 <haiku style={{margin:`85px`}}>Sleet falling;<br/></haiku><haiku style={{margin:`105px`}}>Fathomless, infinite<br/></haiku><haiku style={{margin:`125px`}}>Loneliness.</haiku><br/><br/>
-                <i>Wabi</i>, the unexpected recognition of the faithful "suchness" of very ordinary things, especially when the gloom of the future has momentarily checked our ambitiousness, is perhaps the mood of
+                <i>Wabi</i>, the unexpected recognition of the faithful "suchness" of very ordinary things, especially when the gloom of the future has momentarily checked our ambitiousness, is perhaps the mood of <br/><br/>
                 <haiku style={{margin:`85px`}}>A brushwood gate,<br/></haiku><haiku style={{margin:`105px`}}>And for a lock-<br/></haiku><haiku style={{margin:`125px`}}>This snail.</haiku><br/><br/>
                 <haiku style={{margin:`85px`}}>The woodpecker<br/></haiku><haiku style={{margin:`105px`}}>Keeps on in the same place:<br/></haiku><haiku style={{margin:`125px`}}>Day is closing.</haiku><br/><br/>
                 <haiku style={{margin:`85px`}}>Winter desolation;<br/></haiku><haiku style={{margin:`105px`}}>In the rain-water tub,<br/></haiku><haiku style={{margin:`125px`}}>Sparrows are walking.</haiku><br/><br/>
@@ -130,7 +133,7 @@ export default function Quotes() {
                 <haiku style={{margin:`85px`}}>Leaves falling,<br/></haiku><haiku style={{margin:`105px`}}>Lie on one another;<br/></haiku><haiku style={{margin:`125px`}}>The rain beats on the rain.</haiku><br/><br/>
                 That moment of transition is just about to "cross over" in the <i>haiku</i> written by Issa upon the death of his child:<br/><br/>
                 <haiku style={{margin:`85px`}}>This dewdrop world-<br/></haiku><haiku style={{margin:`105px`}}>It may be a dewdrop,<br/></haiku><haiku style={{margin:`125px`}}>And yet-and yet-</haiku><br/><br/>
-                Since <i>yugen</i> signifies a kind of mystery, it is the most baffling of all to describe, and the poems must speak for themselves.
+                Since <i>yugen</i> signifies a kind of mystery, it is the most baffling of all to describe, and the poems must speak for themselves.<br/><br/>
                 <haiku style={{margin:`85px`}}>The sea darkens;<br/></haiku><haiku style={{margin:"105px"}}>The voices of the wild ducks<br/></haiku><haiku style={{margin:`125px`}}>Are faintly white.</haiku><br/><br/>
                 <haiku style={{margin:`85px`}}>The skylark:<br/></haiku><haiku style={{margin:`105px`}}>Its voice alone fell,<br/></haiku><haiku style={{margin:`125px`}}>Leaving nothing behind.</haiku><br/><br/>
                 <haiku style={{margin:`85px`}}>In the dense mist,<br/></haiku><haiku style={{margin:`105px`}}>What is being shouted<br/></haiku><haiku style={{margin:`125px`}}>Between hill and boat?</haiku><br/><br/>
@@ -141,24 +144,14 @@ export default function Quotes() {
                 </pquote>
 
                 <pquote>
-                Whatever runs counter<br/><br/>To the mind and will of ordinary people<br/><br/>Hinders the Law of Men<br/><br/>And the Law of Buddha.<br/><br/>
-                <b>Ikkyu</b>
-                </pquote>
-
-                <pquote>
                 <haiku style={{margin:`85px`}}>The wild geese do not intend to cast their reflection;</haiku><br/>
                 <haiku style={{margi:`85px`}}>The water has no mind to receive their image.</haiku><br/><br/>
                 <b>Zenrin poem</b>
                 </pquote>
 
                 <pquote>
-                Find your own sound and leave space!
-                <br/><br/><b>Sullivan Fortner</b>
-                </pquote>
-
-                <pquote>
                 Many people choose a subject for their phd and then continue the same subject until they retire. I despise this approach. I have changed my subject five times before I got my first tenured position and that helped me to learn different subjects. When one dares to try, rewards are not guaranteed but at least it is an adventure.
-                <b>Andre Geim</b>
+                <br/><br/><b>Andre Geim</b>
                 </pquote>
 
 
