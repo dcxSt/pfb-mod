@@ -73,6 +73,7 @@ def window_pad_to_box_rfft(window,pad_factor=4.0):
 def box_to_window_pad_rfft(large_box,len_win):
     return ifftshift(irfft(large_box))[:len_win]
 
+#%% involved in gradient descent
 # get a spline function for x,y for the log sidelobes of a window with pad 4.0 x len(window)
 def get_spline_func(window):
     half_box = window_pad_to_box_rfft(window,4.0)
@@ -106,10 +107,27 @@ def get_spline_arr(window):
 
 # moving average, k is over how many neighbours, so k=1 will be av over 3 neighbours
 def mav(signal,k=1):
-    s = np.r_[np.ones(k)*signal[0],signal,np.ones(k)*signal[-1]]
+    s = np.r_[np.ones(k)*signal[0],signal,np.ones(k)*signal[-1]] # pad the signal, extend edge values
     w = np.ones(2*k+1)
     w /= w.sum()
     return np.convolve(w,s,mode="valid")
+
+
+#%% Metrics for evaluating windows 
+
+def metric_sidelobe_thicknesses(window):
+    # determines how thick the boxcar is in multiple ranges
+    scale = BOXCAR_4X_HEIGHT
+    normed_box = window_pad_to_box_rfft(window,pad_factor=4.0) / scale
+    log_box_abs = log10(abs(normed_box))
+    l = len(log_box_abs)
+    th2 = 100*(max(np.where(log_box_abs > -2)[0]) - 13) / l # 13 is the width of the boxcar
+    th3 = 100*(max(np.where(log_box_abs > -3)[0]) - 13) / l
+    th4 = 100*(max(np.where(log_box_abs > -4)[0]) - 13) / l
+    th5 = 100* max(np.where(log_box_abs > -5)[0]) / l # here boxcar width doesn't really matter anymore
+    th6 = 100* max(np.where(log_box_abs > -6)[0]) / l
+    return th2,th3,th4,th5,th6
+
 
 
 #%% basic windows, for all windows see windows.py
