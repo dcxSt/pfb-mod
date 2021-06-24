@@ -26,11 +26,29 @@ def ln(x): # assumes x > 0
 ln.defjvps(lambda x_dot, primal_out, x: x_dot / x)
 
 @custom_jvp
+def ln_safe(x): # assumes x >= 0
+    return np.log(x+10**(-20))
+
+ln_safe.defjvps(lambda x_dot, primal_out, x: x_dot / (x+10**(-20)))
+
+@custom_jvp
 def log10(x): # assumes x > 0
     return np.log10(x)
 
 log10.defjvps(lambda x_dot, primal_out, x: x_dot / (x*np.log(10)))
 
+
+@custom_jvp
+def log10_safe(x): # assumes x >= 0, useful when you take the log of array with zeros
+    return np.log10(x+10**(-20)) # can go up to -37 in theory
+
+log10_safe.defjvps(lambda x_dot, primal_out, x: x_dot / ((x+10**(-20))*np.log(10)))
+
+@custom_jvp
+def log10_safe_2(x): # assumes x >= 0
+    return np.log10(x+10**(-10))
+
+log10_safe_2.defjvps(lambda x_dot, primal_out, x: x_dot / ((x + 10**(-10))*np.log(10)))
 
 
 #%% fourier transforms and their inverses
@@ -55,6 +73,43 @@ def window_pad_to_box_rfft(window,pad_factor=4.0):
 def box_to_window_pad_rfft(large_box,len_win):
     return ifftshift(irfft(large_box))[:len_win]
 
+# get a spline function for x,y for the log sidelobes of a window with pad 4.0 x len(window)
+def get_spline_func(window):
+    half_box = window_pad_to_box_rfft(window,4.0)
+    half_box = abs(half_box)
+    width = 13 # the width of the boxcar (yes this is hardcoded, can find with peakfinder too)
+    log_lobes = np.log10(half_box[width:])
+    x = [] 
+    y = [] 
+    count = 0
+    ll = log_lobes.copy()
+    while len(ll)>40:
+        y.append(max(ll[:20]))
+        x.append(np.argmax(ll[:20]) + 20*count)
+        ll = ll[20:]
+        count += 1
+    x = [0] + x + [len(half_box)-1] # add bits at the end and at the begginning to cover full range of sidelobes
+    y = [y[0]] + y + [y[-1]] 
+    x,y = np.array(x),np.array(y)
+    from scipy.interpolate import interp1d
+    f = interp1d(x, y, kind='cubic')
+    return f
+
+
+# get spline x and y arrays for the log sidelobes of a window with pad 4.0 x len(window)
+def get_spline_arr(window):
+    f = get_spline_func(window)
+    half_box = abs(window_pad_to_box_rfft(window,4.0)[13:])
+    x_new = np.arange(len(half_box)) # add 13 to this to plot with rfft boxcar
+    y_new = f(x_new)
+    return x_new,y_new
+
+# moving average, k is over how many neighbours, so k=1 will be av over 3 neighbours
+def mav(signal,k=1):
+    s = np.r_[np.ones(k)*signal[0],signal,np.ones(k)*signal[-1]]
+    w = np.ones(2*k+1)
+    w /= w.sum()
+    return np.convolve(w,s,mode="valid")
 
 
 #%% basic windows, for all windows see windows.py
