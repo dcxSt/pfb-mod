@@ -19,10 +19,14 @@ from constants import *
 """
 softplus = lambda x,k,r:h.ln(1+h.exp((x-r)*k))/k 
 
+softplus_sum = lambda x,k,r:softplus(x,k,r).sum()
+softplus_deriv = lambda x,k,r:grad(softplus_sum,argnums=0)(x,k,r)
+
 
 #%% Tried and tested Differentiable Eigenvalue loss functions
 # these loss functions penalize low eigenvalues in different ways
-# differentiable eigenvalue loss
+
+# differentiable eigenvalue loss, suggested by JS
 def loss_eig(window,ntap=4,lblock=2048):
     rft = abs(h.window_to_matrix_eig(window))
     quality = rft / (0.1+rft) # the higher this number, the better
@@ -45,19 +49,19 @@ def hard_thresh_01(arr1d):
 def loss_eig_soft_thresh_025(window, ntap=4, lblock=2048):
     rft = abs(h.r_window_to_matrix_eig(window))
     rft.flatten()
-    return (soft_thresh_025(rft)).mean() /0.25 # normalize
+    return (soft_thresh_025(rft)).mean() /0.00025 # normalize
     
 # a loss function
 def loss_eig_hard_thresh_025(window, ntap=4, lblock=2048):
     rft = abs(h.r_window_to_matrix_eig(window))
     rft.flatten()
-    return (hard_thresh_025(rft)).mean() /0.25 # normalize
+    return (hard_thresh_025(rft)).mean() /0.00025 # normalize
 
 # a loss function
 def loss_eig_hard_thresh_01(window, ntap=4, lblock=2048):
     rft = abs(h.r_window_to_matrix_eig(window))
     rft.flatten() # don't think this is necessary
-    return (hard_thresh_01(rft)).mean() /0.25 # normalize
+    return (hard_thresh_01(rft)).mean() /0.00025 # normalize
 
 
 eig_loss_list = [loss_eig,
@@ -66,4 +70,16 @@ eig_loss_list = [loss_eig,
                  loss_eig_hard_thresh_01]
 
 
-#%% Tried and tested 
+#%% Tried and tested differentiable sidelobe loss functions
+# these loss functions penalize high sidelobes in various ways
+
+def loss_keep_box_up(window, boxhead=h.log10(abs(BOXCAR_R_4X[:13]))):
+    """penalizes window if it's boxcar is too low with a softplus"""
+    head = abs(h.window_pad_to_box_rfft(window,pad_factor=4.0)[:13])
+    log_head = h.log10(head[:13]) # 13 = width of sinc boxcar 
+    eps = 0.1
+    l = softplus(boxhead - log_head - eps, k=150.0, r=0.0) 
+    return l.mean() / 0.01715 
+
+def loss_sidelobes_window_sinc2(window):
+    return (((window - SINC)*10)**2).mean() * 27 # 27 is a normalization factor

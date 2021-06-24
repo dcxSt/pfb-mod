@@ -160,7 +160,7 @@ def image_eig2(window,save_fig=False):
     plt.plot(np.imag(window),alpha=0.4,color="orange",label="imaginary")
     plt.plot(SINC,color="grey",alpha=0.6,label="sinc")
     plt.plot(window,"b-",label="real")
-    plt.title("Window\n{}".format(strdatetime),fontsize=20)
+    plt.title("Window\n{}".format(strdatetime),fontsize=10)
     plt.legend()
 
     ### eig plot
@@ -171,7 +171,7 @@ def image_eig2(window,save_fig=False):
     rft[0][0]=0.0 # make one of them zero to adjust the scale of the plot
     plt.imshow(np.abs(rft),cmap="gist_ncar",aspect="auto")
     # plt.title("Eigenvalues\nLoss Eig : {}(0.207)\nThresh 0.25 : {} (9519)\nThresh 0.1 : {} (1529)".format(round(0.0,3),thresh_025,thresh_001),fontsize=20)
-    plt.title("Eigenvalues\nThresh 0.25 : {} (9519) --> {:.2f}%\nThresh 0.1 : {} (1529) --> {:.2f}%".format(thresh_025,100*thresh_025/9519,thresh_001,100*thresh_001/1529),fontsize=20)
+    plt.title("Eigenvalues\nThresh 0.25 : {} (9519) --> {:.2f}%\nThresh 0.1 : {} (1529) --> {:.2f}%".format(thresh_025,100*thresh_025/9519,thresh_001,100*thresh_001/1529),fontsize=10)
     # in above line 0.0 should be l_eig
     plt.colorbar()
 
@@ -195,7 +195,7 @@ def image_eig2(window,save_fig=False):
     plt.semilogy(np.abs(short_box_sinc),"b-",alpha=0.7,label="sinc")
     plt.semilogy(np.abs(short_box),"k-",alpha=0.7,label="window")
     # plt.title("log Box zoom\nWidth Loss : {} \tHeight Loss : {}".format(round(l_width,3),round(l_height,3)),fontsize=20)
-    plt.title("log Box zoom (th_x = boxcar thickness at 10^-x)\nth_2 = {:.2f}%   th_3 = {:.2f}%\nbaseline: th_2 = 0.08%   th_3 = 0.40% :baseline".format(th2,th3),fontsize=20)
+    plt.title("log Box zoom (th_x = boxcar thickness at 10^-x)\nth_2 = {:.2f}%   th_3 = {:.2f}%\nbaseline: th_2 = 0.08%   th_3 = 0.40% :baseline".format(th2,th3),fontsize=10)
     plt.grid(which="both")
     plt.legend()
 
@@ -205,7 +205,7 @@ def image_eig2(window,save_fig=False):
     plt.semilogy(np.abs(box),"k-",alpha=0.5,label="window")
     plt.semilogy(np.ones(len(box))*10**(-5),color="green",alpha=0.5,label="10^-5")
     plt.semilogy(np.ones(len(box))*10**(-6),color="green",alpha=0.5,label="10^-6")
-    plt.title("log Box\nth_4 = {:.2f}%   th_5 = {:.2f}%    th_6 = {:.2f}%\nth_4 = 1.40%   th_5 = 4.64%   th_6 = 14.82%".format(th4,th5,th6),fontsize=20)
+    plt.title("log Box\nth_4 = {:.2f}%   th_5 = {:.2f}%    th_6 = {:.2f}%\nth_4 = 1.40%   th_5 = 4.64%   th_6 = 14.82%".format(th4,th5,th6),fontsize=10)
     # plt.title("log Box",fontsize=20)
     plt.grid(which="both")
     plt.legend()
