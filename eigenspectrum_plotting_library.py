@@ -177,11 +177,11 @@ def image_eig2(window,save_fig=False):
     ### box
 
     box = h.window_pad_to_box(window,10.0)
-    short_box = box[int(len(box)/2-250):int(len(box)/2+250)]
+    short_box = box[int(len(box)/2):int(len(box)/2+750)]
     # scale = max(np.abs(short_box)) # this is the scale of the fitler, determines where we put lines
 
     box_sinc = h.window_pad_to_box(SINC,10.0)
-    short_box_sinc = box_sinc[int(len(box_sinc)/2-250):int(len(box_sinc)/2+250)]
+    short_box_sinc = box_sinc[int(len(box_sinc)/2):int(len(box_sinc)/2+750)]
     scale = max(np.abs(short_box_sinc)) # now we can scale everyone down to where to peak in logplot is zero
     box,short_box,box_sinc,short_box_sinc = box/scale,short_box/scale,box_sinc/scale,short_box_sinc/scale
 
@@ -209,7 +209,7 @@ def image_eig2(window,save_fig=False):
     plt.tight_layout()
 
     if save_fig==True:
-        np.save("figures/experiments/series4_{}.npy".format(strdatetime),window)
+        np.save("figures/experiments/series5_{}.npy".format(strdatetime),window)
         print("saved window")
         plt.savefig("figures/experiments/series5_{}.png".format(strdatetime))
         print("saved figure")

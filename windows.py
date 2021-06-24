@@ -39,8 +39,6 @@ def william_wallace(ntap=NTAP,lblock=LBLOCK):
     candidate_1 = np.real(complex_rec) 
     return candidate_1
 
-#%% windows to export
-WILLIAM_WALLACE = william_wallace()
 
 #%% run this file
 if __name__=="__main__":

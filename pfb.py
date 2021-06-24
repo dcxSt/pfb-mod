@@ -164,7 +164,7 @@ if __name__ == "__main__":
     nchan = int(lblock/2+1) # assumes lblock is EVEN!
     ts = np.random.normal(0,1,size=lblock*ntap*nblocks) # initiate the timestream as gaussian noise
     spec_pfb = forward_pfb(ts,nchan,ntap,window=pfb_window) # pass it through the polyphase filter bank
-    quantization_noise = 0.01
+    quantization_noise = 0.05
     spec_pfb = add_gaussian_noise(spec_pfb,sigma_proportion=quantization_noise) # add noise to the signal to simulate quantization
     recovered_ts = inverse_pfb(spec_pfb,nchan,ntap,window=pfb_window) # pass the filtered signal through the inverse pfb
     res = recovered_ts - ts 

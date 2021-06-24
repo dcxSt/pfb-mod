@@ -2,8 +2,9 @@
 
 import numpy as np
 from scipy.fft import fft,rfft,fftshift,irfft,ifftshift
-from scipy.signal import gaussian
-from eigenspectrum_plotting_library import zero_padding,chop_win # helpers
+from scipy.signal import gaussian,find_peaks
+from scipy.optimize import curve_fit 
+from helper import zero_padding,chop_win # helpers
 from constants import *
 import helper 
 
@@ -146,6 +147,48 @@ def quantization_sample_fourier_values(window,n_samples=128,n_thetas=50,thetas_c
     vals = vals.flatten()**2
 
     return vals
+
+# First loss function suggested by Jon
+def loss_eig(window):
+    eigs = quantization_sample_fourier_values(window,n_samples=256,n_thetas=50)
+    eigs[np.where(eigs>=1.0)] = 1.0 # we don't care about large eigenvalues
+    return 1 - np.mean(eigs / (0.1 + eigs)) # minimize this
+
+# Second loss function suggested by Jon
+def loss_width_height(window):
+    large_box = helper.window_pad_to_box_rfft(window,4.0)
+    lb = np.abs(large_box)
+    width = find_peaks(-lb[5:])[0][0] # assumes there is a peak
+    loss_width = np.abs(width) / 10 # 0 for SINC
+    loss_log_height = max(np.log(lb[width:])) / 4.96 # 1.0 for SINC
+    return loss_width,loss_log_height 
+
+def reward_fit(window):
+    large_half_box = helper.window_pad_to_box_rfft(window,10.0)
+    large_half_box = np.abs(large_half_box)
+    width = find_peaks(-large_half_box[10:])[0][0] + 10 # find the first minimum
+    log_lobes = np.log10(large_half_box[width:]) # cut out the main box so we are leaft with only the sidelobes
+    # assume there is at least one sidelobe every 100 datapoints, with william there is one every ~30
+    x = [] # positions of peaks
+    y = [] # peaks
+    count = 0
+    ll = log_lobes.copy()[:10000] # only interested in beginning of the thing 
+    while len(ll)>200: 
+        y.append(max(ll[:100]))
+        x.append(np.argmax(ll[:100]) + 100*count) 
+        ll = ll[100:]
+        count += 1 
+    x,y = np.array(x),np.array(y)
+    func = lambda x,b:-b*np.log10(x*0.005) # perform a curve fit
+    popt,_ = curve_fit(func,x,y,p0=(1.7))
+    b = popt[0]
+    return b 
+
+
+
+# Third loss function suggested by Jon
+def loss_():
+    return
 
 def leak_loss(window):
     leak = BOXCAR_0 - fftshift(fft(fftshift(window)))
