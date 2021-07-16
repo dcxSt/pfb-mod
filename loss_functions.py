@@ -4,9 +4,9 @@ Created on 2021.06.10 16:54
 Author : Stephen Fay
 """
 
-import jax.numpy as np
+import jax.numpy as jnp
 from jax import grad,jit
-from jax.numpy.fft import rfft,irfft 
+# from jax.numpy.fft import rfft,irfft 
 import helper as h
 from constants import *
 
@@ -57,6 +57,12 @@ def loss_eig_hard_thresh_025(window, ntap=4, lblock=2048):
     rft.flatten()
     return (hard_thresh_025(rft)).mean() /0.00025 # normalize
 
+# loss function on chebyshev coefficients
+def loss_eig_hard_thresh_025_cheb(cheb_tail, sinc=SINC, ntap=4, lblock=2048):
+    cheb_window = h.cheb_win(cheb_tail,len(sinc))
+    w = cheb_window * sinc 
+    return loss_eig_hard_thresh_025(w, ntap=ntap, lblock=lblock)
+
 # a loss function
 def loss_eig_hard_thresh_01(window, ntap=4, lblock=2048):
     rft = abs(h.r_window_to_matrix_eig(window))
@@ -83,3 +89,7 @@ def loss_keep_box_up(window, boxhead=h.log10(abs(BOXCAR_R_4X[:13]))):
 
 def loss_sidelobes_window_sinc2(window):
     return (((window - SINC)*10)**2).mean() * 27 # 27 is a normalization factor
+
+def loss_sidelobes_window_sinc2_cheb(cheb_tail,sinc=SINC):
+    w = h.cheb_win(cheb_tail,len(sinc))
+    return loss_sidelobes_window_sinc2(w)
