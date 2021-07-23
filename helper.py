@@ -6,10 +6,10 @@ Author : Stephen Fay
 
 # %env JAX_ENABLE_x64=1 # not sure what this does yet, but it might be important
 import jax.numpy as jnp # differentiable numpy library
+from jax import numpy as jnp 
 from jax.numpy.fft import fft,ifft,fftshift,ifftshift,rfft,irfft
 from jax import custom_jvp
-from constants import *
-
+from constants import SINC,NTAP,LBLOCK,BOXCAR_4X_HEIGHT
 
 #%% custom differentiable JAX functions, and their derivatives
 
@@ -114,6 +114,7 @@ def mav(signal,k=1):
 
 
 #%% Chebyshev window
+# turns chebyshev coefficient into window
 def cheb_win(coeffs_tail, len_win):
     """
     param coeffs_tail jnp.ndarray : 1d array of chebyshev coefficients, assuems first chebyshev coefficient is 1.0 (the constant term)
@@ -127,6 +128,24 @@ def cheb_win(coeffs_tail, len_win):
     arr2d = jnp.array(arr2d)
     cheb_window = jnp.sum(arr2d,axis=0)
     return cheb_window 
+
+def get_modified_sinc_from_cheb(coeffs_tail, win_type=None, sinc=SINC):
+    """Take the cheb coefficients and return amodified SINC window
+    param coeffs_tail jnp.ndarray : the cheb coefficients 
+    param len_win jnp.float : the length of the window, usually len(SINC)=NTAP*LBLOCK
+    param win_type str : either 'hanning' or 'hamming' (or none), the type of window to apply
+    
+    returns : instance of 1d jnp.ndarray of length len_win representing modified sinc """
+
+    len_win = len(sinc)
+    if win_type == None: y = jnp.ones(len_win)
+    elif win_type == "hamming": y = jnp.hamming(len_win)
+    elif win_type == "hanning": y = jnp.hanning(len_win)
+    else: raise Exception("Parameter win_type={} is invalid, must be in \
+        \{None, 'hanning', 'hamming'\}".format(win_type))
+    
+    return cheb_win(coeffs_tail,len_win) * sinc * y # return sinc multiplied by a window, multiplied by a cheb window
+    
 #%% Metrics for evaluating windows 
 
 def metric_sidelobe_thicknesses(window):
@@ -185,4 +204,16 @@ def r_window_to_matrix_eig(w,ntap=NTAP,lblock=LBLOCK):
     w2d = chop_win(w,ntap,lblock)
     w2d_padded = zero_padding(w2d)
     rft = jnp.apply_along_axis(rfft,1,w2d_padded)
+    
     return rft
+
+   
+if __name__ == "__main__":
+    # check that r_window_to_matrix_eig works
+    rft = r_window_to_matrix_eig(SINC)
+    import matplotlib.pyplot as plt 
+    plt.imshow(jnp.abs(rft.T),aspect="auto")
+    plt.colorbar()
+    plt.show()
+    
+    
