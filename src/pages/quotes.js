@@ -7,6 +7,9 @@ export default function Quotes() {
             <Sidenav />
             <div class="main">
                 <h1>Nuggets of gold</h1>
+								<pquote>
+									if the personal computer is truly a new medium then the use of it would actually change the thought patterns of an entire civilization<br/><br/><b>Alan Kay</b> 1989
+								</pquote>
                 <pquote>
                 Zen is the essence of Christianity, of Buddhism, of culture, of all that is good in the daily life of ordinary people. But that does not mean that we are not to smash it flat if we get the slightest opportunity. And we are not going to attack foxy (false) Zen, or the hypocrites and time-servers who support it, but Zen itself in its highest and sublimest forms. Nothing is sacred but one's own foolish and contradictory induitions. By "induition" is meant here that which I myself find in common with all so-called "great men" without exception, and with a good many "little" men. It is thus purely subjective, dangerous, and indeed variable, but the great thing is to have courage, and say again and again, "All that can be shaken shall be shaken!" and if nothing remains, let it be so.<br/><br/><b>R. H. Blyth</b> 27 Aug. 1959
                 </pquote>
