@@ -10,6 +10,8 @@ from jax import numpy as jnp
 from jax.numpy.fft import fft,ifft,fftshift,ifftshift,rfft,irfft
 from jax import custom_jvp
 from constants import SINC,NTAP,LBLOCK,BOXCAR_4X_HEIGHT
+import numpy # numpy is required for cheb_win 
+
 
 #%% custom differentiable JAX functions, and their derivatives
 
@@ -114,22 +116,60 @@ def mav(signal,k=1):
 
 
 #%% Chebyshev window
-# turns chebyshev coefficient into window
-def cheb_win(coeffs_tail, len_win):
+
+# about 10x faster than previous method that used lists
+def cheb_win(coeffs_tail,len_win):
     """
     param coeffs_tail jnp.ndarray : 1d array of chebyshev coefficients, assuems first chebyshev coefficient is 1.0 (the constant term)
     param len_win int : the length of the SINC window (usually 2048 * 4 I think)
     """
     coeffs = jnp.concatenate([jnp.ones(1),coeffs_tail])
     arr2d = jnp.repeat(jnp.array([jnp.linspace(-1,1,len_win)]),len(coeffs),axis=0)
-    arr2d = list(arr2d)
-    for idx,row in enumerate(arr2d):
-        arr2d[idx] = coeffs[idx] * jnp.cos(idx * row)
-    arr2d = jnp.array(arr2d)
-    cheb_window = jnp.sum(arr2d,axis=0)
-    return cheb_window 
+    l = len(coeffs)
+    
+    diag = numpy.zeros((l,l))
+    numpy.fill_diagonal(diag,numpy.arange(l))
+    diag = jnp.array(diag)
+    arr2d = jnp.matmul(diag,arr2d)
+    arr2d = jnp.cos(arr2d)
+    
+    return jnp.matmul(coeffs,arr2d) 
 
-def get_modified_sinc_from_cheb(coeffs_tail, win_type=None, sinc=SINC):
+# def cheb_win_skip_old(coeffs_tail,len_win,n_skip):
+#     """
+#     :param coeff_tail jnp.ndarray: 1d array of chebyshev coeffs
+#     """
+#     coeffs = jnp.concatenate([jnp.ones(1),jnp.zeros(n_skip),coeffs_tail])
+#     l = len(coeffs)
+#     arr2d = jnp.repeat(jnp.array([jnp.linspace(-1,1,len_win)]),l,axis=0)
+    
+#     diag = numpy.zeros((l,l))
+#     numpy.fill_diagonal(diag,numpy.arange(l))
+#     diag = jnp.array(diag)
+#     arr2d = jnp.matmul(diag,arr2d)
+#     arr2d = jnp.cos(arr2d)
+    
+#     return jnp.matmul(coeffs,arr2d) 
+
+# even more performant
+def cheb_win_skip(coeffs_tail,len_win,n_skip):
+    l = len(coeffs_tail)
+    arr2d = jnp.repeat(jnp.array([jnp.linspace(-1,1,len_win)]),len(coeffs_tail),axis=0)
+    diag = numpy.zeros((l,l))
+    numpy.fill_diagonal(diag,numpy.arange(n_skip+1,n_skip+l+1)) 
+    diag = jnp.array(diag)
+    arr2d = jnp.matmul(diag,arr2d)
+    arr2d = jnp.cos(arr2d)
+    
+    return jnp.matmul(coeffs_tail,arr2d) + 1.0 
+    
+    return
+
+# def cheb_win_skip(coeffs_tail,len_win,n_skip):
+#     return cheb_win(jnp.concatenate([jnp.zeros(n_skip),coeffs_tail]),len_win)  
+
+
+def get_modified_sinc_from_cheb(coeffs_tail, win_type=None, sinc=SINC, n_skip=None):
     """Take the cheb coefficients and return amodified SINC window
     param coeffs_tail jnp.ndarray : the cheb coefficients 
     param len_win jnp.float : the length of the window, usually len(SINC)=NTAP*LBLOCK
@@ -144,7 +184,8 @@ def get_modified_sinc_from_cheb(coeffs_tail, win_type=None, sinc=SINC):
     else: raise Exception("Parameter win_type={} is invalid, must be in \
         \{None, 'hanning', 'hamming'\}".format(win_type))
     
-    return cheb_win(coeffs_tail,len_win) * sinc * y # return sinc multiplied by a window, multiplied by a cheb window
+    if not n_skip: return cheb_win(coeffs_tail,len_win) * sinc * y # return sinc multiplied by a window, multiplied by a cheb window
+    return cheb_win_skip(coeffs_tail,len_win,n_skip) * sinc * y
     
 #%% Metrics for evaluating windows 
 

@@ -70,6 +70,14 @@ def loss_eig_hard_thresh_025_cheb_hann(cheb_tail, sinc=SINC, ntap=NTAP, lblock=L
     w = cheb_window * sinc * jnp.hanning(len(sinc))
     return loss_eig_hard_thresh_025(w, ntap=ntap, lblock=lblock)
 
+# loss function on chebyshev coefficients, assumes first coeff is 1 and the next n_skip coeffs are 0
+# cheb tail specifies rest of coeffs
+def loss_eig_hard_thresh_025_cheb_hann_skip(cheb_tail,n_skip,sinc=SINC,ntap=NTAP,lblock=LBLOCK):
+    cheb_window = h.cheb_win_skip(cheb_tail,len(sinc),n_skip)
+    w = cheb_window * sinc * jnp.hanning(len(sinc))
+    return loss_eig_hard_thresh_025(w, ntap=ntap, lblock=lblock)
+    
+
 # loss function on chebyshev coefficients
 # computes number of eigenvalues below 0.25 for a cheb window applied with a hamming window
 def loss_eig_hard_thresh_025_cheb_hamm(cheb_tail, sinc=SINC, ntap=NTAP, lblock=LBLOCK):
