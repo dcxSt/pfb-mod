@@ -135,6 +135,25 @@ def cheb_win(coeffs_tail,len_win):
     
     return jnp.matmul(coeffs,arr2d) 
 
+# almost same as for cheb win
+def get_window_from_cosine_coeffs(coeffs,len_win):
+    """
+    param coeffs_tail jnp.ndarray : 1d array of cosine (think chebyshev) coefficients
+    param len_win int : the length of the SINC window (usually 2048 * 4 I think)
+    """
+    pi = jnp.pi
+    arr2d = jnp.repeat(jnp.array([jnp.linspace(-pi/2,pi/2,len_win)]),len(coeffs),axis=0)
+    l = len(coeffs)
+    
+    diag = numpy.zeros((l,l))
+    numpy.fill_diagonal(diag,numpy.arange(l))
+    diag = jnp.array(diag)
+    arr2d = jnp.matmul(diag,arr2d)
+    arr2d = jnp.cos(arr2d)
+    
+    return jnp.matmul(coeffs,arr2d) 
+
+
 # def cheb_win_skip_old(coeffs_tail,len_win,n_skip):
 #     """
 #     :param coeff_tail jnp.ndarray: 1d array of chebyshev coeffs

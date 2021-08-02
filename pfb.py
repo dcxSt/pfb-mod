@@ -5,14 +5,16 @@ Created on 2021.06.04
 Author : Stephen Fay
 """
 
-from constants import * # in particular imports NTAP = 4 and LBLOCK = 2048
-import helper 
+# from constants import * # in particular imports NTAP = 4 and LBLOCK = 2048
+from constants import NCHAN,NTAP
+import jax.numpy as np
+import helper as h
 from scipy.fft import rfft,irfft,fft,ifft
 import windows 
 
 
 # forward pfb as implemented in Richard Shaw's notebook
-def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=helper.sinc_hamming):
+def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=h.sinc_hamming):
     """Performs the Chime PFB on a timestream
     
     Parameters
@@ -86,7 +88,7 @@ def bump_up_zero_values(arr):
     return # don't have to return anything because arrays arr is a pointer
 
 # pseudoinverse pfb
-def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=helper.sinc_hamming):
+def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hamming):
     """Performs pseudo inverse pfb, assumes circulant boundary conditions
 
     Parameters
@@ -159,7 +161,7 @@ if __name__ == "__main__":
     lblock,ntap,nblocks = 32,4,500
 
     pfb_window = windows.william_wallace # select the window for the PFB and it's inverse
-    # pfb_window = helper.sinc_window # select the window for the PFB and it's inverse
+    # pfb_window = h.sinc_window # select the window for the PFB and it's inverse
 
     nchan = int(lblock/2+1) # assumes lblock is EVEN!
     ts = np.random.normal(0,1,size=lblock*ntap*nblocks) # initiate the timestream as gaussian noise
