@@ -7,14 +7,15 @@ Author : Stephen Fay
 
 # from constants import * # in particular imports NTAP = 4 and LBLOCK = 2048
 from constants import NCHAN,NTAP
-import jax.numpy as np
+# import jax.numpy as jnp
+import numpy as np
 import helper as h
 from scipy.fft import rfft,irfft,fft,ifft
 import windows 
 
 
 # forward pfb as implemented in Richard Shaw's notebook
-def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=h.sinc_hamming):
+def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning):
     """Performs the Chime PFB on a timestream
     
     Parameters
@@ -43,7 +44,7 @@ def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=h.sinc_hamming):
     spec = np.zeros((nblock,nchan), dtype=np.complex128)
 
     # window function
-    w = window(ntap,lblock)
+    w = window(ntap, lblock)
 
     def s(ts_sec):
         return np.sum(ts_sec.reshape(ntap,lblock),axis=0)
@@ -73,6 +74,15 @@ def add_gaussian_noise(signal,sigma_proportion=0.001):
     sigma = sigma_proportion * np.mean(np.abs(signal))
     return signal + np.random.normal(0,sigma,size=signal.shape)
 
+def quantize(signal,delta=0.1):
+    """Quantizes signal in intervals of delta in both real and imaginary parts, seperately"""
+    q = lambda signal:np.floor((signal + delta/2) / delta) * delta 
+    return q(np.real(signal)) + 1.0j*q(np.imag(signal)) 
+
+def quantize_real(real_signal,delta=0.1):
+    """Quantizes signal in intervals of delta."""
+    return np.floor((real_signal + delta/2) / delta) * delta  
+
 # helper method for inverse pfb incase you get infinite values, put them to 10**100
 def behead_infinite_values(arr):
     idxs = np.where(arr==np.inf)[0]
@@ -88,7 +98,7 @@ def bump_up_zero_values(arr):
     return # don't have to return anything because arrays arr is a pointer
 
 # pseudoinverse pfb
-def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hamming):
+def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning):
     """Performs pseudo inverse pfb, assumes circulant boundary conditions
 
     Parameters
@@ -104,10 +114,10 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hamming):
     # number of samples in a block
     lblock = 2*(nchan - 1)
 
-   # sw_ts is what is returnd by applying sw matrix  to the original timstream chunk 
-   # each subarray is like [g(1+4k)w1+g(17+4k)w17, ... ,g(16+2k)w16,g(32+4k)w32] ... i think
+    # sw_ts is what is returnd by applying sw matrix  to the original timstream chunk 
+    # each subarray is like [g(1+4k)w1+g(17+4k)w17, ... ,g(16+2k)w16,g(32+4k)w32] ... i think
     sw_ts = np.apply_along_axis(irfft,1,spec) 
-    win = window(ntap,lblock) 
+    win = window(ntap,lblock) # this should be sing.hanning NOT sinc.hamming, see args
 
     # # temporary fill a list, change to numpy zeros later 
     # timestream = [] # np.zeros((lblock,sw_ts.shape[1]*ntap)) # initialize reconstructed timestream
@@ -143,7 +153,8 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hamming):
     # print("timestream shape final ",timestream.shape)
     # timestream = np.array(timestream).T.flatten() # old
 
-    return timestream.T.flatten() # return the reconstructed timestream
+    return timestream.T.flatten()   # return the reconstructed timestream
+                                    # the timestream will be returnd with dtype=complex but all the imaginary componants should be 0
 
 if __name__ == "__main__": 
     # # generate a two-sine-waves timestream
