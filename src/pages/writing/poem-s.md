@@ -78,3 +78,8 @@ contorted perversely by bad faith,
 under the omnipresent eye,
 that watched over Winston as he slept.
 
+<br/><br/>
+
+---
+
+This is my first poem, I wrote it when I was 17.

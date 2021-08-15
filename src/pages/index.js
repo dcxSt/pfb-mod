@@ -10,21 +10,18 @@ export default function Home() {
                 <h1>Stephen Fay</h1>
                 <pprint>
                     Height ~ 1m85, <br/>
-                    Hair: brown, short,<br/>
-                    Eyes: grey/green,<br/>
+                    Hair: brown, <br/>
+                    Eyes: grey,<br/>
                     Weight ~ 70kg, <br/>
-                    Language of choice: Python, <br/>
-                    Favourite math: stoke's theorem, 
-                    the isomorphism theorems, <br/> 
-                    Favourite statistical ensemble: the Canonical 
-                    ensemble,<br/> 
+                    Language: Python, <br/>
+                    Favourite math: stoke's theorem, the isomorphism theorems, <br/> 
+                    Favourite ensemble: the canonical ensemble,<br/> 
                     Favourite distrubition: Gibbs, <br/> 
                     Favourite physics: Classical physics, <br/> 
                     Longest breath holding record: 3m+ epsilon seconds, <br/> 
                     Unexpected talent: I play the Cello, <br/> 
-                    Text editor of choice: vim, vscode, <br/> 
-                    Other hobbies: Jiu-Jitsu, Judo, hiking, running, biking, basking in the 
-                    sun.<br/>
+                    Text editor of choice: vim, vscode with vim keymappings, <br/> 
+                    Other hobbies: Jiu-Jitsu, Judo, hiking, running, biking, basking in the sun.<br/>
                     <br/>Currently I'm making a digital filter for 
                     radio telescopes which should help us locate
                     pulsars. The current filters (polyphase filter 

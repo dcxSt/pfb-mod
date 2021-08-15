@@ -13,7 +13,7 @@ export default function Projects() {
                 projects.map(el => 
                     <div>
                         <Link to={el.url} style={{ color:"inherit",textDecoration:"none",textDecorationLine:"none"}}>
-                            <h5>{el.date} </h5><h4>{el.name}<span style={{color:"#777"}}> {el.description}</span></h4>
+                            <h4>{el.date}. {el.name}<span style={{color:"#777"}}> {el.description}</span></h4>
                         </Link>
                     </div>
                 )

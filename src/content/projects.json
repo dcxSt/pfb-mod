@@ -1,2 +1,26 @@
 [
+	{
+		"url":"https://brainboost.de/en/",
+		"date":"Summer 2021",
+		"name":"Intern at Brainboost, a Neurofeedback startup and clinic",
+		"description":"Design and implement algorithms to extract information from EEG data for patient diagnosis and future research / machine learning applications. Also re-factoring parts of the analysis and report-generating codebase."
+	},
+	{
+		"url":"https://github.com/dcxSt/pfb-mod",
+		"date":"Summer 2021",
+		"name":"Inverting the Polyphase Filter Bank.",
+		"description":"The polyphase filter bank is essentially a down-sampled spectrogram with overlapping windows that is used in radio astronomy to channelize data from telescopes such as chime an hirax for detecting fast radio bursts. Under prof. Jon Sievers' guidance I developed and tested methods for cleanly and efficiently inverting the PFB. This will make further analysis of FRB's easier."
+	},
+	{
+		"url":"https://stephenfay.xyz",
+		"date":"Fall 2021",
+		"name":"This website.",
+		"description":"This website exists to store information about it's self, for instance: <<this website was created in Fall 2021, the url is stephenfay.xyz, and I somtimes make posts about the website in the website, for instance I may make a post that goes something like this: <<this website was created in Fall 2021, the url is stephenfay.xyz, and I sometimes make posts about the website it's self......(ad infinitum).....>> >>"
+	},
+	{
+	"url":"https://ieeexplore.ieee.org/document/9283117",
+	"date":"Fall 2020",
+	"name":"Neurotech-X McGill",
+	"description":"We built an EMG armband that lets you type on a virtual keyboard."
+	}
 ]
