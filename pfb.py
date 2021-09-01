@@ -79,9 +79,20 @@ def quantize(signal,delta=0.1):
     q = lambda signal:np.floor((signal + delta/2) / delta) * delta 
     return q(np.real(signal)) + 1.0j*q(np.imag(signal)) 
 
+def quantize_8_bit(signal, delta=0.5):
+    """8-bit Quantizes the signal in intervals of delta in both real and imaginary parts, 4 bits (=16 steps) for each componant, seperately"""
+    q = lambda signal:np.floor((signal + delta) / delta) * delta - delta/2 # doesn't quantize to zero, only to non-zero values
+    real_quantized = np.clip(q(np.real(signal)) , -8*delta + delta/2 , 8*delta - delta/2) 
+    imag_quantized = 1.0j*np.clip(q(np.imag(signal)) , -8*delta + delta/2 , 8*delta - delta/2) 
+    return real_quantized + imag_quantized 
+
 def quantize_real(real_signal,delta=0.1):
     """Quantizes signal in intervals of delta."""
     return np.floor((real_signal + delta/2) / delta) * delta  
+
+def quantize_4_bit_real(real_signal, delta=0.1):
+    """4-bit Quantizes signal in 16 intervals of delta"""
+    return np.clip(np.floor((real_signal + delta) / delta) * delta - delta/2 , -8*delta +delta/2 , 8*delta - delta/2 )
 
 # helper method for inverse pfb incase you get infinite values, put them to 10**100
 def behead_infinite_values(arr):
@@ -98,13 +109,22 @@ def bump_up_zero_values(arr):
     return # don't have to return anything because arrays arr is a pointer
 
 # pseudoinverse pfb
-def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning):
+def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning,weiner_thresh=0.0):
     """Performs pseudo inverse pfb, assumes circulant boundary conditions
 
     Parameters
     ----------
-    pfb_spec : numpy 2d array
+    spec : numpy 2d array (pfb channelized output)
         spec.shape = (:,nchan), the first entry is the length of the timestream
+    nchan : int 
+        usually 1025, it's the number of output channels
+    ntap : int
+        usually 4, it's the number of taps
+    window : function
+        the windowing function to apply, usually a sinc_hanning
+    weiner_thresh : float
+        if 0.0, no weiner filter is applied, if greater than zero, a weiner filter is applied with specified threshold 
+
 
     Returns
     -------
@@ -116,7 +136,7 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning):
 
     # sw_ts is what is returnd by applying sw matrix  to the original timstream chunk 
     # each subarray is like [g(1+4k)w1+g(17+4k)w17, ... ,g(16+2k)w16,g(32+4k)w32] ... i think
-    sw_ts = np.apply_along_axis(irfft,1,spec) 
+    sw_ts = np.apply_along_axis(irfft,1,spec) # what the ts looks like after applying SW matrices
     win = window(ntap,lblock) # this should be sing.hanning NOT sinc.hamming, see args
 
     # # temporary fill a list, change to numpy zeros later 
@@ -129,21 +149,25 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning):
     # for loop for now so as not to make it too confusing
     for idx,(v,wslice) in enumerate(zip(sw_ts.T , win.reshape(ntap,lblock).T)):
         wslice_pad = np.roll(np.concatenate([np.flip(wslice),np.zeros(len(v)+ntap-1-len(wslice))]),-3) # flip, pad with zeros, roll
-        # see pfb writup inverting pfb section for why we flip and roll
+        # see pfb writup inverting pfb section for why we flip and roll, it's to do with how convolutions are defined
 
-        # I think we can possibly use rfft and irfft, do this after implementation...
-        ft_wslice = fft(wslice_pad) 
+        # we can use rfft and irfft instead of fft and ifft, haven't got round to this yet... not sure if it's worth for our purposes really 
+        ft_wslice = fft(wslice_pad) # this is a column of the eigenmatrix
+        
+        # make sure there are no zero value, because we are inverting it
+        filt = np.ones(len(ft_wslice))  
+        if weiner_thresh > 0.0:  
+            filt = np.abs(ft_wslice)**2 / (weiner_thresh**2 + np.abs(ft_wslice)**2) * (1 + weiner_thresh**2)
+            
+        # if there are true zeros in the window slice, make them non zero to avoid divide by zero error, 
+        # there shouldn't be any true zeros from experiance, but it's theoretically possible that there is one, however unlikely
         if 0.0 in ft_wslice:
             print("\nin inverse pfb: {} 0.0 values(s) encountered\n".format(len(np.where(ft_wslice == 0.0))))
             bump_up_zero_values(ft_wslice) # get rid of any zeros, replace with 10**(-100)
         ft_wslice_recip = 1/ft_wslice
+        
 
-        # # get rid of infinite values if there are any, normaly not
-        # if np.inf in ft_wslice_recip: 
-        #     print("\nin inverse pfb: {} np.inf value(s) encountered\n".format(len(np.where(ft_wslice_recip == np.inf))))
-        #     behead_infinite_values(ft_wslice_recip) # get rid of infinity values, put them to 10**100
-
-        gtilde = ifft(fft(np.concatenate((v,v[:ntap-1])))*ft_wslice_recip) # might be impossible so use rfft and irfft because not 'exactly' real, could use rfft on np.real(thing)
+        gtilde = ifft(fft(np.concatenate((v,v[:ntap-1])))*filt*ft_wslice_recip) # might be impossible so use rfft and irfft because not 'exactly' real, could use rfft on np.real(thing)
         # timestream.append(gtilde)# timestream[idx] = gtilde # old
         timestream[idx] = gtilde 
 
