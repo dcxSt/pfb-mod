@@ -6,7 +6,7 @@ Author : Stephen Fay
 
 from jax import numpy as jnp
 from jax import grad,jit
-# from jax.numpy.fft import rfft,irfft 
+# from jax.numpy.fft import rfft,irfft  
 import helper as h
 from constants import SINC,BOXCAR_R_4X,NTAP,LBLOCK 
 
@@ -59,7 +59,7 @@ def loss_eig_hard_thresh_025(window, ntap=NTAP, lblock=LBLOCK):
 
 # loss function on chebyshev coefficients
 def loss_eig_hard_thresh_025_cheb(cheb_tail, sinc=SINC, ntap=NTAP, lblock=LBLOCK):
-    cheb_window = h.cheb_win(cheb_tail,len(sinc))
+    cheb_window = h.cheb_win(cheb_tail,len(sinc))  
     w = cheb_window * sinc 
     return loss_eig_hard_thresh_025(w, ntap=ntap, lblock=lblock)
 

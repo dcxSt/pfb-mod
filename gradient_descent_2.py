@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 # choose learning parameters, these determine what window you end up with
 EIG_RATE = 0.1					# float			reccomended : 0.01~0.25
-SINC_SIM_RATE = 0.25		# float			reccomended : 0.01~0.5
+SINC_SIM_RATE = 0.25		    # float			reccomended : 0.01~0.5
 SMOOTH_WIDTH = 15				# int 			reccomended : 5~20
 SMOOTH_TIMES = 2 				# int 			reccomended : 1~8
 
@@ -62,7 +62,7 @@ print("\nThis plot is how fast the descent was\n")
 plt.figure(figsize=(7,5))
 plt.title("descent rate")
 plt.semilogy(descent_rate_arr)
-plt.xlabel("descent time")
+plt.xlabel("descent time") 
 plt.ylabel("steepness of combined gradients")
 plt.grid()
 plt.show(block=False)

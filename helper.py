@@ -230,6 +230,10 @@ def sinc_window(ntap=NTAP,lblock=LBLOCK):
     # should be linspace, but this is how R.S. implemented it, and it'll give a (tiny bit) different array
     return jnp.sinc(jnp.arange(-ntap/2,ntap/2,1/lblock)) 
 
+def sinc_hanning(ntap=NTAP,lblock=LBLOCK):
+    # different form sinc_window and sinc_hamming, uses numpy not jax.numpy
+    return numpy.hanning(ntap*lblock) * numpy.sinc(numpy.linspace(-ntap/2,ntap/2,lblock*ntap))
+
 def sinc_hamming(ntap=NTAP,lblock=LBLOCK):
     return jnp.hamming(ntap*lblock) * sinc_window(ntap,lblock)
 
@@ -244,9 +248,9 @@ def zero_padding(w2d,n_zeros=1024):
     return jnp.concatenate([w2d,pad],axis=1)
 
 
-def window_to_matrix_eig(w,ntap=NTAP,lblock=LBLOCK):
+def window_to_matrix_eig(w,ntap=NTAP,lblock=LBLOCK,zero_pad_len=1024):
     w2d = chop_win(w,ntap,lblock)
-    w2d_padded = zero_padding(w2d)
+    w2d_padded = zero_padding(w2d,zero_pad_len)
     ft = jnp.apply_along_axis(fft,1,w2d_padded)
     return ft
 
@@ -260,9 +264,9 @@ def matrix_eig_to_window_complex(ft_w2d,ntap=NTAP):
     w2d = w2d_padded[:,:ntap]
     return jnp.concatenate(w2d.T)
 
-def r_window_to_matrix_eig(w,ntap=NTAP,lblock=LBLOCK):
+def r_window_to_matrix_eig(w,ntap=NTAP,lblock=LBLOCK,zero_pad_len=1024):
     w2d = chop_win(w,ntap,lblock)
-    w2d_padded = zero_padding(w2d)
+    w2d_padded = zero_padding(w2d,zero_pad_len)
     rft = jnp.apply_along_axis(rfft,1,w2d_padded)
     
     return rft
