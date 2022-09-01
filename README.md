@@ -19,3 +19,5 @@ The usual suspects
 - [ ] Write succinct article, skip derivations, present results cleanly and put derivatinos in the appendix. 
 
 
+Less urgent todo
+- [ ] Refactor `helper.py` and `constants` to make them simpler (only on the main branch.) 
