@@ -5,8 +5,12 @@ The polyphase filter bank (PFB) is a widely used digital signal processing tool 
 
 [Link to the write-up](https://www.overleaf.com/1895914395bjkqwzjzgkrp) 
 
-Dependencies:
-- Jax
+### Dependencies / libraries used in scritps:
+- Jax, Autograd and gradient descent
+
+The usual suspects
 - Numpy
 - Scipy (``scipy.signal``, ``scopy.fft``, ``scipy.optimize``)
 - Matplotlib
+
+
