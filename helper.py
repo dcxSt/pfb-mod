@@ -5,7 +5,6 @@ Author : Stephen Fay
 Some helper functions
 """
 
-from constants import SINC,BOXCAR_4X_HEIGHT
 import numpy as np
 from numpy.fft import fft, fftshift, ifft, ifftshift, rfft, irfft
 
@@ -83,6 +82,9 @@ def r_window_to_matrix_eig(w, ntap=4, lblock=2048, zero_pad_len=1024):
    
 if __name__ == "__main__":
     # check that r_window_to_matrix_eig works
+    NTAP = 4
+    LBLOCK = 2048
+    SINC = np.sinc(np.arange(-NTAP/2, NTAP/2, 1/LBLOCK))
     rft = r_window_to_matrix_eig(SINC)
     import matplotlib.pyplot as plt 
     plt.imshow(np.abs(rft.T), aspect="auto")
