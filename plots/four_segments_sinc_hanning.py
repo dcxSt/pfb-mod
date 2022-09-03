@@ -1,4 +1,6 @@
 # Local import
+import sys
+sys.path.append("..")
 import helper as h
 # Libraries
 import numpy as np
