@@ -5,17 +5,14 @@ Created on 2021.06.04
 Author : Stephen Fay
 """
 
-# from constants import * # in particular imports NTAP = 4 and LBLOCK = 2048
-from constants import NCHAN,NTAP
 # import jax.numpy as jnp
 import numpy as np
 import helper as h
 from scipy.fft import rfft,irfft,fft,ifft
-import windows 
 
 
 # forward pfb as implemented in Richard Shaw's notebook
-def forward_pfb(timestream,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning):
+def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning):
     """Performs the Chime PFB on a timestream
     
     Parameters
@@ -109,7 +106,7 @@ def bump_up_zero_values(arr):
     return # don't have to return anything because arrays arr is a pointer
 
 # pseudoinverse pfb
-def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning,weiner_thresh=0.0):
+def inverse_pfb(spec, nchan=1025, ntap=4, window=h.sinc_hanning, weiner_thresh=0.0):
     """Performs pseudo inverse pfb, assumes circulant boundary conditions
 
     Parameters
@@ -180,83 +177,3 @@ def inverse_pfb(spec,nchan=NCHAN,ntap=NTAP,window=h.sinc_hanning,weiner_thresh=0
     return timestream.T.flatten()   # return the reconstructed timestream
                                     # the timestream will be returnd with dtype=complex but all the imaginary componants should be 0
 
-if __name__ == "__main__": 
-    # # generate a two-sine-waves timestream
-    # ntime = 2**11
-    # ta = np.linspace(0.0, ntime / 2048, ntime, endpoint=False) 
-    # ts = np.sin(2*np.pi * ta * 122.0) + np.sin(2*np.pi * ta * 378.1 + 1.0) 
-    # spec_pfb = forward_pfb(ts,17,ntap=4)
-    # recovered_ts = inverse_pfb(spec_pfb,nchan=17,ntap=4) 
-    # res = recovered_ts - ts
-
-    # time the script, takes about 1min 30seconds to run when lblock,ntap,nblocks = 2048,5,30000
-    from datetime import datetime as dt 
-    start_time = dt.today()
-    lblock,ntap,nblocks = 32,4,500
-    # Select a window for use with the PFB and it's inverse
-    pfb_window = windows.william_wallace 
-    # pfb_window = h.sinc_window # select the window for the PFB and it's inverse
-
-    nchan = int(lblock/2+1) # Assumes lblock is EVEN!
-    ts = np.random.normal(0,1,size=lblock*ntap*nblocks) # initiate the timestream as gaussian noise
-    spec_pfb = forward_pfb(ts,nchan,ntap,window=pfb_window) # pass it through the polyphase filter bank
-    quantization_noise = 0.05
-    spec_pfb = add_gaussian_noise(spec_pfb,sigma_proportion=quantization_noise) # add noise to the signal to simulate quantization
-    recovered_ts = inverse_pfb(spec_pfb,nchan,ntap,window=pfb_window) # pass the filtered signal through the inverse pfb
-    res = recovered_ts - ts 
-
-    # save the input and output
-    # np.save("./data/nchan{}_ntap{}_nblocks{}_recovered_ts".format(nchan,ntap,nblocks),recovered_ts)
-    # np.save("./data/nchan{}_ntap{}_nblocks{}_input_ts".format(nchan,ntap,nblocks),ts)
-
-    end_time = dt.today()
-    print("Runtime : "+str(end_time-start_time))
-
-    # downsample to plot, otherwise too taxing on matplotlib
-    downsample = True
-    ds_factor = lblock*nblocks // 500000 # this number is essentially the number of points to plot
-    if ds_factor > 0 and downsample==True:
-        print("downsampling")
-        res = res[::ds_factor]
-        recovered_ts = recovered_ts[::ds_factor]
-        ts = ts[::ds_factor]
-
-
-    # plot the residuals and everything
-    import matplotlib.pyplot as plt
-    # Residuals
-    plt.subplots(figsize=(12,8))
-    plt.subplot(221)
-    plt.title("Recovered Timestream\nCirculant Fourier Method\nWindow : {}".format(pfb_window.__name__),fontsize=20)
-    plt.plot(np.real(recovered_ts),lw=0.3)
-    plt.xlabel("time x sample_rate",fontsize=15)
-    plt.ylabel("E field amplitude",fontsize=15)
-
-    plt.subplot(222)
-    plt.title("Gaussian Noise Timestream\nResiduals",fontsize=20)
-    plt.plot(np.real(res),lw=0.4) 
-    plt.xlabel("time x sample_rate",fontsize=15)
-    plt.ylabel("E field amplitude",fontsize=15)
-
-    plt.subplot(223)
-    plt.title("rfft",fontsize=20)
-    plt.plot(np.abs(np.fft.rfft(np.real(recovered_ts))),"-",lw=0.3,label="abs recovered timstream")
-    plt.plot(np.abs(np.fft.rfft(ts)),"-",lw=0.3,alpha=0.4,label="abs original timstream")
-    plt.xlabel("frequency",fontsize=15)
-    plt.ylabel("rfft amplitude",fontsize=15)
-    plt.legend(loc="upper left")
-
-    plt.subplot(224)
-    if quantization_noise:plt.title("rfft Residuals\nQuantization noise {} percent".format(round(quantization_noise*100,1)),fontsize=20)
-    else:plt.title("rfft Residuals",fontsize=20)
-    plt.plot(np.abs(np.fft.rfft(np.real(res))),"k-",alpha=0.8,lw=0.7,label="absolute value")
-    plt.plot(np.real(np.fft.rfft(np.real(res))),"g--",alpha=0.5,lw=0.7,label="real")
-    plt.plot(np.imag(np.fft.rfft(np.real(res))),"--",color="orange",alpha=0.5,lw=0.7,label="imaginary")
-    plt.xlabel("frequency",fontsize=15)
-    plt.ylabel("rfft amplitude",fontsize=15)
-    plt.legend(loc="lower left")
-
-    plt.tight_layout()
-    # plt.savefig("figures/recovered_timestream_residuals/gaussian_noise_window_{}_nchan{}_ntap{}_nblocks{}_quantizationnoise{}percent.png".format(pfb_window.__name__,nchan,ntap,nblocks,np.round(quantization_noise*100,1)))
-    plt.show()
-    
