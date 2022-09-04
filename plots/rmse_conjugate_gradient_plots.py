@@ -150,7 +150,7 @@ plt.title("Log IPFB RMS residuals (smoothed)\nrmse virgin = {:.3f} rmse weiner =
 plt.xlabel("Channel (n)",fontsize=13)
 plt.ylabel("RMSE",fontsize=13)
 plt.tight_layout()
-plt.savefig("RMSE_log_virgin_IPFB_residuals_weiner_{}.png".format(np.random.randint(2)))
+plt.savefig("RMSE_log_virgin_IPFB_residuals_weiner.png")
 plt.show()
 
 # RMS conj gradient descent
