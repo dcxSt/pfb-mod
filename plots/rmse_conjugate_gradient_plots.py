@@ -1,3 +1,5 @@
+print("\nINFO: Running rmse_conjugate_gradient_plots.py\n")
+
 import sys
 sys.path.append("..")
 import conjugate_gradient as cg
@@ -34,8 +36,8 @@ def A_inv(b_flat):
     b = rfft(b)
     return pfb.inverse_pfb(b)
 
-def A_inv_weiner(b_flat, weiner_thresh=0.25):
-    """Inverse of A with weiner filtering. Reshape the array, rfft, iPFB with weiner filter."""
+def A_inv_wiener(b_flat, wiener_thresh=0.25):
+    """Inverse of A with wiener filtering. Reshape the array, rfft, iPFB with wiener filter."""
     # Sanity check
     if len(b_flat)/lblock != len(b_flat)//lblock: 
         raise Exception("Dimensions of input do not match lblock!")
@@ -43,7 +45,7 @@ def A_inv_weiner(b_flat, weiner_thresh=0.25):
     b = b_flat.reshape((-1,lblock))[:-3,:]
     # Rfft along axis=1
     b = rfft(b)
-    return pfb.inverse_pfb(b, weiner_thresh=weiner_thresh)
+    return pfb.inverse_pfb(b, wiener_thresh=wiener_thresh)
 
 def A_quantize(x, delta):
     """Takes signal, pfb's it, quantizes, irfft's that."""
@@ -121,7 +123,7 @@ u_1 = AT(N_inv * d) + Q_inv_1 * prior_1
 """Optimize CHI squared using conjugate gradient method."""
 # x0 is the standard IPFB reconstruction
 x0 = np.real(A_inv(d))
-x0_weiner = np.real(A_inv_weiner(d, 0.25)) # Weiner threshold 0.25
+x0_wiener = np.real(A_inv_wiener(d, 0.25)) # Weiner threshold 0.25
 
 # print("\n\nd={}".format(d)) # trace, they are indeed real
 # print("\n\nx_0={}".format(x0)) # complex dtype but zero imag componant
@@ -137,34 +139,34 @@ rms_virgin = np.sqrt(np.mean(rms_virgin,axis=0))
 rms_virgin = cg.mav(rms_virgin,5)
 plt.semilogy(rms_virgin[5:-5],label="rmse virgin ipfb") 
 
-# rms weiner filtered pfb
-rms_weiner = (x - x0_weiner)**2
-rms_weiner = np.reshape(rms_weiner[5*lblock:-5*lblock],(k-10,lblock)) 
-rms_net_weiner = np.sqrt(np.mean(rms_weiner))
-rms_weiner = np.sqrt(np.mean(rms_weiner,axis=0))
-plt.semilogy(rms_weiner[5:-5],label="rmse weiner filtered") 
+# rms wiener filtered pfb
+rms_wiener = (x - x0_wiener)**2
+rms_wiener = np.reshape(rms_wiener[5*lblock:-5*lblock],(k-10,lblock)) 
+rms_net_wiener = np.sqrt(np.mean(rms_wiener))
+rms_wiener = np.sqrt(np.mean(rms_wiener,axis=0))
+plt.semilogy(rms_wiener[5:-5],label="rmse wiener filtered") 
 
 plt.grid(which="both") 
 plt.legend()
-plt.title("Log IPFB RMS residuals (smoothed)\nrmse virgin = {:.3f} rmse weiner = {:.3f}".format(rms_net_virgin,rms_net_weiner),fontsize=20) 
+plt.title("Log IPFB RMS residuals (smoothed)\nrmse virgin = {:.3f} rmse wiener = {:.3f}".format(rms_net_virgin,rms_net_wiener),fontsize=20) 
 plt.xlabel("Channel (n)",fontsize=13)
 plt.ylabel("RMSE",fontsize=13)
 plt.tight_layout()
-plt.savefig("RMSE_log_virgin_IPFB_residuals_weiner.png")
+plt.savefig("RMSE_log_virgin_IPFB_residuals_wiener.png")
 plt.show()
 
 # RMS conj gradient descent
-x_out_5 = cg.conjugate_gradient_descent(B_5, u_5, x0=x0_weiner, rmin=0.0, 
+x_out_5 = cg.conjugate_gradient_descent(B_5, u_5, x0=x0_wiener, rmin=0.0, 
         max_iter=15, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 5% data salvaged",
         saveas="RMSE_conjugate_gradient_descent_5percent.png")
 # RMS conj gradient descent
-x_out_3 = cg.conjugate_gradient_descent(B_3, u_3, x0=x0_weiner, rmin=0.0, 
+x_out_3 = cg.conjugate_gradient_descent(B_3, u_3, x0=x0_wiener, rmin=0.0, 
         max_iter=10, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 3% data salvaged",
         saveas="RMSE_conjugate_gradient_descent_3percent.png")
 # RMS conj gradient descent
-x_out_1 = cg.conjugate_gradient_descent(B_1, u_1, x0=x0_weiner, rmin=0.0, 
+x_out_1 = cg.conjugate_gradient_descent(B_1, u_1, x0=x0_wiener, rmin=0.0, 
         max_iter=5, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 1% data salvaged",
         saveas="RMSE_conjugate_gradient_descent_1percent.png")        

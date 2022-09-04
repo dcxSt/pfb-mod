@@ -105,7 +105,7 @@ def bump_up_zero_values(arr):
     return # don't have to return anything because arrays arr is a pointer
 
 # pseudoinverse pfb
-def inverse_pfb(spec, nchan=1025, ntap=4, window=h.sinc_hanning, weiner_thresh=0.0):
+def inverse_pfb(spec, nchan=1025, ntap=4, window=h.sinc_hanning, wiener_thresh=0.0):
     """Performs pseudo inverse pfb, assumes circulant boundary conditions
 
     Parameters
@@ -118,8 +118,8 @@ def inverse_pfb(spec, nchan=1025, ntap=4, window=h.sinc_hanning, weiner_thresh=0
         usually 4, it's the number of taps
     window : function
         the windowing function to apply, usually a sinc_hanning
-    weiner_thresh : float
-        if 0.0, no weiner filter is applied, if greater than zero, a weiner filter is applied with specified threshold 
+    wiener_thresh : float
+        if 0.0, no wiener filter is applied, if greater than zero, a wiener filter is applied with specified threshold 
 
 
     Returns
@@ -152,8 +152,8 @@ def inverse_pfb(spec, nchan=1025, ntap=4, window=h.sinc_hanning, weiner_thresh=0
         
         # make sure there are no zero value, because we are inverting it
         filt = np.ones(len(ft_wslice))  
-        if weiner_thresh > 0.0:  
-            filt = np.abs(ft_wslice)**2 / (weiner_thresh**2 + np.abs(ft_wslice)**2) * (1 + weiner_thresh**2)
+        if wiener_thresh > 0.0:  
+            filt = np.abs(ft_wslice)**2 / (wiener_thresh**2 + np.abs(ft_wslice)**2) * (1 + wiener_thresh**2)
             
         # if there are true zeros in the window slice, make them non zero to avoid divide by zero error, 
         # there shouldn't be any true zeros from experiance, but it's theoretically possible that there is one, however unlikely

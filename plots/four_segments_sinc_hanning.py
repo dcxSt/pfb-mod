@@ -1,3 +1,5 @@
+print("\nINFO: Running four_segments_sinc_hanning.py\n")
+
 # Local import
 import sys
 sys.path.append("..")

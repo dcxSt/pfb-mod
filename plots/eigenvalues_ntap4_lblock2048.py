@@ -1,3 +1,5 @@
+print("\nINFO: Running eigenvalues_ntap4_lblock2048.py\n")
+
 # Local import
 import sys
 sys.path.append("..")

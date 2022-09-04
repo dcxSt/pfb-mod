@@ -1,1 +1,1 @@
-To generate all the plots just run `./plotall.sh`
+To generate all the plots from the paper run `./plotall.sh`

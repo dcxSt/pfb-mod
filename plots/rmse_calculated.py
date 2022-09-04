@@ -1,3 +1,5 @@
+print("\nINFO: Running rmse_calculated.py\n")
+
 import sys
 sys.path.append("..")
 import helper as h
