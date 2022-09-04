@@ -45,6 +45,7 @@ def get_saved_idxs(n_per_save=5, prct=0.03, k=80, lblock=2048):
     return width, saved_idxs
 
 
+
 def mav(x, n=4):
     """Moving average. 
 
@@ -58,9 +59,12 @@ def mav(x, n=4):
     # Trunkate and return array of same size
     return y[n//2:-n//2]
 
+
+
 def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20, 
         k=80, lblock=2048, verbose=False, x_true=None, 
-        title="RMSE smoothed gradient steps"): 
+        title="RMSE smoothed gradient steps",
+        saveas=None): 
     """Minimize chi-squared by casting as conjugate gradient. 
     
     This conjugate gradient descent method approximately solves the 
@@ -87,6 +91,9 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
         necessary if verbose is set to True. 
     title : str, optional
         The title of the plot. 
+    saveas : str, optional
+        If a string is passed (& verbose is True), the figure will be
+        saved. 
     
     Returns
     -------
@@ -137,7 +144,8 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
         plt.grid()
         plt.title(title, fontsize=20)
         plt.tight_layout()
-        # plt.savefig("RMSE_smoothed_gradient_steps.png")
+        if saveas is not None:
+            plt.savefig(saveas)
         plt.show()
     print("INFO: Conjugate Gradient descent completed.") 
     return x
