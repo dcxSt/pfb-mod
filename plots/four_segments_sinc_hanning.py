@@ -1,14 +1,13 @@
 # Local import
 import sys
 sys.path.append("..")
-import helper as h
 # Libraries
 import numpy as np
 import matplotlib.pyplot as plt
 
 # `ntap` is the number of taps
 # `lblock` is `2*nchan` which is the number of channels before transform
-ntap, lblock = 4, 2018
+ntap, lblock = 4, 2048
 
 # A sinc array
 sinc = np.sinc(np.linspace(-ntap/2, ntap/2, ntap*lblock))
@@ -43,7 +42,7 @@ plt.xlabel("", fontsize=16)
 plt.ylabel("", fontsize=16)
 plt.tight_layout()
 # Optionally save the figure
-# plt.savefig("four_segments_sinc_hanning.png")
+plt.savefig("four_segments_sinc_hanning.png")
 plt.legend()
 plt.show(block=True)
 

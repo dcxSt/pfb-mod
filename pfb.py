@@ -5,7 +5,6 @@ Created on 2021.06.04
 Author : Stephen Fay
 """
 
-# import jax.numpy as jnp
 import numpy as np
 import helper as h
 from scipy.fft import rfft,irfft,fft,ifft
