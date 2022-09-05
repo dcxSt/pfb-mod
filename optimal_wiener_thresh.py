@@ -3,7 +3,7 @@
 import numpy as np
 from helper import r_window_to_matrix_eig
 
-def get_mse(w_xi, sigma_s, sigma_n, thresh):
+def get_mse_wiener(w_xi, sigma_s, sigma_n, thresh):
     """Returns analytically derived mean-squared-error
 
     Parameters
@@ -57,7 +57,7 @@ def get_optimal_wiener_thresh(eigengrid, sigma_s=1.0, sigma_n=0.5/np.sqrt(12)):
     thresholds = np.linspace(0, 1, 100)
     mses = np.zeros(100)
     for idx, thresh in enumerate(thresholds):
-        mses[idx] = np.mean(get_mse(
+        mses[idx] = np.mean(get_mse_wiener(
                         eigengrid, sigma_s, sigma_n, thresh).flatten())
     print(f"mses {mses}")
     return thresholds[np.argmin(mses)]
@@ -74,8 +74,8 @@ if __name__ == "__main__":
     sigma_s = 1.0
     sigma_n = 0.5 / np.sqrt(12)
     thresh_optimal = get_optimal_wiener_thresh(eigengrid_hann, sigma_s, sigma_n)
-    rmse_optimal = np.sqrt(get_mse(eigengrid_hann, sigma_s, sigma_n, thresh_optimal))
-    rmse_no_filter = np.sqrt(get_mse(eigengrid_hann, sigma_s, sigma_n, 0.0))
+    rmse_optimal = np.sqrt(get_mse_wiener(eigengrid_hann, sigma_s, sigma_n, thresh_optimal))
+    rmse_no_filter = np.sqrt(get_mse_wiener(eigengrid_hann, sigma_s, sigma_n, 0.0))
     print(f"\nThe optimal threshold is {thresh_optimal}")
 
     import matplotlib.pyplot as plt
