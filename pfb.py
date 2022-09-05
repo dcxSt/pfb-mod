@@ -161,7 +161,7 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
     timestream = np.zeros((lblock, nblocks*ntap), dtype=np.complex128) 
 
     # Implement as for loop for now so as not to make it too confusing
-    # but in theory we could use np.apply_along_axis and transposes
+    # but in theory we could use ndarrays and transposes
     for idx,(v,wslice) in enumerate(zip(sw_ts.T , win.reshape(ntap,lblock).T)):
         # This next line looks like some disgusting python ninja move, 
         # but it's the cleanest way I could come up with, and it's very 
@@ -212,6 +212,23 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
                                     
 
 
+# # Line for line copy of implementation in Jon's note
+# # Why is it hamming here, shouldn't it be hanning? I keep forgetting 
+# # which one is the one that's actually implemented.
+# # What is the pfb.sinc_hamming function???
+# def inverse_pfb_fft_filt(dat, ntap=4, window=pfb.sinc_hamming, 
+#         thresh = 0.0):
+#     dd  = irfft(dat, axis=1)
+#     win = window(ntap, dd.shape[1])
+#     win = np.reshape(win, [ntap, len(win)//ntap])
+#     mat = np.zeros(dd.shape, dtype=dd.dtype)
+#     mat[:ntap,:] = win
+#     matft = rfft(mat, axis=0)
+#     ddft  = rfft(dd, axis=0)
+#     if thresh > 0:
+#         filt = np.abs(matft)**2/(thresh**2+np.abs(matft)**2)*(1+thresh**2)
+#         ddft = ddft*filt
+#     return irfft(ddft/np.conj(matft), axis=0)
 
 
 
