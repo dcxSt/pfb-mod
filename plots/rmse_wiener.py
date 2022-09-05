@@ -14,6 +14,7 @@ ntap = 4
 
 
 def simulate_quantization_error_wiener( delta=0.5 , n_sims = 100 , k=60 , wiener_thresh=0.1 ):
+    # Rem: the RMSE is delta / sqrt(12)
     # input param delta is the quantization step
     x_arr = [] # list of actual input timestream arrays
     x_ipfb_arr = [] # list of IPFB output arrays
@@ -25,7 +26,10 @@ def simulate_quantization_error_wiener( delta=0.5 , n_sims = 100 , k=60 , wiener
         x = np.random.normal(0,1,lblock*k) 
         
         d = pfb.forward_pfb(x) 
-        d = pfb.quantize_8_bit( d , np.sqrt(2*(d.shape[1] - 1)) * delta ) # quantize the pfb 
+        # Quantize the pfb 
+        # The square root is to normalize, because the rfft doesn't do 
+        # it by default. 
+        d = pfb.quantize_8_bit( d , np.sqrt(2*(d.shape[1] - 1)) * delta ) 
                 
         x_ipfb = pfb.inverse_pfb(d) # inver the pfb
         x_wiener = pfb.inverse_pfb(d,wiener_thresh=wiener_thresh)
