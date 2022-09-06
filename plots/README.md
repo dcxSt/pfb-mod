@@ -1,6 +1,6 @@
 To generate all the plots from the paper run `./plotall.sh`
 
-![eigenvalues_ntap4_lblock2048](https://user-images.githubusercontent.com/21654151/188521198-43174180-bed1-43e7-862e-5950827aba1d.png)
+![eigenvalues_ntap4_lblock2048](https://user-images.githubusercontent.com/21654151/188525210-7bec6473-1d77-4d55-b044-cc84a313ed29.png)
 
 ![four_segments_sinc_hanning](https://user-images.githubusercontent.com/21654151/188521200-fa576386-83f2-4263-a892-35b5ce292644.png)
 
