@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 # `ntap` is the number of taps
 # `lblock` is `2*nchan` which is the number of channels before transform
-ntap, lblock = 4, 2018
+ntap, lblock = 4, 2048
 
 # A sinc array
 sinc = np.sinc(np.linspace(-ntap/2, ntap/2, ntap*lblock))
