@@ -27,7 +27,7 @@ plt.ylabel("FFT of zero padded sinc-hanning 'chunks'", fontsize=16)
 plt.colorbar()
 plt.tight_layout()
 # Optionally save the figure
-plt.savefig("eigenvalues_ntap4_lblock2048.png")
+plt.savefig("img/eigenvalues_ntap4_lblock2048.png")
 plt.show(block=True)
 
 

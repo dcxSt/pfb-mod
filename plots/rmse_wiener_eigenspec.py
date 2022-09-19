@@ -37,7 +37,7 @@ plt.colorbar()
 
 plt.suptitle("Eigenspectrum log RMSE Sinc-Hanning", fontsize=24)
 plt.tight_layout()
-plt.savefig("rmse_wiener_eigenspec.png")
+plt.savefig("img/rmse_wiener_eigenspec.png")
 plt.show(block=True)
 
 

@@ -94,7 +94,7 @@ plt.title("RMSE Log scale")
 plt.grid(which="both")
 
 plt.tight_layout()
-plt.savefig("RMSE_wiener_lblock.png")
+plt.savefig("img/RMSE_wiener_lblock.png")
 
 plt.show(block=True)
 
@@ -120,7 +120,7 @@ plt.title("RMSE Log scale")
 plt.grid(which="both")
 
 plt.tight_layout()
-plt.savefig("RMSE_wiener_long_time.png")
+plt.savefig("img/RMSE_wiener_long_time.png")
 
 plt.show(block=True)
 

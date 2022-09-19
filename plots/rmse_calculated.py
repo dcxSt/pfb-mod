@@ -26,7 +26,7 @@ plt.xlabel("n")
 plt.grid(which="both")
 plt.legend()
 
-plt.savefig("RMSE_analytic_lblock.png")
+plt.savefig("img/RMSE_analytic_lblock.png")
 plt.show(block=True)
 
 

@@ -152,24 +152,24 @@ plt.title("Log IPFB RMS residuals (smoothed)\nrmse virgin = {:.3f} rmse wiener =
 plt.xlabel("Channel (n)",fontsize=13)
 plt.ylabel("RMSE",fontsize=13)
 plt.tight_layout()
-plt.savefig("RMSE_log_virgin_IPFB_residuals_wiener.png")
+plt.savefig("img/RMSE_log_virgin_IPFB_residuals_wiener.png")
 plt.show()
 
 # RMS conj gradient descent
 x_out_5 = cg.conjugate_gradient_descent(B_5, u_5, x0=x0_wiener, rmin=0.0, 
         max_iter=15, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 5% data salvaged",
-        saveas="RMSE_conjugate_gradient_descent_5percent.png")
+        saveas="img/RMSE_conjugate_gradient_descent_5percent.png")
 # RMS conj gradient descent
 x_out_3 = cg.conjugate_gradient_descent(B_3, u_3, x0=x0_wiener, rmin=0.0, 
         max_iter=10, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 3% data salvaged",
-        saveas="RMSE_conjugate_gradient_descent_3percent.png")
+        saveas="img/RMSE_conjugate_gradient_descent_3percent.png")
 # RMS conj gradient descent
 x_out_1 = cg.conjugate_gradient_descent(B_1, u_1, x0=x0_wiener, rmin=0.0, 
         max_iter=5, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 1% data salvaged",
-        saveas="RMSE_conjugate_gradient_descent_1percent.png")        
+        saveas="img/RMSE_conjugate_gradient_descent_1percent.png")        
     
 
 

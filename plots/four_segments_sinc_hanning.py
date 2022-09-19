@@ -44,7 +44,7 @@ plt.xlabel("", fontsize=16)
 plt.ylabel("", fontsize=16)
 plt.tight_layout()
 # Optionally save the figure
-plt.savefig("four_segments_sinc_hanning.png")
+plt.savefig("img/four_segments_sinc_hanning.png")
 plt.legend()
 plt.show(block=True)
 
