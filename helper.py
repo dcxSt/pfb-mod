@@ -10,17 +10,17 @@ from numpy.fft import fft, fftshift, ifft, ifftshift, rfft, irfft
 
 
 # #%% fourier transforms and their inverses
-# def window_to_box(window):
-#     return fftshift(fft(fftshift(window))) # gets taller
-# 
+def window_to_box(window):
+    return fftshift(fft(fftshift(window))) # gets taller
+
 # def box_to_window(box):
 #     return ifftshift(ifft(ifftshift(box))) # gets smaller
-# 
-# def window_pad_to_box(window,pad_factor=4.0):
-#     # pad the window then fft
-#     padded_window = np.concatenate([window,np.zeros(int(len(window)*pad_factor))])
-#     return window_to_box(padded_window) 
-# 
+ 
+def window_pad_to_box(window,pad_factor=4.0):
+    # pad the window then fft
+    padded_window = np.concatenate([window,np.zeros(int(len(window)*pad_factor))])
+    return window_to_box(padded_window) 
+
 # def box_to_window_pad(large_box,len_win):
 #     return box_to_window(large_box)[:len_win]
 # 
