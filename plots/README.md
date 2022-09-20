@@ -23,4 +23,7 @@ They will pop up on your screen one by one, then they will be saved to the 'img/
 
 ![RMSE_wiener_long_time](https://user-images.githubusercontent.com/21654151/188521254-81ab0a5f-bf5a-4a1b-a4dd-77a073ee0ba6.png)
 
+![sidelobes](https://user-images.githubusercontent.com/21654151/191383908-d6654180-2b7d-4f04-9644-b79917c71470.png)
+
+
 
