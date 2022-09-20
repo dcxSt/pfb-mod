@@ -1,15 +1,3 @@
-"""Images the eigenvalues of a window function
-
-Parameters
-----------
-ntap : integer
-    Number of taps
-lblock : integer
-    Length of bloc. (lblock = 2*nchan)
-w : ndarray 
-    Window, size ntap times lblock
-"""
-
 import sys
 sys.path.append("..")
 import helper as h
@@ -31,22 +19,23 @@ scale = max(np.abs(short_box)) # Now we can scale everyone down to where to peak
 box,short_box,box_sinc,short_box_sinc = box/scale,short_box/scale,box_sinc/scale,short_box_sinc/scale
 
 ### plot the sidelobes 
-plt.figure(figsize=(6,4))
-plt.semilogy(np.abs(short_box_sinc),"b-",alpha=0.7,label="sinc")
-plt.semilogy(np.abs(short_box),"k-",alpha=0.7,label="sinc hanning")
+plt.figure(figsize=(12,8))
+plt.semilogy(np.abs(short_box_sinc),"b-",label="sinc window")
+plt.semilogy(np.abs(short_box),"k-",label="sinc hanning window")
 plt.tick_params(
     axis='x',          # changes apply to the x-axis
     which='both',      # both major and minor ticks are affected
     bottom=False,      # ticks along the bottom edge are off
     top=False,         # ticks along the top edge are off
     labelbottom=False)
-plt.ylabel("Gain")
-plt.xlabel("Relative Frequency")
-plt.title("Sidelobes of PFB\nSinc and Sinc Hanning")
+plt.ylabel("Gain",fontsize=23)
+plt.xlabel("Relative Frequency",fontsize=23)
+plt.title("Sidelobes of PFB\nSinc and Sinc Hanning",fontsize=30)
 plt.grid(which="both")
 plt.legend()
 
 
+plt.savefig("img/sidelobes.png")
 plt.show(block=True)
 
 
