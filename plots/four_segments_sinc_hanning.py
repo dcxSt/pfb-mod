@@ -40,8 +40,15 @@ plt.plot(np.arange(2*lblock,3*lblock), sinc_hann[2*lblock:3*lblock], "--", color
 plt.plot(seg3, color="red", linewidth=0.8, label="segment 3")
 plt.plot(np.arange(3*lblock,4*lblock), sinc_hann[3*lblock:], "--", color="red", alpha=0.5, linewidth=3)
 # Labels, formatting
-plt.xlabel("", fontsize=16)
-plt.ylabel("", fontsize=16)
+plt.tick_params(
+    axis='x',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom=False,      # ticks along the bottom edge are off
+    top=False,         # ticks along the top edge are off
+    labelbottom=False)
+plt.xlabel("Channel", fontsize=16)
+plt.ylabel("Sinc Hanning value", fontsize=16)
+plt.title("Four segments of Sinc Hanning",fontsize=22)
 plt.tight_layout()
 # Optionally save the figure
 plt.savefig("img/four_segments_sinc_hanning.png")
