@@ -72,7 +72,7 @@ def add_gaussian_noise(signal,sigma_proportion=0.001):
 
 def quantize_real(signal,delta=0.1):
     """Quantize signal with interval delta, assume real valued signal"""
-    return np.floor((signal + delta/2) / delta) * delta
+    return np.floor(signal / delta) * delta + delta/2
 
 def quantize(signal,delta=0.1):
     """Quantizes signal in intervals of delta in both real and imaginary parts"""
@@ -89,13 +89,13 @@ def quantize_8_bit(signal, delta=0.5):
                                   8*delta  - delta/2)
     return real_quantized + imag_quantized 
 
-def quantize_real(real_signal,delta=0.1):
-    """Quantizes signal in intervals of delta."""
-    return np.floor((real_signal + delta/2) / delta) * delta  
-
-def quantize_4_bit_real(real_signal, delta=0.1):
-    """4-bit Quantizes signal in 16 intervals of delta"""
-    return np.clip(np.floor((real_signal + delta) / delta) * delta - delta/2 , -8*delta +delta/2 , 8*delta - delta/2 )
+# def quantize_real(real_signal,delta=0.1):
+#     """Quantizes signal in intervals of delta."""
+#     return np.floor((real_signal + delta/2) / delta) * delta  
+# 
+# def quantize_4_bit_real(real_signal, delta=0.1):
+#     """4-bit Quantizes signal in 16 intervals of delta"""
+#     return np.clip(np.floor((real_signal + delta) / delta) * delta - delta/2 , -8*delta +delta/2 , 8*delta - delta/2 )
 
 # helper method for inverse pfb incase you get infinite values, put them to 10**100
 def behead_infinite_values(arr):
@@ -242,13 +242,59 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
 
 if __name__=="__main__":
     from matplotlib import pyplot as plt
-    print("INFO: Running tests.")
-    print("INFO: Visual Tests.")
+    print("INFO: Running Visual Tests.")
+
+    # Define params used for next three tests
+    n=10000
+    # Ranomd complex signal
+    sig=np.random.randn(n) * np.exp(1.0j*np.random.rand(n)*2*np.pi)
+    # Random real signal
+    sigr=np.random.randn(n)
+    s=0.1#size of dots in scatter plot
+    delta=0.2#quantization delta, seperation space
     print("INFO: Test quantize_real(), expect to see quantized signal")
+    plt.scatter(np.arange(n),sigr,s=s,label="signal")
+    plt.scatter(np.arange(n),quantize_real(sigr,delta),s=s,label="quantized")
+    plt.legend()
+    plt.title(f"quantization_real delta={delta}")
+    plt.show(block=True)
 
     print("INFO: Test quantize(), see real and imaginary")
+    plt.subplots(2,1,figsize=(8,8))
+    plt.subplot(2,1,1)
+    plt.scatter(np.arange(n),np.real(sig),s=s,label="signal real")
+    plt.scatter(np.arange(n),np.real(quantize(sig,delta)),s=s,label="quantized real")
+    plt.grid()
+    plt.legend()
+    plt.title("Real part")
+    plt.subplot(2,1,2)
+    plt.scatter(np.arange(n),np.imag(sig),s=s,label="signal imag")
+    plt.scatter(np.arange(n),np.imag(quantize(sig,delta)),s=s,label="quantized imag")
+    plt.grid()
+    plt.legend()
+    plt.title("Imag part")
+    plt.suptitle(f"quantization delta={delta}")
+    plt.tight_layout()
+    plt.show(block=True)
 
     print("INFO: Test quantize_8_bit(), count 15 levels of quantization in each")
+    plt.subplots(2,1,figsize=(8,8))
+    plt.subplot(2,1,1)
+    plt.scatter(np.arange(n),np.real(sig),s=s,label="signal real")
+    plt.scatter(np.arange(n),np.real(quantize_8_bit(sig,delta)),s=s,label="quantized real")
+    plt.grid()
+    plt.legend()
+    plt.title("Real part")
+    plt.subplot(2,1,2)
+    plt.scatter(np.arange(n),np.imag(sig),s=s,label="signal imag")
+    plt.scatter(np.arange(n),np.imag(quantize_8_bit(sig,delta)),s=s,label="quantized imag")
+    plt.grid()
+    plt.legend()
+    plt.title("Imag part")
+    plt.suptitle(f"quantization 8-bit delta={delta}")
+    plt.tight_layout()
+    plt.show(block=True)
+
 
 
 
