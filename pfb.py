@@ -70,16 +70,23 @@ def add_gaussian_noise(signal,sigma_proportion=0.001):
     sigma = sigma_proportion * np.mean(np.abs(signal))
     return signal + np.random.normal(0,sigma,size=signal.shape)
 
+def quantize_real(signal,delta=0.1):
+    """Quantize signal with interval delta, assume real valued signal"""
+    return np.floor((signal + delta/2) / delta) * delta
+
 def quantize(signal,delta=0.1):
-    """Quantizes signal in intervals of delta in both real and imaginary parts, seperately"""
-    q = lambda signal:np.floor((signal + delta/2) / delta) * delta 
-    return q(np.real(signal)) + 1.0j*q(np.imag(signal)) 
+    """Quantizes signal in intervals of delta in both real and imaginary parts"""
+    return quantize_real(np.real(signal),delta) + 1.0j*quantize_real(np.imag(signal),delta) 
 
 def quantize_8_bit(signal, delta=0.5):
-    """8-bit Quantizes the signal in intervals of delta in both real and imaginary parts, 4 bits (=16 steps) for each componant, seperately"""
+    """8-bit Quantizes the signal in intervals of delta in both real and imaginary parts, 4 bits (=15 intervals) for each componant, seperately"""
     q = lambda signal:np.floor((signal + delta) / delta) * delta - delta/2 # doesn't quantize to zero, only to non-zero values
-    real_quantized = np.clip(q(np.real(signal)) , -8*delta + delta/2 , 8*delta - delta/2) 
-    imag_quantized = 1.0j*np.clip(q(np.imag(signal)) , -8*delta + delta/2 , 8*delta - delta/2) 
+    real_quantized = np.clip(quantize_real(np.real(signal), delta),
+                             -8*delta + delta/2, 
+                             8*delta - delta/2) 
+    imag_quantized = 1.0j*np.clip(quantize_real(np.imag(signal), delta), 
+                                  -8*delta + delta/2, 
+                                  8*delta  - delta/2)
     return real_quantized + imag_quantized 
 
 def quantize_real(real_signal,delta=0.1):
@@ -229,6 +236,22 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
 #         filt = np.abs(matft)**2/(thresh**2+np.abs(matft)**2)*(1+thresh**2)
 #         ddft = ddft*filt
 #     return irfft(ddft/np.conj(matft), axis=0)
+
+
+### TESTS
+
+if __name__=="__main__":
+    from matplotlib import pyplot as plt
+    print("INFO: Running tests.")
+    print("INFO: Visual Tests.")
+    print("INFO: Test quantize_real(), expect to see quantized signal")
+
+    print("INFO: Test quantize(), see real and imaginary")
+
+    print("INFO: Test quantize_8_bit(), count 15 levels of quantization in each")
+
+
+
 
 
 
