@@ -5,6 +5,9 @@ import numpy as np
 from numpy.fft import rfft,fftshift,fftshift,fft
 import matplotlib.pyplot as plt
 
+# Choose a photocopy & color-blind friendly colormap
+colors=plt.get_cmap('Set2').colors # get list of RGB color values
+
 ntap = 4
 lblock = 2048
 sinc = np.sinc(np.arange(-ntap/2,ntap/2,1/lblock))
@@ -20,8 +23,8 @@ box,short_box,box_sinc,short_box_sinc = box/scale,short_box/scale,box_sinc/scale
 
 ### plot the sidelobes 
 plt.figure(figsize=(12,8))
-plt.semilogy(np.abs(short_box_sinc),"b-",label="sinc window")
-plt.semilogy(np.abs(short_box),"k-",label="sinc hanning window")
+plt.semilogy(np.abs(short_box_sinc),"-",label="sinc window",color=colors[0])
+plt.semilogy(np.abs(short_box),"-",label="sinc hanning window",color=colors[1])
 plt.tick_params(
     axis='x',          # changes apply to the x-axis
     which='both',      # both major and minor ticks are affected

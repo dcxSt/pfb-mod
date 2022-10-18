@@ -73,6 +73,9 @@ def AT(x): # the transpose of A
 # Simulate and plot the iPFB quantization noise before and after 
 # correction. 
 
+# Choose a photocopy & color-blind friendly colormap
+colors=plt.get_cmap('Set2').colors # get list of RGB color values
+
 delta = 0.5     # Quantization interval
 k = 80          # Determines length of simulated signal k*lblock
 lblock = 2048
@@ -140,14 +143,14 @@ rms_virgin = np.reshape(rms_virgin[5*lblock:-5*lblock],(k-10,lblock)) # bad prac
 rms_net_virgin = np.sqrt(np.mean(rms_virgin))
 rms_virgin = np.sqrt(np.mean(rms_virgin,axis=0))
 rms_virgin = cg.mav(rms_virgin,5)
-plt.semilogy(rms_virgin[5:-5],label="rmse virgin ipfb") 
+plt.semilogy(rms_virgin[5:-5],label="rmse virgin ipfb",color=colors[0]) 
 
 # rms wiener filtered pfb
 rms_wiener = (x - x0_wiener)**2
 rms_wiener = np.reshape(rms_wiener[5*lblock:-5*lblock],(k-10,lblock)) 
 rms_net_wiener = np.sqrt(np.mean(rms_wiener))
 rms_wiener = np.sqrt(np.mean(rms_wiener,axis=0))
-plt.semilogy(rms_wiener[5:-5],label="rmse wiener filtered") 
+plt.semilogy(rms_wiener[5:-5],label="rmse wiener filtered",color=colors[1]) 
 
 plt.grid(which="both") 
 plt.legend()
@@ -158,21 +161,25 @@ plt.tight_layout()
 plt.savefig("img/RMSE_log_virgin_IPFB_residuals_wiener.png")
 plt.show()
 
+cmap="YlGn" #"RdYlBu" # diverging colorblind photocopy colormap
 # RMS conj gradient descent
 x_out_5 = cg.conjugate_gradient_descent(B_5, u_5, x0=x0_wiener, rmin=0.0, 
         max_iter=15, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 5% data salvaged",
-        saveas="img/RMSE_conjugate_gradient_descent_5percent.png")
+        saveas="img/RMSE_conjugate_gradient_descent_5percent.png",
+        cmap=cmap)
 # RMS conj gradient descent
 x_out_3 = cg.conjugate_gradient_descent(B_3, u_3, x0=x0_wiener, rmin=0.0, 
         max_iter=10, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 3% data salvaged",
-        saveas="img/RMSE_conjugate_gradient_descent_3percent.png")
+        saveas="img/RMSE_conjugate_gradient_descent_3percent.png",
+        cmap=cmap)
 # RMS conj gradient descent
 x_out_1 = cg.conjugate_gradient_descent(B_1, u_1, x0=x0_wiener, rmin=0.0, 
         max_iter=5, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 1% data salvaged",
-        saveas="img/RMSE_conjugate_gradient_descent_1percent.png")        
+        saveas="img/RMSE_conjugate_gradient_descent_1percent.png",
+        cmap=cmap)        
     
 
 

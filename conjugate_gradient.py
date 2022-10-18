@@ -64,7 +64,7 @@ def mav(x, n=4):
 def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20, 
         k=80, lblock=2048, verbose=False, x_true=None, 
         title="RMSE smoothed gradient steps",
-        saveas=None): 
+        saveas=None, cmap="RdYlBu"): 
     """Minimize chi-squared by casting as conjugate gradient. 
     
     This conjugate gradient descent method approximately solves the 
@@ -94,6 +94,7 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
     saveas : str, optional
         If a string is passed (& verbose is True), the figure will be
         saved. 
+    cmap : str or matplotlib colormap object
     
     Returns
     -------
@@ -120,8 +121,9 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
             rms = np.sqrt(np.mean(rms, axis=0))
             rms_smoothed = mav(rms, 20)[20:-20] # Chop off spoiled values
             plt.plot(rms_smoothed, 
-                    color=(i/(max_iter-1), 0.0, 1.0-i/(max_iter-1), 0.6),
-                    label="step_n={} rms_net={:.4f}".format(i, rms_net))
+                    label="step_n={} rms_net={:.4f}".format(i, rms_net),
+                    color=(i/(max_iter-1), 0.0, 1.0-i/(max_iter-1), 0.6)
+                    )
 
         # If it passes below the threashold RMSE, break the loop
         if np.sqrt(np.dot(r,r)) < rmin: 

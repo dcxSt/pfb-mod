@@ -7,6 +7,9 @@ from conjugate_gradient import mav
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Choose a photocopy & color-blind friendly colormap
+colors=plt.get_cmap('Set2').colors # get list of RGB color values
+
 # Global variables
 lblock = 2048
 nchan = 1025
@@ -78,16 +81,16 @@ rmse_wiener_avg = np.sqrt(np.mean(se_wiener_avg, axis=0))
 plt.subplots(figsize=(14,7))
 
 plt.subplot(211)
-plt.plot(rmse_virgin_avg[:20*lblock], label="no filter")
-plt.plot(rmse_wiener_avg[:20*lblock], label="wiener filter")
+plt.plot(rmse_virgin_avg[:20*lblock],label="no filter",color=colors[0])
+plt.plot(rmse_wiener_avg[:20*lblock],label="wiener filter",color=colors[1])
 plt.legend()
 plt.xlabel("Time, in number of samples")
 plt.title("RMSE")
 plt.grid(which="both")
 
 plt.subplot(212)
-plt.semilogy(rmse_virgin_avg[:20*lblock], label="no filter")
-plt.semilogy(rmse_wiener_avg[:20*lblock], label="wiener filter")
+plt.semilogy(rmse_virgin_avg[:20*lblock],label="no filter",color=colors[0])
+plt.semilogy(rmse_wiener_avg[:20*lblock],label="wiener filter",color=colors[1])
 plt.legend()
 plt.xlabel("Time, in number of samples")
 plt.title("RMSE Log scale")
@@ -104,16 +107,16 @@ plt.show(block=True)
 plt.subplots(figsize=(14,7))
 
 plt.subplot(211)
-plt.plot(rmse_virgin[:20*lblock], label="no filter")
-plt.plot(rmse_wiener[:20*lblock], label="wiener filter")
+plt.plot(rmse_virgin[:20*lblock], label="no filter",color=colors[0])
+plt.plot(rmse_wiener[:20*lblock], label="wiener filter",color=colors[1])
 plt.legend()
 plt.xlabel("Time, in number of samples")
 plt.title("RMSE")
 plt.grid(which="both")
 
 plt.subplot(212)
-plt.semilogy(rmse_virgin[:20*lblock], label="no filter")
-plt.semilogy(rmse_wiener[:20*lblock], label="wiener filter")
+plt.semilogy(rmse_virgin[:20*lblock], label="no filter",color=colors[0])
+plt.semilogy(rmse_wiener[:20*lblock], label="wiener filter",color=colors[1])
 plt.legend()
 plt.xlabel("Time, in number of samples")
 plt.title("RMSE Log scale")
