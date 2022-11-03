@@ -20,9 +20,10 @@ mat_eig = h.r_window_to_matrix_eig(sinc * np.hanning(ntap*lblock),
 
 # Plot the figure
 plt.figure(figsize=(8.5,7))
-plt.title("Eigenvalues ntap={} lblock={}".format(ntap,lblock),fontsize=22)
+#plt.title("Eigenvalues ntap={} lblock={}".format(ntap,lblock),fontsize=22)
 plt.imshow(np.abs(mat_eig.T), aspect='auto',cmap="BrBG") # colorblind cmap
-plt.xlabel("Channels", fontsize=16)
+plt.title("Eigenvalues",fontsize=20)
+plt.xlabel("Channel #", fontsize=16)
 plt.ylabel("FFT of zero padded sinc-hanning 'chunks'", fontsize=16)
 plt.colorbar()
 plt.tight_layout()

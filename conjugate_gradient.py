@@ -122,7 +122,7 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
             rms_smoothed = mav(rms, 20)[20:-20] # Chop off spoiled values
             plt.plot(rms_smoothed, 
                     label="step_n={} rms_net={:.4f}".format(i, rms_net),
-                    color=(i/(max_iter-1), 0.0, 1.0-i/(max_iter-1), 0.6)
+                    color=(i/(max_iter-1), (1.5*i/(max_iter-1)-0.75)**2, 1.0-i/(max_iter-1), 0.6)
                     )
 
         # If it passes below the threashold RMSE, break the loop
@@ -145,6 +145,8 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
         plt.legend()
         plt.grid()
         plt.title(title, fontsize=20)
+        plt.xlabel("Channel #",fontsize=16)
+        plt.ylabel("Normalized RMSE",fontsize=16)
         plt.tight_layout()
         if saveas is not None:
             plt.savefig(saveas)

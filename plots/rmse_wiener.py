@@ -78,22 +78,24 @@ rmse_wiener_avg = np.sqrt(np.mean(se_wiener_avg, axis=0))
 
 # Plots
 # Plot avg RMSE over one lblock sized chunk
-plt.subplots(figsize=(14,7))
-
-plt.subplot(211)
-plt.plot(rmse_virgin_avg[:20*lblock],label="no filter",color=colors[0])
-plt.plot(rmse_wiener_avg[:20*lblock],label="wiener filter",color=colors[1])
-plt.legend()
-plt.xlabel("Time, in number of samples")
-plt.title("RMSE")
-plt.grid(which="both")
-
-plt.subplot(212)
+#plt.subplots(figsize=(14,7))
+#
+#plt.subplot(211)
+#plt.plot(rmse_virgin_avg[:20*lblock],label="no filter",color=colors[0])
+#plt.plot(rmse_wiener_avg[:20*lblock],label="wiener filter",color=colors[1])
+#plt.legend()
+#plt.xlabel("Time, in number of samples")
+#plt.title("RMSE")
+#plt.grid(which="both")
+#
+#plt.subplot(212)
+plt.figure(figsize=(10,4))
 plt.semilogy(rmse_virgin_avg[:20*lblock],label="no filter",color=colors[0])
 plt.semilogy(rmse_wiener_avg[:20*lblock],label="wiener filter",color=colors[1])
 plt.legend()
-plt.xlabel("Time, in number of samples")
-plt.title("RMSE Log scale")
+plt.xlabel("Channel #",fontsize=16)
+plt.ylabel("RMSE, signal to noise ratio",fontsize=16)
+plt.title("Normalized RMSE",fontsize=20)
 plt.grid(which="both")
 
 plt.tight_layout()
@@ -104,22 +106,24 @@ plt.show(block=True)
 
 
 # Plot estimated RMSE over one lblock sized chunk
-plt.subplots(figsize=(14,7))
-
-plt.subplot(211)
-plt.plot(rmse_virgin[:20*lblock], label="no filter",color=colors[0])
-plt.plot(rmse_wiener[:20*lblock], label="wiener filter",color=colors[1])
-plt.legend()
-plt.xlabel("Time, in number of samples")
-plt.title("RMSE")
-plt.grid(which="both")
-
-plt.subplot(212)
+#plt.subplots(figsize=(14,7))
+#
+#plt.subplot(211)
+#plt.plot(rmse_virgin[:20*lblock], label="no filter",color=colors[0])
+#plt.plot(rmse_wiener[:20*lblock], label="wiener filter",color=colors[1])
+#plt.legend()
+#plt.xlabel("Time, in number of samples")
+#plt.title("RMSE")
+#plt.grid(which="both")
+#
+#plt.subplot(212)
+plt.figure(figsize=(10,4))
 plt.semilogy(rmse_virgin[:20*lblock], label="no filter",color=colors[0])
 plt.semilogy(rmse_wiener[:20*lblock], label="wiener filter",color=colors[1])
 plt.legend()
-plt.xlabel("Time, in number of samples")
-plt.title("RMSE Log scale")
+plt.xlabel("Time, in # of samples",fontsize=16)
+plt.ylabel("RMSE, signal to noise ratio",fontsize=16)
+plt.title("RMSE over time",fontsize=20)
 plt.grid(which="both")
 
 plt.tight_layout()

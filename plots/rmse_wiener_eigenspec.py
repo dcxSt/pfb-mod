@@ -24,18 +24,21 @@ plt.subplot(121)
 # Set a cieling, divergence leads to ugly plot
 cieling = np.exp(3.0)
 rmse_no_filter[np.where(rmse_no_filter > cieling)] = cieling
-plt.imshow(np.log(rmse_no_filter.T), aspect="auto", cmap="rainbow")
-plt.title("No filter", fontsize=15)
+plt.imshow(np.log(rmse_no_filter.T), aspect="auto", cmap="Set2")
+plt.title("No filter", fontsize=16)
 plt.colorbar()
+plt.xlabel("Channel #",fontsize=14)
+plt.ylabel("RFFT Errors on channel",fontsize=14)
 
 plt.subplot(122)
 rmse_optimal.T[0,0] = cieling # Scale the colors hack
-plt.imshow(np.log(rmse_optimal.T), aspect="auto", cmap="rainbow")
-plt.title("Wiener filter, optimal threshold value set to {:.2f}".format(thresh_optimal),
-            fontsize=15)
+plt.imshow(np.log(rmse_optimal.T), aspect="auto", cmap="Set2")
+plt.title("Wiener filter, optimal threshold value phi={:.2f}".format(thresh_optimal),fontsize=16)
 plt.colorbar()
+plt.xlabel("Channel #",fontsize=14)
+plt.ylabel("RFFT Errors on channel",fontsize=14)
 
-plt.suptitle("Eigenspectrum log RMSE Sinc-Hanning", fontsize=24)
+plt.suptitle("Eigenspectrum log RMSE Sinc-Hanning", fontsize=22)
 plt.tight_layout()
 plt.savefig("img/rmse_wiener_eigenspec.png")
 plt.show(block=True)
