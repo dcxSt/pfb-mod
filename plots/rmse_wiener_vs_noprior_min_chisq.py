@@ -1,13 +1,75 @@
-print("\nINFO: Running rmse_conjugate_gradient_plots.py\n")
+print("\nINFO: Running rmse_wiener_vs_noprior_min_chisq.py\n")
+"""
+To see how much a chi-squared minimization improves the Wiener filter
+"""
 
 import sys
 sys.path.append("..")
 import conjugate_gradient as cg
-from matrix_operations import A,A_inv,A_inv_wiener,A_quantize,AT
 import pfb
 import numpy as np
 from numpy.fft import rfft, irfft
 import matplotlib.pyplot as plt
+
+def A(x):
+    """Applies PFB, irfft's that, flatten."""
+    # Forward PFB the Signal
+    b = pfb.forward_pfb(x)
+    # Inverse Fourier Transform along axis=1
+    b = irfft(b)
+    # Apply circulant boundary conditions
+    b = np.concatenate([b, b[:3, :]], axis=0)
+    return b.flatten()
+
+def A_inv(b_flat):
+    """Inverse of A. Reshape the array, rfft, iPFB."""
+    # Sanity check
+    if len(b_flat)/lblock != len(b_flat)//lblock: 
+        raise Exception("Dimensions of input do not match lblock!")
+    # Reshape array so that it looks like irfft'd pfb output dims
+    b = b_flat.reshape((-1,lblock))[:-3,:]
+    # Rfft along axis=1
+    b = rfft(b)
+    return pfb.inverse_pfb(b)
+
+def A_inv_wiener(b_flat, wiener_thresh=0.25):
+    """Inverse of A with wiener filtering. Reshape the array, rfft, iPFB with wiener filter."""
+    # Sanity check
+    if len(b_flat)/lblock != len(b_flat)//lblock: 
+        raise Exception("Dimensions of input do not match lblock!")
+    # Reshape array so that it looks like irfft'd pfb output dims
+    b = b_flat.reshape((-1,lblock))[:-3,:]
+    # Rfft along axis=1
+    b = rfft(b)
+    return pfb.inverse_pfb(b, wiener_thresh=wiener_thresh)
+
+def A_quantize(x, delta):
+    """Takes signal, pfb's it, quantizes, irfft's that."""
+    # Forward PFB the signal
+    b = pfb.forward_pfb(x)
+    # Quantize the filter bank
+    # The sqrt is to account for the next IRFFT step
+    # b = pfb.quantize(b, np.sqrt(2*(b.shape[1] - 1)) * delta) 
+    b = pfb.quantize_8_bit(b, np.sqrt(2*(b.shape[1] - 1)) * delta) 
+    # Inverse Fourier Transform
+    b = irfft(b) # Same as apply along axis=1
+    # Apply circulant boundary conditions
+    b = np.concatenate([b, b[:3, :]], axis=0)
+    return b.flatten() 
+
+def R(x):
+    """Re-ordering matrix (involution)."""
+    lx = len(x)
+    if lx/lblock != lx//lblock: 
+        raise Exception("Len x must divide lblock.")
+    k = lx // lblock
+    out = np.zeros(lx)
+    for i in range(k):
+        out[i*lblock:(i+1)*lblock] = x[(k-i-1)*lblock:(k-i)*lblock]
+    return out
+
+def AT(x): # the transpose of A
+    return R(A(R(x)))
 
 
 """Main"""
@@ -104,21 +166,25 @@ plt.tight_layout()
 plt.savefig("img/RMSE_log_virgin_IPFB_residuals_wiener.png")
 plt.show()
 
+cmap="YlGn" #"RdYlBu" # diverging colorblind photocopy colormap
 # RMS conj gradient descent
 x_out_5 = cg.conjugate_gradient_descent(B_5, u_5, x0=x0_wiener, rmin=0.0, 
         max_iter=15, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 5% data salvaged",
-        saveas="img/RMSE_conjugate_gradient_descent_5percent.png")
+        saveas="img/RMSE_conjugate_gradient_descent_5percent.png",
+        cmap=cmap)
 # RMS conj gradient descent
 x_out_3 = cg.conjugate_gradient_descent(B_3, u_3, x0=x0_wiener, rmin=0.0, 
         max_iter=10, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 3% data salvaged",
-        saveas="img/RMSE_conjugate_gradient_descent_3percent.png")
+        saveas="img/RMSE_conjugate_gradient_descent_3percent.png",
+        cmap=cmap)
 # RMS conj gradient descent
 x_out_1 = cg.conjugate_gradient_descent(B_1, u_1, x0=x0_wiener, rmin=0.0, 
         max_iter=5, k=k, lblock=lblock, verbose=True, x_true=x, 
         title="RMSE smoothed gradient steps 1% data salvaged",
-        saveas="img/RMSE_conjugate_gradient_descent_1percent.png")        
+        saveas="img/RMSE_conjugate_gradient_descent_1percent.png",
+        cmap=cmap)        
     
 
 

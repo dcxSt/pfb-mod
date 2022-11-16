@@ -26,7 +26,7 @@ plt.semilogy(np.mean(1/abs(eigengrid_hamm**2),axis=1), ".", label="sinc hamming"
 plt.title("Analytically Derived RMSE amplification per channel", fontsize=20)
 #plt.ylabel("Log R[n]")
 plt.ylabel("Gain on quantization noise",fontsize=16)
-plt.xlabel("Channel #",fontsize=16)
+plt.xlabel("Timestream Column Index",fontsize=16)
 plt.grid(which="both")
 plt.legend()
 plt.tight_layout()

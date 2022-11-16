@@ -22,7 +22,7 @@ scale = max(np.abs(short_box)) # Now we can scale everyone down to where to peak
 box,short_box,box_sinc,short_box_sinc = box/scale,short_box/scale,box_sinc/scale,short_box_sinc/scale
 
 ### plot the sidelobes 
-plt.figure(figsize=(12,8))
+plt.figure(figsize=(10,4))
 plt.semilogy(np.abs(short_box_sinc),"-",label="sinc window",color=colors[0])
 plt.semilogy(np.abs(short_box),"-",label="sinc hanning window",color=colors[1])
 plt.tick_params(
@@ -31,14 +31,15 @@ plt.tick_params(
     bottom=False,      # ticks along the bottom edge are off
     top=False,         # ticks along the top edge are off
     labelbottom=False)
-plt.ylabel("Gain",fontsize=23)
-plt.xlabel("Relative Frequency",fontsize=23)
-plt.title("Sidelobes of PFB\nSinc and Sinc Hanning",fontsize=30)
+plt.ylabel("Gain",fontsize=16)
+plt.xlabel("Relative Frequency",fontsize=16)
+plt.title("Sidelobes of PFB\nSinc and Sinc Hanning",fontsize=20)
 plt.grid(which="both")
 plt.legend()
 
 
-plt.savefig("img/sidelobes.png")
+plt.tight_layout()
+plt.savefig("img/sidelobes.png",dpi=450)
 plt.show(block=True)
 
 

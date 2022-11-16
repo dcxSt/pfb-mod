@@ -62,7 +62,7 @@ plt.tick_params(
     bottom=False,      # ticks along the bottom edge are off
     top=False,         # ticks along the top edge are off
     labelbottom=False)
-plt.xlabel("Channel #", fontsize=16)
+plt.xlabel("Timestream Column Index", fontsize=16)
 plt.ylabel("Sinc Hanning value", fontsize=16)
 plt.title("Four segments of Sinc Hanning",fontsize=22)
 plt.tight_layout()
