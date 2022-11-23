@@ -40,5 +40,8 @@ The usual suspects
 ![RMSE_wiener_long_time](https://user-images.githubusercontent.com/21654151/203455783-0cbf4100-1c35-4e64-81c7-d43ec8c1025d.png)
 ![sidelobes](https://user-images.githubusercontent.com/21654151/203455787-b27daaf6-217b-424e-be5b-8bc56508d2ab.png)
 
+<img width="653" alt="sample_prior_algorithm" src="https://user-images.githubusercontent.com/21654151/203611692-27ba0b03-9379-4e8c-9bf7-3ca640202aaa.png">
+<img width="646" alt="sw_extract_tikz" src="https://user-images.githubusercontent.com/21654151/203611694-7e219311-2943-434a-a76a-f502305af928.png">
+<img width="645" alt="sw_matrix" src="https://user-images.githubusercontent.com/21654151/203611696-601cb03a-4f24-45fa-835f-aa4a97f65d08.png">
 
 
