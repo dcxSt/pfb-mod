@@ -60,6 +60,99 @@ def mav(x, n=4):
     return y[n//2:-n//2]
 
 
+# TODO
+def mcmc(B, u, x0=None, rmin=0.1, max_iter=20, 
+        k=80, lblock=2048, verbose=False, x_true=None): 
+    """Minimize chi-squared by casting as gradient descent problem. 
+    
+    This conjugate gradient descent method approximately solves the 
+    linear equasion Bx = u. B is a symmetric, positive definite matrix
+    operator and u is the target. 
+    
+    Parameters
+    ----------
+    B : callable
+        A function which is actually a square matrix in disguise. 
+    u : np.ndarray
+        Data vector. The rhs of the quadratic equasion we are solving. 
+    x0 : np.ndarray
+        Initial guess for x. 
+    rmin : float
+        The threshold value for stopping the descent. If the RMSE goes
+        below this value, we're gucci. 
+    max_iter : int
+        The maximal number of descent iterations to make before stopping. 
+    verbose : bool, optional
+        If verbose is set to True, it will plot the descent. 
+    x_true : np.ndarray, optional
+        The actual array, before adding any noise. This param is only 
+        necessary if verbose is set to True. 
+    title : str, optional
+        The title of the plot. 
+    saveas : str, optional
+        If a string is passed (& verbose is True), the figure will be
+        saved. 
+    
+    Returns
+    -------
+    np.ndarray
+        The noise-corrected array. 
+    """
+    # u is the data, B is the symmetric matrix operator (written as func)
+    if type(x0) != np.ndarray: x0 = np.zeros(len(u)) # If x0 is None basically
+    # Solve for x : Bx = u
+    x = x0.copy()
+    r = u - B(x0)
+    if np.sqrt(np.dot(r,r)) < rmin: 
+        return x
+    p = r.copy()
+    # Optionally, plot figure
+    if verbose is True: plt.figure(figsize=(14,4))
+    # Conj Gradient descent, iterate through max number of steps
+    for i in range(max_iter): 
+        # Opitonally, plot the residuals on each iteration
+        if verbose is True and (i%2==0 or i<4):
+            rms = (x_true - x)**2
+            rms = np.reshape(rms[5*lblock:-5*lblock], (k-10, lblock))
+            rms_net = np.sqrt(np.mean(rms)) # net (or total) rms
+            rms = np.sqrt(np.mean(rms, axis=0))
+            rms_smoothed = mav(rms, 20)[20:-20] # Chop off spoiled values
+            plt.plot(rms_smoothed, 
+                    label="step_n={} rms_net={:.4f}".format(i, rms_net),
+                    color=(i/(max_iter-1), (1.5*i/(max_iter-1)-0.75)**2, 1.0-i/(max_iter-1), 0.6)
+                    )
+
+        # If it passes below the threashold RMSE, break the loop
+        if np.sqrt(np.dot(r,r)) < rmin: 
+            print(f"INFO: RMSE passed below threashold rmin={rmin}.\
+                    Terminating CG descent.")
+            break
+
+        # Compute the action of B on p
+        Bp = B(p)
+        alpha = np.dot(r,r) / np.dot(p,Bp)
+        x = x + alpha * p
+        r_new = r - alpha * Bp
+        beta = np.dot(r_new,r_new) / np.dot(r,r)
+        p = r_new + beta * p
+        r = r_new
+    
+    # Conditionally plot config, annotations, etc
+    if verbose is True:
+        plt.legend()
+        plt.grid()
+        plt.title(title, fontsize=20)
+        plt.xlabel("Timestream Column Index",fontsize=16)
+        plt.ylabel("Normalized RMSE",fontsize=16)
+        plt.tight_layout()
+        if saveas is not None:
+            plt.savefig(saveas)
+        plt.show()
+    print("INFO: Conjugate Gradient descent completed.") 
+    return x
+
+
+
 
 def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20, 
         k=80, lblock=2048, verbose=False, x_true=None, 

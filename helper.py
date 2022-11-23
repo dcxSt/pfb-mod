@@ -77,7 +77,6 @@ def r_window_to_matrix_eig(w, ntap=4, lblock=2048, zero_pad_len=1024):
     w2d = chop_win(w, ntap, lblock)
     w2d_padded = zero_padding(w2d, zero_pad_len)
     rft = np.apply_along_axis(rfft, 1, w2d_padded)
-    
     return rft
 
    

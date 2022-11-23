@@ -9,7 +9,7 @@ The polyphase filter bank (PFB) is a widely used digital signal processing tool 
 - `conjugate_gradient.py` contains functions to optimize the chi-squared value of the iPFB. 
 - `matrix_operations` is a helper that wraps PFB related operations in a way that makes them look like the linear operators that they really are. These are used in conjugate gradient descent algorithm. 
 - `optimal_wiener_thresh.py` finds the optimal Wiener threshold parameter. 
-- `plots/plotall.sh` generates all the relevant plots. 
+- `plots/plotall.sh` generates all plots (which can be found in `plots/img`). 
 
 
 ## Dependencies / libraries used in scritps:
@@ -17,7 +17,7 @@ The polyphase filter bank (PFB) is a widely used digital signal processing tool 
 
 The usual suspects
 - Numpy
-- Scipy (``scipy.signal``, ``scopy.fft``, ``scipy.optimize``)
+- Scipy (``scipy.signal``, ``scipy.optimize``)
 - Matplotlib
 
 
