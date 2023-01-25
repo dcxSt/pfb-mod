@@ -6,7 +6,7 @@ To see how much a chi-squared minimization improves the Wiener filter
 import sys
 sys.path.append("..")
 import conjugate_gradient as cg
-from matrix_operations import A,A_inv,A_inv_wiener,A_quantize,AT
+from matrix_operators import A,A_inv,A_inv_wiener,A_quantize,AT
 import pfb
 import numpy as np
 from numpy.fft import rfft, irfft
