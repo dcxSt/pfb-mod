@@ -42,6 +42,7 @@ def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning):
     # window function
     w = window(ntap, lblock)
 
+    # The S matrix 
     def s(ts_sec):
         return np.sum(ts_sec.reshape(ntap,lblock),axis=0)
 
@@ -79,15 +80,26 @@ def quantize(signal,delta=0.1):
     return quantize_real(np.real(signal),delta) + 1.0j*quantize_real(np.imag(signal),delta) 
 
 def quantize_8_bit(signal, delta=0.5):
-    """8-bit Quantizes the signal in intervals of delta in both real and imaginary parts, 4 bits (=15 intervals) for each componant, seperately"""
-    q = lambda signal:np.floor((signal + delta) / delta) * delta - delta/2 # doesn't quantize to zero, only to non-zero values
+    """8-bit Quantizes the signal in intervals of delta in both real 
+    and imaginary parts, 4 bits (=15 intervals) for each componant, 
+    seperately"""
+    # Why is this here? TODO: delete once sure its useless
+    ## q is quantized, doesn't quantize to zero, only to non-zero values
+    #q = lambda signal:np.floor((signal + delta) / delta) * delta - delta/2 
     real_quantized = np.clip(quantize_real(np.real(signal), delta),
                              -8*delta + delta/2, 
                              8*delta - delta/2) 
-    imag_quantized = 1.0j*np.clip(quantize_real(np.imag(signal), delta), 
+    imag_quantized = np.clip(quantize_real(np.imag(signal), delta), 
                                   -8*delta + delta/2, 
                                   8*delta  - delta/2)
-    return real_quantized + imag_quantized 
+    return real_quantized + 1.0j*imag_quantized 
+
+def quantize_12_bit_real(signal, delta=0.2):
+    """Quantizes real signal into twelve bits"""
+    return np.clip(quantize_real(signal, delta),
+                            -2**11*delta + delta/2,
+                             2**11*delta - delta/2)
+    
 
 # def quantize_real(real_signal,delta=0.1):
 #     """Quantizes signal in intervals of delta."""
@@ -198,11 +210,10 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
         if 0.0 in ft_wslice:
             print("\nWARNING: inverse pfb {} 0.0 values(s) encountered\n".format(len(np.where(ft_wslice == 0.0))))
             bump_up_zero_values(ft_wslice) # replace zeros with 10^-100
-        ft_wslice_recip = 1/ft_wslice
         
         # Below, might be impossible so use rfft and irfft because not 
         # 'exactly' real, could use rfft on np.real(thing)
-        gtilde = ifft(fft(np.concatenate((v,v[:ntap-1]))) * filt * ft_wslice_recip) 
+        gtilde = ifft(fft(np.concatenate((v,v[:ntap-1]))) * filt / ft_wslice) 
         timestream[idx] = gtilde 
 
 

@@ -9,7 +9,7 @@ import numpy as np
 from numpy.fft import fft, fftshift, ifft, ifftshift, rfft, irfft
 
 
-# #%% fourier transforms and their inverses
+# fourier transforms and their inverses
 def window_to_box(window):
     return fftshift(fft(fftshift(window))) # gets taller
 

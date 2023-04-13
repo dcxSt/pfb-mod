@@ -20,6 +20,19 @@ The usual suspects
 - Scipy (``scipy.signal``, ``scipy.optimize``)
 - Matplotlib
 
+## Optimal quantization
+
+Let $X$ be a gaussian random variable with $\mu=0$ and $\sigma=1$, and let $(x_n)$ be a sequence of i.i.d realizations of $X$. If we would like to quantize this signal to four bits, what is the optimal quantization interval? This is not a mathematically precise question because it depends on what your optimizing. Lets say we wish to minimize the expected magnitude squared of the residual $R=X-\tilde X$, where $\tilde X$ is a quantized signal. 
+
+
+Let $(y_n)$ be the normalized FFT of $(x_n)$ defined as follows
+
+$$y_n = \frac{1}{\sqrt N} \sum_{k=0}^N \exp(-2\pi i nk)x_k$$
+
+
+## Optimizing the Inverse PFB using extra information
+
+In `conjugate_gradient.py`, we have code that lets us optimize the inverse PFB based on some added information. 
 
 ## Plots
 

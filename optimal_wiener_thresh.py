@@ -70,7 +70,6 @@ if __name__ == "__main__":
     sinc = np.sinc(np.arange(-ntap/2, ntap/2, 1/lblock))
     eigengrid_hann = r_window_to_matrix_eig(sinc * np.hanning(len(sinc)))
     print(f"DEBUG: eigengrid mean abs value {np.mean(abs(eigengrid_hann.flatten()))}")
-
     sigma_s = 1.0
     sigma_n = 0.5 / np.sqrt(12)
     thresh_optimal = get_optimal_wiener_thresh(eigengrid_hann, sigma_s, sigma_n)
