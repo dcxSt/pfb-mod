@@ -3,6 +3,7 @@ import pfb
 from matrix_operators import A,AT, A_inv, A_inv_wiener, A_quantize
 from numpy.fft import rfft, irfft
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 #%% Helper methods / routines
 
@@ -408,23 +409,82 @@ def conj_grad_one_three_five_perc(
     # RMS conj gradient descent
     saveas5 = "img/RMSE_conjugate_gradient_descent_5percent.png" if verbose else None
     x_out_5 = conjugate_gradient_descent(B_5, u_5, x0=x0_wiener, rmin=0.0, 
-            max_iter=15, k=k, lblock=lblock, verbose=verbose, x_true=x, 
+            max_iter=13, k=k, lblock=lblock, verbose=verbose, x_true=x, 
             title="RMSE smoothed gradient steps 5% data salvaged",
             saveas=saveas5)
     # RMS conj gradient descent
     saveas3 = "img/RMSE_conjugate_gradient_descent_3percent.png" if verbose else None
     x_out_3 = conjugate_gradient_descent(B_3, u_3, x0=x0_wiener, rmin=0.0, 
-            max_iter=10, k=k, lblock=lblock, verbose=verbose, x_true=x, 
+            max_iter=8, k=k, lblock=lblock, verbose=verbose, x_true=x, 
             title="RMSE smoothed gradient steps 3% data salvaged",
             saveas=saveas3)
     # RMS conj gradient descent
     saveas1 = "img/RMSE_conjugate_gradient_descent_1percent.png" if verbose else None
     x_out_1 = conjugate_gradient_descent(B_1, u_1, x0=x0_wiener, rmin=0.0, 
-            max_iter=5, k=k, lblock=lblock, verbose=verbose, x_true=x, 
+            max_iter=3, k=k, lblock=lblock, verbose=verbose, x_true=x, 
             title="RMSE smoothed gradient steps 1% data salvaged",
             saveas=saveas1)        
     return x0, x0_wiener, x_out_5, x_out_3, x_out_1
  
+
+def reconstruct_long_signal(signal, delta=0.5):
+    """PFB's signal, quantizes, then undoes the PFB, returns 
+    reconstructed signal using naive inversion, wiener filter, and 
+    extra information. 
+
+    We assume, conservatively, that the first 5 and last 5 frames of
+    each reconstruction will succumb to edge effects. With this in mind
+    we iPFB our signal in batches of 80 * 2048 (k * lblock). 
+    
+    Parameters
+    ----------
+    signal : np.ndarray
+        Time-series data
+    delta : float
+        Quantization interval
+    """
+    k = 80 # number of frames
+    lblock = 2048 # size of frames
+
+    # normalize signal
+    signal = (signal - np.mean(signal)) / np.std(signal)
+    signal_out0 = np.zeros(len(signal))
+    signal_out_wiener = np.zeros(len(signal))
+    signal_out5 = np.zeros(len(signal))
+    signal_out3 = np.zeros(len(signal))
+    signal_out1 = np.zeros(len(signal))
+    for i in np.arange(0,len(signal) - k*lblock,(k-10)*lblock):
+        idxs = np.arange(i,i+k*lblock)
+        idxs_no_edge = idxs[5*lblock:-5*lblock] # subset of indices without edge effects present
+        x = signal[idxs]
+        x0,x_wiener,x5,x3,x1 = conj_grad_one_three_five_perc(
+                x,delta,k,lblock,verbose=False)
+        signal_out0[idxs_no_edge] = x0[5*lblock:-5*lblock]
+        signal_out_wiener[idxs_no_edge] = x_wiener[5*lblock:-5*lblock]
+        signal_out1[idxs_no_edge] = x1[5*lblock:-5*lblock]
+        signal_out3[idxs_no_edge] = x3[5*lblock:-5*lblock]
+        signal_out5[idxs_no_edge] = x5[5*lblock:-5*lblock]
+
+    print("INFO: Reconstructed signal, serializing npy arrays")
+    nowstring=datetime.now().strftime("%Y%m%d_%H%M%S")
+    print(f"\t{nowstring}_signal.npy")
+    np.save(f"{nowstring}_signal.npy",signal)
+    print(f"\t{nowstring}_signal_out0.npy")
+    np.save(f"{nowstring}_signal_out0.npy",signal_out0)
+    print(f"\t{nowstring}_signal_wiener.npy")
+    np.save(f"{nowstring}_signal_wiener.npy",signal_out_wiener)
+    print(f"\t{nowstring}_signal_out1.npy")
+    np.save(f"{nowstring}_signal_out1.npy",signal_out1)
+    print(f"\t{nowstring}_signal_out3.npy")
+    np.save(f"{nowstring}_signal_out3.npy",signal_out3)
+    print(f"\t{nowstring}_signal_out5.npy")
+    np.save(f"{nowstring}_signal_out5.npy",signal_out5)
+    return signal_out0,signal_out_wiener,signal_out1,signal_out3,signal_out5
+
+
+
+
+
 
 
 
