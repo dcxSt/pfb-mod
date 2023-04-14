@@ -323,8 +323,10 @@ def conj_grad_one_three_five_perc(
     N_inv = np.ones(len(x)) * 6 / delta**2 
 
     """5 percent of original data given as prior."""
+    if delta <= 0.3: npersave = 10
+    else: npersave = 5
     # Get the indices for all the data points we 'salvage' in data collection
-    _,saved_idxs_5 = get_saved_idxs(5, 0.05, k, lblock)
+    _,saved_idxs_5 = get_saved_idxs(npersave, 0.05, k, lblock)
     # The noise matrix for the prior. 
     prior_5 = np.ones(len(x)) # What we know about x, information we salvaged. 
     # The data we save will also be 8-bit quantized. 
@@ -339,6 +341,8 @@ def conj_grad_one_three_five_perc(
     
     
     """3 percent of original data given as prior."""
+    if delta <= 0.3: npersave = 12
+    else: npersave = 6
     _,saved_idxs_3 = get_saved_idxs(6, 0.03, k, lblock)
     # The noise matrix for the prior. 
     prior_3 = np.zeros(len(x)) # What we know about x, information we salvaged. 
@@ -352,6 +356,8 @@ def conj_grad_one_three_five_perc(
     u_3 = AT(N_inv * d) + Q_inv_3 * prior_3 # this is same as mult prior by var=12/delta^2
     
     """1 percent of original data given as prior."""
+    if delta <= 0.3: npersave = 14
+    else: npersave = 7
     _,saved_idxs_1 = get_saved_idxs(7, 0.01, k, lblock)
     # the noise matrix for the prior
     prior_1 = np.zeros(len(x)) # what we know about x, information we saved
@@ -391,8 +397,8 @@ def conj_grad_one_three_five_perc(
     rms_wiener = np.sqrt(np.mean(rms_wiener,axis=0))
     if verbose:
         plt.figure(figsize=(14,4))
-        plt.semilogy(rms_virgin[5:-5],label="rmse virgin ipfb",color=colors[0]) 
         plt.semilogy(rms_wiener[5:-5],label="rmse wiener filtered",color=colors[1]) 
+        plt.semilogy(rms_virgin[5:-5],label="rmse virgin ipfb",color=colors[0]) 
         
         plt.grid(which="both") 
         plt.legend()
@@ -406,22 +412,27 @@ def conj_grad_one_three_five_perc(
         plt.show(block=False)
         plt.pause(0.01)
     
+    # Chose optimal max iter params
+    if delta<=0.3: 
+        max_iter5,max_iter3,max_iter1=2,2,2
+    else: # usually it's 0.5
+        max_iter5,max_iter3,max_iter1=15,10,5
     # RMS conj gradient descent
     saveas5 = "img/RMSE_conjugate_gradient_descent_5percent.png" if verbose else None
     x_out_5 = conjugate_gradient_descent(B_5, u_5, x0=x0_wiener, rmin=0.0, 
-            max_iter=13, k=k, lblock=lblock, verbose=verbose, x_true=x, 
+            max_iter=max_iter5, k=k, lblock=lblock, verbose=verbose, x_true=x, 
             title="RMSE smoothed gradient steps 5% data salvaged",
             saveas=saveas5)
     # RMS conj gradient descent
     saveas3 = "img/RMSE_conjugate_gradient_descent_3percent.png" if verbose else None
     x_out_3 = conjugate_gradient_descent(B_3, u_3, x0=x0_wiener, rmin=0.0, 
-            max_iter=8, k=k, lblock=lblock, verbose=verbose, x_true=x, 
+            max_iter=max_iter3, k=k, lblock=lblock, verbose=verbose, x_true=x, 
             title="RMSE smoothed gradient steps 3% data salvaged",
             saveas=saveas3)
     # RMS conj gradient descent
     saveas1 = "img/RMSE_conjugate_gradient_descent_1percent.png" if verbose else None
     x_out_1 = conjugate_gradient_descent(B_1, u_1, x0=x0_wiener, rmin=0.0, 
-            max_iter=3, k=k, lblock=lblock, verbose=verbose, x_true=x, 
+            max_iter=max_iter1, k=k, lblock=lblock, verbose=verbose, x_true=x, 
             title="RMSE smoothed gradient steps 1% data salvaged",
             saveas=saveas1)        
     return x0, x0_wiener, x_out_5, x_out_3, x_out_1
