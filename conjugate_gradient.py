@@ -8,7 +8,7 @@ from datetime import datetime
 #%% Helper methods / routines
 
 def get_saved_idxs(n_per_save=5, prct=0.03, k=80, lblock=2048):
-    """Returns 3% of indices of the most troublesome channels.
+    """Returns prct% of indices of the most troublesome channels.
 
     Parameters
     ----------
@@ -46,6 +46,26 @@ def get_saved_idxs(n_per_save=5, prct=0.03, k=80, lblock=2048):
     ])
     return width, saved_idxs
 
+def get_uniform_saved_indices(prct=0.1, k=80, lblock=2048):
+    """Returns prct% of indices uniformly from all channels
+
+    prct : float
+        The percentage of saved field samples. 
+
+    k : int
+        The number of frames. 
+
+    lblock : int
+        Frame length. ("length of block" as i used to call it)
+    """
+    nperframe = int(prct * lblock) # number that we can save per frame
+    saved_idxs = np.zeros(nperframe * k,dtype="int")
+    rel_idxs = np.arange(nperframe) # relative indexes saved in this frame
+    for i in range(k):
+        rel_idxs += nperframe
+        rel_idxs %= lblock
+        saved_idxs[i*nperframe + np.arange(nperframe)] = rel_idxs + i*lblock
+    return saved_idxs
 
 
 def mav(x, n=4):
@@ -154,20 +174,26 @@ def mav(x, n=4):
 #    return x
 
 
-def get_Bu(x,d,saved_idxs,delta):
+def get_Bu(x,d,saved_idxs,delta,stds=None,nchan=None):
     """"This helper routine returns the B matrix and u array that feed
     into conjugate_gradient_descent.
 
     Parameters
     ----------
     x : np.ndarray
-        Input time-stream (raw digitized electric-field samples)
+        Input time-stream (raw digitized electric-field samples). 
+        Represents truth.
     d : np.ndarray
-        The PFB'd data.
+        The PFB'd data. Flattened. 
     saved_idxs : np.ndarray
         An array of indices we salvage from the original time-stream.
     delta : float
-        The quantization interval. 
+        The quantization interval. (After PFB has been applied, in 
+        real and imag)
+    stds : np.ndarray
+        An array of standard deviations of length nchan. This argument 
+        can be supplied instead and treats the power on each channel
+        seperately
 
     Returns
     -------
@@ -177,11 +203,18 @@ def get_Bu(x,d,saved_idxs,delta):
         The u array, the target of the linear equation Bx=u we wish
         to solve
     """
+    if stds is not None:
+        assert nchan is not None, "Must supply nchan if stds are given"
+        assert stds.shape == (nchan,), "Dimensions of stds array must be (nchan,)"
+        #TODO CONTINUE HERE
+        #nframes = len(x)//(nchan*2+1)
     # Ninv and Qinv are diagonal noise matrices (stored as 1d arrays)
     Ninv=np.ones(len(x)) * 6/delta**2
     prior=np.ones(len(x)) # prior information salvaged
+    # ---BEGIN DEPRICATED---
     # The data we salvaged is also quantized
     prior[saved_idxs]=pfb.quantize_real(x[saved_idxs].copy(),delta)
+    # ---END   DEPRICATED---
     # Q_inv inits to ones because we use the fact that our data is expected
     # to sample from a Gaussian Random Variable. Our prior on those samples
     # we don't salvage is zero +- 1, Our prior on samples we do salvage 
@@ -215,6 +248,8 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
         below this value, we're gucci. 
     max_iter : int
         The maximal number of descent iterations to make before stopping. 
+    k : int
+        Number of frames
     verbose : bool, optional
         If verbose is set to True, it will plot the descent. 
     x_true : np.ndarray, optional
@@ -322,11 +357,40 @@ def conj_grad_one_three_five_perc(
     # `N_inv` and `Q_inv` are *diagonal* matrices, so we store them as 1D-arrays 
     N_inv = np.ones(len(x)) * 6 / delta**2 
 
-    """5 percent of original data given as prior."""
-    if delta <= 0.3: npersave = 10
-    else: npersave = 5
+
+    get_indices_uniform=False # sample indices from specific channels
+    if delta <= 0.1: get_indices_uniform=True # just sample uniformly
+
+
+    """10 percent of original data given as prior."""
     # Get the indices for all the data points we 'salvage' in data collection
-    _,saved_idxs_5 = get_saved_idxs(npersave, 0.05, k, lblock)
+    if get_indices_uniform is True:
+        saved_idxs_10 = get_uniform_saved_indices(0.1, k, lblock)
+    else:
+        if delta <= 0.3: npersave = 10
+        else: npersave = 5
+        _,saved_idxs_10 = get_saved_idxs(npersave, 0.1, k, lblock)
+    # The noise matrix for the prior. 
+    prior_10 = np.ones(len(x)) # What we know about x, information we salvaged. 
+    # The data we save will also be 8-bit quantized. 
+    prior_10[saved_idxs_10] = pfb.quantize_real(x[saved_idxs_10].copy() , delta) # Quantized original signal. 
+    
+    # Assumes prior on distribution, gaussian distributed with std=1
+    Q_inv_10 = np.ones(len(x)) # this is a prior, change to zeros if you want zero for infinite uncertainty
+    Q_inv_10[saved_idxs_10] = np.ones(len(saved_idxs_10)) * (12 / delta**2) # 8 bits per real number (finer std because no complex) 
+    
+    B_10 = lambda ts: AT(N_inv * A(ts)) + Q_inv_10 * ts # think ts===x
+    u_10 = AT(N_inv * d) + Q_inv_10 * prior_10 # this is same as mult prior by var=12/delta^2
+ 
+
+    """5 percent of original data given as prior."""
+    # Get the indices for all the data points we 'salvage' in data collection
+    if get_indices_uniform is True:
+        saved_idxs_5 = get_uniform_saved_indices(0.05, k, lblock)
+    else:
+        if delta <= 0.3: npersave = 10
+        else: npersave = 5
+        _,saved_idxs_5 = get_saved_idxs(npersave, 0.05, k, lblock)
     # The noise matrix for the prior. 
     prior_5 = np.ones(len(x)) # What we know about x, information we salvaged. 
     # The data we save will also be 8-bit quantized. 
@@ -341,9 +405,13 @@ def conj_grad_one_three_five_perc(
     
     
     """3 percent of original data given as prior."""
-    if delta <= 0.3: npersave = 12
-    else: npersave = 6
-    _,saved_idxs_3 = get_saved_idxs(6, 0.03, k, lblock)
+    # Get the indices for all data points we salvage
+    if get_indices_uniform is True:
+        saved_idxs_3 = get_uniform_saved_indices(0.03, k, lblock)
+    else:
+        if delta <= 0.3: npersave = 12
+        else: npersave = 6
+        _,saved_idxs_3 = get_saved_idxs(6, 0.03, k, lblock)
     # The noise matrix for the prior. 
     prior_3 = np.zeros(len(x)) # What we know about x, information we salvaged. 
     # The data we save will also be 8-bit quantized. 
@@ -356,9 +424,13 @@ def conj_grad_one_three_five_perc(
     u_3 = AT(N_inv * d) + Q_inv_3 * prior_3 # this is same as mult prior by var=12/delta^2
     
     """1 percent of original data given as prior."""
-    if delta <= 0.3: npersave = 14
-    else: npersave = 7
-    _,saved_idxs_1 = get_saved_idxs(7, 0.01, k, lblock)
+    # Get the indices for data points we salvage
+    if get_indices_uniform is True:
+        saved_idxs_1 = get_uniform_saved_indices(0.01, k, lblock)
+    else:
+        if delta <= 0.3: npersave = 14
+        else: npersave = 7
+        _,saved_idxs_1 = get_saved_idxs(7, 0.01, k, lblock)
     # the noise matrix for the prior
     prior_1 = np.zeros(len(x)) # what we know about x, information we saved
     prior_1[saved_idxs_1] = pfb.quantize_real(x[saved_idxs_1].copy() , delta) # quantized original signal
@@ -414,9 +486,15 @@ def conj_grad_one_three_five_perc(
     
     # Chose optimal max iter params
     if delta<=0.3: 
-        max_iter5,max_iter3,max_iter1=2,2,2
+        max_iter10,max_iter5,max_iter3,max_iter1=3,2,2,2
     else: # usually it's 0.5
-        max_iter5,max_iter3,max_iter1=15,10,5
+        max_iter10,max_iter5,max_iter3,max_iter1=18,15,10,5
+    # RMS conj gradient descent
+    saveas10 = "img/RMSE_conjugate_gradient_descent_10percent.png" if verbose else None
+    x_out_10 = conjugate_gradient_descent(B_10, u_10, x0=x0_wiener, rmin=0.0,
+            max_iter=max_iter10, k=k, lblock=lblock, verbose=verbose, x_true=x, 
+            title="RMSE smoothed gradient steps 10% data salvaged",
+            saveas=saveas10)
     # RMS conj gradient descent
     saveas5 = "img/RMSE_conjugate_gradient_descent_5percent.png" if verbose else None
     x_out_5 = conjugate_gradient_descent(B_5, u_5, x0=x0_wiener, rmin=0.0, 
@@ -435,10 +513,10 @@ def conj_grad_one_three_five_perc(
             max_iter=max_iter1, k=k, lblock=lblock, verbose=verbose, x_true=x, 
             title="RMSE smoothed gradient steps 1% data salvaged",
             saveas=saveas1)        
-    return x0, x0_wiener, x_out_5, x_out_3, x_out_1
+    return x0, x0_wiener, x_out_10, x_out_5, x_out_3, x_out_1
  
 
-def reconstruct_long_signal(signal, delta=0.5):
+def reconstruct_long_signal(signal, delta=0.5, verbose=False):
     """PFB's signal, quantizes, then undoes the PFB, returns 
     reconstructed signal using naive inversion, wiener filter, and 
     extra information. 
@@ -461,36 +539,40 @@ def reconstruct_long_signal(signal, delta=0.5):
     signal = (signal - np.mean(signal)) / np.std(signal)
     signal_out0 = np.zeros(len(signal))
     signal_out_wiener = np.zeros(len(signal))
+    signal_out10 = np.zeros(len(signal))
     signal_out5 = np.zeros(len(signal))
     signal_out3 = np.zeros(len(signal))
-    signal_out1 = np.zeros(len(signal))
+    #signal_out1 = np.zeros(len(signal))
     for i in np.arange(0,len(signal) - k*lblock,(k-10)*lblock):
         idxs = np.arange(i,i+k*lblock)
         idxs_no_edge = idxs[5*lblock:-5*lblock] # subset of indices without edge effects present
         x = signal[idxs]
-        x0,x_wiener,x5,x3,x1 = conj_grad_one_three_five_perc(
-                x,delta,k,lblock,verbose=False)
+        x0,x_wiener,x10,x5,x3,x1 = conj_grad_one_three_five_perc(
+                x,delta,k,lblock,verbose=verbose)
         signal_out0[idxs_no_edge] = x0[5*lblock:-5*lblock]
         signal_out_wiener[idxs_no_edge] = x_wiener[5*lblock:-5*lblock]
-        signal_out1[idxs_no_edge] = x1[5*lblock:-5*lblock]
+        #signal_out1[idxs_no_edge] = x1[5*lblock:-5*lblock]
         signal_out3[idxs_no_edge] = x3[5*lblock:-5*lblock]
         signal_out5[idxs_no_edge] = x5[5*lblock:-5*lblock]
+        signal_out10[idxs_no_edge] = x10[5*lblock:-5*lblock]
 
     print("INFO: Reconstructed signal, serializing npy arrays")
     nowstring=datetime.now().strftime("%Y%m%d_%H%M%S")
     print(f"\t{nowstring}_signal.npy")
-    np.save(f"{nowstring}_signal.npy",signal)
+    np.save(f"{nowstring}_signal.npy",np.asarray(signal,dtype="float32"))
     print(f"\t{nowstring}_signal_out0.npy")
-    np.save(f"{nowstring}_signal_out0.npy",signal_out0)
+    np.save(f"{nowstring}_signal_out0.npy",np.asarray(signal_out0,dtype="float32"))
     print(f"\t{nowstring}_signal_wiener.npy")
-    np.save(f"{nowstring}_signal_wiener.npy",signal_out_wiener)
-    print(f"\t{nowstring}_signal_out1.npy")
-    np.save(f"{nowstring}_signal_out1.npy",signal_out1)
+    np.save(f"{nowstring}_signal_wiener.npy",np.asarray(signal_out_wiener,dtype="float32"))
+    #print(f"\t{nowstring}_signal_out1.npy")
+    #np.save(f"{nowstring}_signal_out1.npy",np.asarray(signal_out1,dtype="float32"))
     print(f"\t{nowstring}_signal_out3.npy")
-    np.save(f"{nowstring}_signal_out3.npy",signal_out3)
+    np.save(f"{nowstring}_signal_out3.npy",np.asarray(signal_out3,dtype="float32"))
     print(f"\t{nowstring}_signal_out5.npy")
-    np.save(f"{nowstring}_signal_out5.npy",signal_out5)
-    return signal_out0,signal_out_wiener,signal_out1,signal_out3,signal_out5
+    np.save(f"{nowstring}_signal_out5.npy",np.asarray(signal_out5,dtype="float32"))
+    print(f"\t{nowstring}_signal_out10.npy")
+    np.save(f"{nowstring}_signal_out10.npy",np.asarray(signal_out10,dtype="float32"))
+    return signal_out0,signal_out_wiener,signal_out1,signal_out3,signal_out5,signal_out10
 
 
 

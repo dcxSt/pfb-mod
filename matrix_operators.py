@@ -5,6 +5,10 @@ import pfb
 import numpy as np
 from numpy.fft import rfft,irfft
 
+
+
+
+# TODO refactor PFB matrix operators and conj-grad code so that is just does the forward pfb... 
 def A(x):
     """Applies PFB, irfft's that, flatten."""
     # Forward PFB the Signal
@@ -55,8 +59,7 @@ def A_quantize(x, delta):
 def R(x,lblock=2048):
     """Re-ordering matrix (involution). Useful for Transposes"""
     lx = len(x)
-    if lx/lblock != lx//lblock: 
-        raise Exception("Len x must divide lblock.")
+    assert lx/lblock == lx//lblock, "Len x must divide lblock"
     k = lx // lblock
     out = np.zeros(lx)
     for i in range(k):
