@@ -34,6 +34,20 @@ $$y_n = \frac{1}{\sqrt N} \sum_{k=0}^N \exp(-2\pi i nk)x_k$$
 
 In `conjugate_gradient.py`, we have code that lets us optimize the inverse PFB based on some added information. 
 
+We perform conjugate gradient descent on a matrix equation of the form
+
+$$B x = u$$
+
+The equation we are minimizing, the chi-squared equation, takes the form
+
+$$\chi^2 = (d - Ax)^T N^{-1} (d - Ax)$$
+
+Taking a derivative wrt to the model ($x$) and setting that to zero we get
+
+$$\frac{d\chi^2}{dx} = -2A^TN^{-1}(d - Ax) = 0 \Rightarrow A^TN^{-1}(d - Ax) = 0$$
+
+
+
 ## Plots
 
 

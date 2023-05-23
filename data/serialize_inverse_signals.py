@@ -16,7 +16,7 @@ signal = (signal - np.mean(signal)) / np.std(signal)
 # trunkate signal (temporary)
 #signal = signal[:3*80*2048]
 
-cg.reconstruct_long_signal(signal,delta=0.3)
+cg.reconstruct_long_signal(signal,delta=0.09,verbose=False)
 
 
 

@@ -79,6 +79,11 @@ def quantize(signal,delta=0.1):
     """Quantizes signal in intervals of delta in both real and imaginary parts"""
     return quantize_real(np.real(signal),delta) + 1.0j*quantize_real(np.imag(signal),delta) 
 
+def quantize_8_bit_real(signal, delta=0.5):
+    """8-bit Quantizes a real signal in 8 bits"""
+    return np.clip(quantize_real(signal, delta), 
+            -128*delta + delta/2, 128*delta - delta/2)
+
 def quantize_8_bit(signal, delta=0.5):
     """8-bit Quantizes the signal in intervals of delta in both real 
     and imaginary parts, 4 bits (=15 intervals) for each componant, 
@@ -94,11 +99,22 @@ def quantize_8_bit(signal, delta=0.5):
                                   8*delta  - delta/2)
     return real_quantized + 1.0j*imag_quantized 
 
-def quantize_12_bit_real(signal, delta=0.2):
+def quantize_12_bit_real(signal, delta=0.3):
     """Quantizes real signal into twelve bits"""
     return np.clip(quantize_real(signal, delta),
                             -2**11*delta + delta/2,
                              2**11*delta - delta/2)
+
+def quantize_8_bit_spec_scaled_per_channel(spec, normalized_delta=0.2):
+    """Figures out optimal quantization scales in form of a 'deltas' 
+    array, then quantizes the spectrum in each channel
+
+    Shape of spec is [ ? , number of channels]"""
+    print(f"DEBUG: spec.shape should be (?, number of channels) {spec.shape}") 
+    stds = spec.std(axis=0)
+    spec_norm = spec/stds # normalized spectrum
+    spec_norm = quantize_8_bit(spec_norm, delta=normalized_delta) # quantize it
+    return spec_norm * stds, stds
     
 
 # def quantize_real(real_signal,delta=0.1):

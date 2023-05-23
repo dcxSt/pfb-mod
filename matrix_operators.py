@@ -9,6 +9,15 @@ from numpy.fft import rfft,irfft
 
 
 # TODO refactor PFB matrix operators and conj-grad code so that is just does the forward pfb... 
+
+# To build, I'm calling these C instead of A so that old code can coexist, backwards compatible (for now)
+def C(x):
+    """Applies forward pfb, flatten"""
+    return pfb.forward_pfb(x).flatten()
+
+#def C_inv
+
+# ---- old paradigm
 def A(x):
     """Applies PFB, irfft's that, flatten."""
     # Forward PFB the Signal
@@ -60,8 +69,9 @@ def R(x,lblock=2048):
     """Re-ordering matrix (involution). Useful for Transposes"""
     lx = len(x)
     assert lx/lblock == lx//lblock, "Len x must divide lblock"
-    k = lx // lblock
+    k = lx // lblock # k is number of frames
     out = np.zeros(lx)
+    # For each frame, 
     for i in range(k):
         out[i*lblock:(i+1)*lblock] = x[(k-i-1)*lblock:(k-i)*lblock]
     return out
