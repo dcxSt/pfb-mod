@@ -11,7 +11,8 @@ from scipy.fft import rfft,irfft,fft,ifft
 
 
 # forward pfb as implemented in Richard Shaw's notebook
-def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning):
+def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning, 
+                is_rfft=True):
     """Performs the Chime PFB on a timestream
     
     Parameters
@@ -23,6 +24,9 @@ def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning):
         number because of Nyquist)
     ntaps : int
         Number of taps.
+    is_rfft : bool
+        True if using rfft, if false use full fft. 
+        (Useful for transposing the PFB in gradient descent.) 
 
     Returns
     -------
@@ -33,11 +37,12 @@ def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning):
     lblock = 2*(nchan - 1)
     # number of blocks
     nblock = timestream.size / lblock - (ntap - 1)
+    # the number of frames is: nframe = nblock + ntap - 1
     if nblock==int(nblock): nblock=int(nblock)
     else: raise Exception("nblock is {}, should be integer".format(nblock))
 
     # initialize array for spectrum 
-    spec = np.zeros((nblock,nchan), dtype=np.complex128)
+    spec = np.zeros((nblock,nchan if is_rfft else lblock), dtype=np.complex128)
 
     # window function
     w = window(ntap, lblock)
@@ -53,9 +58,49 @@ def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning):
         ts_sec = timestream[bi*lblock:(bi+ntap)*lblock].copy()
 
         # perform a real DFT (with applied, chunked window)
-        spec[bi] = rfft(s(ts_sec * w)) 
+        spec[bi] = rfft(s(ts_sec * w)) if is_rfft else fft(s(ts_sec * w))
 
-    return spec 
+    return spec # shape = (nblock, nchan)
+
+# not yet tested
+# I can't think of a way to test this... I guess I just have to prey.
+def pfb_transpose(spec, ntap=4, window=h.sinc_hanning):
+    """The transposed PFB operator.
+    
+    (!) It is assumed that the spectrum is the PFB with an even lblock 
+    and that the full FFT is taken in the PFB, i.e. that `is_rfft=False`
+    is passed to forward pfb. This is because the transpose of the
+    RFFT operator is much more complicated than the transpose of the
+    FFT, which is the FFT itsself.
+
+    Parameters
+    ----------
+    spec : np.ndarray
+        Output of the PFB. 
+    ntap : int
+        Number of taps. 
+    window : callable
+        The type of window. By default the Hanning-tapered Sinc. 
+
+    Returns
+    -------
+    np.ndarray 
+        A numpy 1-dimensional array of same dimensions that would be input to pfb. 
+    """
+    # number of blocks, number of channels
+    nblock,nchan = spec.shape
+    lframe = 2*(nchan - 1) # length of a frame
+    nframe = nblock + ntap - 1 # number of output frames
+    w = window(ntap, lframe) # actual weights of a window, a 1d-ndarray
+    out = np.zeros(nframe * lframe) # make space in memory
+    # (FSW)^T = WS^TF
+    # Split the PFB transpose operator into ntap operators that sum 
+    # together to give the PFB.T; each of these operators is composed of 
+    # square matrices plunked on the diagonals everywhere
+    for i in range(ntap):
+        out[i*lframe:-(ntap-i)*lframe] += (w[i*lframe:(i+1)*lframe] * fft(spec[i:-(ntap-i),:],axis=1)).flatten()
+    return out
+
 
 def add_gaussian_noise(signal,sigma_proportion=0.001):
     """Adds gausian noise with standard deviation of 
