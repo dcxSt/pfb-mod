@@ -49,12 +49,12 @@ def get_saved_idxs(n_per_save=5, prct=0.03, k=80, lblock=2048):
 def get_uniform_saved_indices(prct=0.1, k=80, lblock=2048):
     """Returns prct% of indices uniformly from all channels
 
+    Parameters
+    ----------
     prct : float
         The percentage of saved field samples. 
-
     k : int
-        The number of frames. 
-
+        The number of frames. (in timestream that we care about) 
     lblock : int
         Frame length. ("length of block" as i used to call it)
     """
@@ -243,6 +243,60 @@ def get_Bu_noprior(spec,delta,ntap=4):
     #u=pfb.AdagNinv(spec,ntap=ntap)
     u=pfb.pfb_dag(Ninv * spec,ntap)
     return B, u
+
+def get_Bu_withprior(ts,spec,delta,saved_idxs,ntap=4):
+    """Routine to construct B operator and u array for conjugate-
+    gradient descent on B.x=u
+    
+    Parameters
+    ----------
+    ts : ndarray
+        Input time-stream (raw digitized EM samples). Is the 'truth'.
+    spec : ndarray
+        The PFB'd data. Flattened. (aka d)
+    saved_idxs : ndarray
+        Array of indices to salvage from original EM samples time-stream
+    delta : float
+        The quantization interval. (After PFB has been applied, in real 
+        and imag). This is the delta relative to the power of each chan
+        
+    Returns
+    -------
+    callable 
+        The B matrix implemented as a function (not 2darray)
+    ndarray
+        The u array, target of the linear equation Bx=u
+    """
+    nchan=spec.shape[1] # Number of channels
+    # Power (i.e. Standard Deviation) of each channel
+    stds=np.std(spec,axis=0)
+    assert stds.shape==(nchan,), "Sanity check"
+    # Power of time-series (DC band should be zero)
+    std_ts=np.std(ts)**2
+    # Ninv is the diagonal repeating noise matrix
+    Ninv=6/delta**2/stds**2
+    # Build the prior
+    p=np.zeros(len(ts)) # when we don't know, prior is GRN with mu=0
+    p[saved_idxs]=ts[saved_idxs] # information we do know
+    # Build the prior's noise matrix (also diagonal, 1darray)
+    Qinv=np.ones(len(ts))/std_ts**2
+    Qinv[saved_idxs]=np.ones(len(saved_idxs))*(1/std_ts**2 * 12/delta**2)
+    # BUILD OPERATORS
+    # Make some aliases
+    At=lambda s:pfb.pfb_dag(s, ntap)
+    A=lambda x:pfb.forward_pfb(x, nchan, ntap)
+    # Build B operator as function
+    def B(x):return At(Ninv * A(x)) + Qinv*x
+    # Build target array 
+    u=At(Ninv * spec) + Qinv*p
+    # Build chi-squared evaluator
+    def chisq(x,spec):
+        # Whitened array, intermediary product
+        wh = (np.sqrt(Ninv)*(A(x) - spec)).flatten()
+        wh2 = (np.sqrt(Qinv)*(x-p))
+        conj=np.conjugate # alias to make next line readable
+        return np.dot(wh,conj(wh)) + np.dot(wh2,conj(wh2))
+    return B,u,chisq
 
 def conjugate_gradient_descent(B, u, x0=None, rmin=0.0, 
         max_iter=20, k=80, lblock=2048, verbose=False, 
