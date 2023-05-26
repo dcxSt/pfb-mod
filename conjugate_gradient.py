@@ -184,7 +184,7 @@ def get_Bu(x,d,saved_idxs,delta,stds=None,nchan=None):
         Input time-stream (raw digitized electric-field samples). 
         Represents truth.
     d : np.ndarray
-        The PFB'd data. Flattened. 
+        The PFB'd data. Flattened. (aka spec)
     saved_idxs : np.ndarray
         An array of indices we salvage from the original time-stream.
     delta : float
@@ -209,8 +209,8 @@ def get_Bu(x,d,saved_idxs,delta,stds=None,nchan=None):
         #TODO CONTINUE HERE
         #nframes = len(x)//(nchan*2+1)
     # Ninv and Qinv are diagonal noise matrices (stored as 1d arrays)
-    Ninv=np.ones(len(x)) * 6/delta**2
-    prior=np.ones(len(x)) # prior information salvaged
+    Ninv=np.ones(len(x)) * 6/delta**2 # asumes std=1
+    prior=np.ones(len(x)) # prior information salvaged # TODO: dubious, shld be 0s?
     # ---BEGIN DEPRICATED---
     # The data we salvaged is also quantized
     prior[saved_idxs]=pfb.quantize_real(x[saved_idxs].copy(),delta)
@@ -225,10 +225,29 @@ def get_Bu(x,d,saved_idxs,delta,stds=None,nchan=None):
     u=AT(Ninv*d) + Qinv*prior
     return B,u 
 
-def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20, 
-        k=80, lblock=2048, verbose=False, x_true=None, 
-        title="RMSE smoothed gradient steps",
-        saveas=None): 
+# Get B and u to solve Bx = u, without a prior.
+# spec (aka d) has the shape of (redundant) spec, (nframes, 2*(nchan-1))
+def get_Bu_noprior(spec,delta,ntap=4):
+    # Number of channels
+    nchan=spec.shape[1]
+    # Standard deviation of each channel
+    stds=np.std(spec,axis=0)
+    assert stds.shape==(nchan,), "Sanity check"
+    # Ninv and Qinv are diagonal noise matrices (stored as 1d arrays)
+    Ninv=6/delta**2/stds**2
+    ## The 'prior' is zeros
+    #Qinv=1/stds**2
+    B = lambda ts:pfb.pfb_dag(Ninv * pfb.forward_pfb(ts, nchan, ntap), ntap) #+ Qinv*ts
+    # assert spec.shape[1] == 2048, "incorrect shape data, perhaps it has been PFB'd but not enlarged?"
+    #B=lambda ts:pfb.AdagNinvA(ts,nchan=1025,ntap=4) # only keep real part, imag is due to numerical error
+    #u=pfb.AdagNinv(spec,ntap=ntap)
+    u=pfb.pfb_dag(Ninv * spec,ntap)
+    return B, u
+
+def conjugate_gradient_descent(B, u, x0=None, rmin=0.0, 
+        max_iter=20, k=80, lblock=2048, verbose=False, 
+        x_true=None, title="RMSE smoothed gradient steps",
+        saveas=None, suppress_imag=False): 
     """Minimize chi-squared by casting as conjugate gradient. 
     
     This conjugate gradient descent method approximately solves the 
@@ -245,7 +264,7 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
         Initial guess for x. 
     rmin : float
         The threshold value for stopping the descent. If the RMSE goes
-        below this value, we're gucci. 
+        below this value, we're gucci. Set to zero to ignore this. 
     max_iter : int
         The maximal number of descent iterations to make before stopping. 
     k : int

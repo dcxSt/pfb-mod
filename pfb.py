@@ -11,8 +11,7 @@ from scipy.fft import rfft,irfft,fft,ifft
 
 
 # forward pfb as implemented in Richard Shaw's notebook
-def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning, 
-                is_rfft=True):
+def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning):
     """Performs the Chime PFB on a timestream
     
     Parameters
@@ -24,13 +23,10 @@ def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning,
         number because of Nyquist)
     ntaps : int
         Number of taps.
-    is_rfft : bool
-        True if using rfft, if false use full fft. 
-        (Useful for transposing the PFB in gradient descent.) 
 
     Returns
     -------
-    pfb : np.ndarray[:, nchan]
+    pfb : ndarray[:, nchan]
         Array of PFB frequencies.
     """
     # number of samples in a sub block
@@ -42,7 +38,7 @@ def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning,
     else: raise Exception("nblock is {}, should be integer".format(nblock))
 
     # initialize array for spectrum 
-    spec = np.zeros((nblock,nchan if is_rfft else lblock), dtype=np.complex128)
+    spec = np.zeros((nblock,nchan), dtype=np.complex128)
 
     # window function
     w = window(ntap, lblock)
@@ -58,25 +54,19 @@ def forward_pfb(timestream, nchan=1025, ntap=4, window=h.sinc_hanning,
         ts_sec = timestream[bi*lblock:(bi+ntap)*lblock].copy()
 
         # perform a real DFT (with applied, chunked window)
-        spec[bi] = rfft(s(ts_sec * w)) if is_rfft else fft(s(ts_sec * w))
+        spec[bi] = rfft(s(ts_sec * w))
 
     return spec # shape = (nblock, nchan)
 
 # not yet tested
 # I can't think of a way to test this... I guess I just have to prey.
-def pfb_transpose(spec, ntap=4, window=h.sinc_hanning):
-    """The transposed PFB operator.
+def pfb_dag(spec, ntap=4, window=h.sinc_hanning):
+    """The hermitian conj of the PFB operator.
     
-    (!) It is assumed that the spectrum is the PFB with an even lblock 
-    and that the full FFT is taken in the PFB, i.e. that `is_rfft=False`
-    is passed to forward pfb. This is because the transpose of the
-    RFFT operator is much more complicated than the transpose of the
-    FFT, which is the FFT itsself.
-
     Parameters
     ----------
-    spec : np.ndarray
-        Output of the PFB. 
+    spec : ndarray
+        Output of the PFB.
     ntap : int
         Number of taps. 
     window : callable
@@ -84,21 +74,23 @@ def pfb_transpose(spec, ntap=4, window=h.sinc_hanning):
 
     Returns
     -------
-    np.ndarray 
+    ndarray 
         A numpy 1-dimensional array of same dimensions that would be input to pfb. 
     """
     # number of blocks, number of channels
-    nblock,nchan = spec.shape
-    lframe = 2*(nchan - 1) # length of a frame
-    nframe = nblock + ntap - 1 # number of output frames
+    nblock,nchan = spec.shape   # nblock = num rows in spec, 
+                                # lframe = num samples in frame
+    lframe = 2*(nchan - 1)
+    nframe = nblock + (ntap - 1) # number of output frames
     w = window(ntap, lframe) # actual weights of a window, a 1d-ndarray
-    out = np.zeros(nframe * lframe) # make space in memory
+                             # w is 1d array of length lframe*ntap
+    out = np.zeros(nframe * lframe) #, dtype="complex128") # make space in memory
     # (FSW)^T = WS^TF
-    # Split the PFB transpose operator into ntap operators that sum 
+    # Split the PFB dag operator into ntap operators that sum 
     # together to give the PFB.T; each of these operators is composed of 
     # square matrices plunked on the diagonals everywhere
     for i in range(ntap):
-        out[i*lframe:-(ntap-i)*lframe] += (w[i*lframe:(i+1)*lframe] * fft(spec[i:-(ntap-i),:],axis=1)).flatten()
+        out[i*lframe:len(out)-(ntap-1-i)*lframe] += (w[i*lframe:(i+1)*lframe] * irfft(spec,axis=1)).flatten()
     return out
 
 
@@ -111,7 +103,7 @@ def add_gaussian_noise(signal,sigma_proportion=0.001):
     because that's how the FFT inside our pfb works
 
     Params
-    signal : np.ndarray -- usually a 2 dimensional array
+    signal : ndarray -- usually a 2 dimensional array
     """
     sigma = sigma_proportion * np.mean(np.abs(signal))
     return signal + np.random.normal(0,sigma,size=signal.shape)
@@ -207,7 +199,7 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
 
     Returns
     -------
-    np.ndarray
+    ndarray
         The pseudo-inverse timestream. A 1d array. 
     """
     # Checks
@@ -241,7 +233,7 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
     timestream = np.zeros((lblock, nblocks*ntap), dtype=np.complex128) 
 
     # Implement as for loop for now so as not to make it too confusing
-    # but in theory we could use ndarrays and transposes
+    # but in theory we could use 2darrays and hermitian conjugates
     for idx,(v,wslice) in enumerate(zip(sw_ts.T , win.reshape(ntap,lblock).T)):
         # This next line looks like some disgusting python ninja move, 
         # but it's the cleanest way I could come up with, and it's very 
