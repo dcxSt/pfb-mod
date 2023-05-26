@@ -71,4 +71,10 @@ $$\frac{d\chi^2}{dx} = -2A^TN^{-1}(d - Ax) = 0 \Rightarrow A^TN^{-1}(d - Ax) = 0
 <img width="646" alt="sw_extract_tikz" src="https://user-images.githubusercontent.com/21654151/203611694-7e219311-2943-434a-a76a-f502305af928.png">
 <img width="645" alt="sw_matrix" src="https://user-images.githubusercontent.com/21654151/203611696-601cb03a-4f24-45fa-835f-aa4a97f65d08.png">
 
+Standardise the variable naming convention without breaking code
+- nblock = nframe + ntap - 1 
+- lblock -> lframe
+- nchan is gucci
+- k -> nblock
+- Perhaps get rid of nblock altogether? It may cause unnecessary confusion. Perhaps nframe should take nblock's definition and nframe's previous def should be abolished (nframe currently is spec.shape[0]).
 
