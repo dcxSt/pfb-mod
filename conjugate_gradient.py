@@ -18,7 +18,7 @@ def get_saved_idxs(n_per_save=5, prct=0.03, k=80, lblock=2048):
     prct : float
         Percent of data points we can save. Float between 0 and 1.
     k : int
-        Number of blocks in our data.
+        Number of blocks in our time-series data.
     lblock : int
         Number of samples per block.
 
@@ -47,7 +47,7 @@ def get_saved_idxs(n_per_save=5, prct=0.03, k=80, lblock=2048):
     return width, saved_idxs
 
 def get_uniform_saved_indices(prct=0.1, k=80, lblock=2048):
-    """Returns prct% of indices uniformly from all channels
+    """Returns prct% of indices uniformly from all 'channels'
 
     Parameters
     ----------
@@ -180,10 +180,10 @@ def get_Bu(x,d,saved_idxs,delta,stds=None,nchan=None):
 
     Parameters
     ----------
-    x : np.ndarray
+    x : ndarray
         Input time-stream (raw digitized electric-field samples). 
         Represents truth.
-    d : np.ndarray
+    d : ndarray
         The PFB'd data. Flattened. (aka spec)
     saved_idxs : np.ndarray
         An array of indices we salvage from the original time-stream.
@@ -253,7 +253,7 @@ def get_Bu_withprior(ts,spec,delta,saved_idxs,ntap=4):
     ts : ndarray
         Input time-stream (raw digitized EM samples). Is the 'truth'.
     spec : ndarray
-        The PFB'd data. Flattened. (aka d)
+        The PFB'd data. (aka d)
     saved_idxs : ndarray
         Array of indices to salvage from original EM samples time-stream
     delta : float
@@ -360,7 +360,7 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.0,
             rms_smoothed = mav(rms, 20)[20:-20] # Chop off spoiled values
             plt.plot(rms_smoothed, 
                     label="step_n={} rms_net={:.4f}".format(i, rms_net),
-                    color=(i/(max_iter-1), (1.5*i/(max_iter-1)-0.75)**2, 1.0-i/(max_iter-1), 0.6)
+                    color=(i/max_iter, (1.5*i/max_iter-0.75)**2, 1.0-i/(max_iter), 0.6)
                     )
 
         # If it passes below the threashold RMSE, break the loop
@@ -378,8 +378,20 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.0,
         p = r_new + beta * p
         r = r_new
     
-    # Conditionally plot config, annotations, etc
+    # Conditionally finish plot config, annotations, etc
     if verbose is True:
+        # Plot last descent step
+        rms = (x_true - x)**2
+        rms = np.reshape(rms[5*lblock:-5*lblock], (k-10, lblock))
+        rms_net = np.sqrt(np.mean(rms)) # net (or total) rms
+        rms = np.sqrt(np.mean(rms, axis=0))
+        rms_smoothed = mav(rms, 20)[20:-20] # Chop off spoiled values
+        plt.plot(rms_smoothed, 
+                label="step_n={} rms_net={:.4f}".format(max_iter, rms_net),
+                color=(1, (0.8)**2, 0, 0.8)
+                )
+
+        # plot config, labels, etc.
         plt.legend()
         plt.grid()
         plt.title(title, fontsize=20)
