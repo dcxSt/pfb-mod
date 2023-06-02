@@ -93,6 +93,45 @@ def pfb_dag(spec, ntap=4, window=h.sinc_hanning):
         out[i*lframe:len(out)-(ntap-1-i)*lframe] += (w[i*lframe:(i+1)*lframe] * irfft(spec,axis=1)).flatten()
     return out
 
+def AdagNinvA(ts, nchan=1025, ntap=4, window=h.sinc_hanning):
+    """Takes the timestream, PFB's it, Noise-inverse-matrix's it, PFB.T
+
+    Computes noise matrix on the fly. 
+
+    Parameters
+    ----------
+    ts : ndarray
+        1d array of timestream
+    nchan : int
+        Number of channels in this PFB. 
+    ntap : int
+        Number of taps
+    window : callable
+        The type of window, defaults to sinc-hanning
+
+    Returns
+    -------
+    ndarray A.T . Ninv . A
+    """
+    # Get the pfb spectrum, shape=(nframes,2*(nchan - 1))
+    spec = forward_pfb(ts, nchan, ntap, window)
+    # Apply noise matrix to the spectrum
+    # equivalent to dividing each channel by it's variance
+    spec /= spec.std(axis=0)**2
+    # Apply the pfb-dag operation, 1d-array
+    ts_out = pfb_dag(spec, ntap, window)
+    print("DEBUG: ts out datatype {ts_out[0]}")
+    return ts_out
+
+def AdagNinv(spec, ntap=4, window=h.sinc_hanning):
+    """Apply Noise-inverse then PFB dag"""
+    # Apply noise matrix to spectrum
+    spec /= spec.std(axis=0)**2
+    # Apply PFB dag
+    ts_out = pfb_dag(spec, ntap, window)
+    return ts_out
+
+    
 
 def add_gaussian_noise(signal,sigma_proportion=0.001):
     """Adds gausian noise with standard deviation of 
@@ -147,7 +186,6 @@ def quantize_8_bit_spec_scaled_per_channel(spec, normalized_delta=0.2):
     array, then quantizes the spectrum in each channel
 
     Shape of spec is [ ? , number of channels]"""
-    print(f"DEBUG: spec.shape should be (?, number of channels) {spec.shape}") 
     stds = spec.std(axis=0)
     spec_norm = spec/stds # normalized spectrum
     spec_norm = quantize_8_bit(spec_norm, delta=normalized_delta) # quantize it
