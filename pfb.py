@@ -175,6 +175,12 @@ def quantize_8_bit(signal, delta=0.5):
                                   8*delta  - delta/2)
     return real_quantized + 1.0j*imag_quantized 
 
+def quantize_2_bit(signal):
+    """1bit real, 1bit imag"""
+    real = np.sign(np.real(signal))
+    imag = np.sign(np.imag(signal))
+    return real + 1.0j*imag
+
 def quantize_12_bit_real(signal, delta=0.3):
     """Quantizes real signal into twelve bits"""
     return np.clip(quantize_real(signal, delta),
@@ -190,6 +196,11 @@ def quantize_8_bit_spec_scaled_per_channel(spec, normalized_delta=0.2):
     spec_norm = spec/stds # normalized spectrum
     spec_norm = quantize_8_bit(spec_norm, delta=normalized_delta) # quantize it
     return spec_norm * stds, stds
+
+def quantize_2_bit_spec_scaled_per_channel(spec):
+    stds = spec.std(axis=0)
+    spec_q = quantize_2_bit(spec)
+    return spec_q * stds, stds
     
 
 # def quantize_real(real_signal,delta=0.1):
