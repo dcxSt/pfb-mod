@@ -67,8 +67,8 @@ plt.ylabel("Sinc Hanning value", fontsize=16)
 plt.title("Four segments of Sinc Hanning",fontsize=22)
 plt.tight_layout()
 # Optionally save the figure
-plt.savefig("img/four_segments_sinc_hanning.png",dpi=400)
 plt.legend()
+plt.savefig("img/four_segments_sinc_hanning.png",dpi=400)
 plt.show(block=True)
 
 
