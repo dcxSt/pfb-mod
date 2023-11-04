@@ -45,20 +45,23 @@ def wien(Fw:np.ndarray):
 def get_kernel(col: int, trunkate: int=-1, is_wiener=False):
     """Get kernel coresponding to column col. Optionally trunkate to size (trunkate>0)"""
     if is_wiener is True:
-        wienarr = wien(mat_eig[col,:])
-        ker = irfft(wienarr/mat_eig[col,:])[::-1]
+        wienarr = wien(np.conjugate(mat_eig[col,:]))
+        ker = irfft(wienarr/np.conjugate(mat_eig[col,:]))
     elif is_wiener is False:
-        ker = irfft(1/mat_eig[col,:])[::-1]
+        ker = irfft(1/np.conjugate(mat_eig[col,:]))
     else:
         raise Exception("Logic error. This should never execute.")
     if trunkate>0: 
-        offset=2 # keep this close to zero, shifts center of array
-        ker = np.concatenate((ker[(-trunkate)//2+offset:] , ker[:trunkate//2+offset]))
-        x = np.arange((-trunkate//2)+offset,trunkate//2+offset)
+        offset=-3 # keep this close to zero, shifts center of array
+        rollby = trunkate//2 + offset
+        ker = np.roll(ker,rollby)[:trunkate]
+        x = np.arange(-rollby,-rollby+trunkate) # np.arange(-trunkate//2, trunkate//2)
+        #ker = np.concatenate((ker[(-trunkate)//2+offset:] , ker[:trunkate//2+offset]))
+        #x = np.arange((-trunkate//2)+offset,trunkate//2+offset)
     else:
         lenker = len(ker)
-        ker = np.roll(ker,lenker//2)# reverse order and center in middle for plotting
-        x = np.arange((-lenker)//2,lenker//2)
+        ker = np.roll(ker, lenker//2)
+        x = np.arange(-(lenker//2),-(lenker//2)+lenker)
     return x,ker
 
 def plot_six_panel(is_wiener=False):
@@ -73,36 +76,36 @@ def plot_six_panel(is_wiener=False):
     col=1023
     x,ker = get_kernel(col,is_wiener=is_wiener)
     fig,ax=plt.subplots(2,4,figsize=(13.5,4))
-    ax[0,0].set_title(f"Time domain kernel\nColumn #{col} of {lblock}")
+    ax[0,0].set_title(f"Column #{col} of {lblock}")
     ax[0,0].plot(x, ker, ".-", color=c0, markersize=0.7, linewidth=0.5)
     
     col=1000
     x,ker = get_kernel(col,is_wiener=is_wiener)
-    ax[1,0].set_title(f"Time domain kernel\nColumn #{col} of {lblock}")
+    ax[1,0].set_title(f"Column #{col} of {lblock}")
     ax[1,0].plot(x, ker, ".-", color=c0, markersize=0.7, linewidth=0.5)
     
-    col=800
+    col=850
     x,ker = get_kernel(col,is_wiener=is_wiener)
-    ax[0,1].set_title(f"Time domain kernel\nColumn #{col} of {lblock}")
+    ax[0,1].set_title(f"Column #{col} of {lblock}")
     ax[0,1].plot(x, ker, ".-", color=c0, markersize=0.7, linewidth=0.5)
-    x,ker = get_kernel(col,trunkate=15,is_wiener=is_wiener)
-    ax[1,1].set_title(f"Zoomed col #{col} of {lblock}")
+    x,ker = get_kernel(col,trunkate=17,is_wiener=is_wiener)
+    ax[1,1].set_title(f"Zoomed, column #{col} of {lblock}")
     ax[1,1].plot(x, ker,".-",color=c1,markersize=1.0,linewidth=0.5)
     
-    col=300
+    col=500#300
     x,ker = get_kernel(col,is_wiener=is_wiener)
-    ax[0,2].set_title(f"Time domain kernel\nColumn #{col} of {lblock}")
+    ax[0,2].set_title(f"Column #{col} of {lblock}")
     ax[0,2].plot(x,ker,".-",color=c0,markersize=0.7,linewidth=0.5)
-    x,ker = get_kernel(col,trunkate=15,is_wiener=is_wiener)
-    ax[1,2].set_title(f"Zoomed col #{col} of {lblock}")
+    x,ker = get_kernel(col,trunkate=17,is_wiener=is_wiener)
+    ax[1,2].set_title(f"Zoomed, column #{col} of {lblock}")
     ax[1,2].plot(x,ker,".-",color=c1,markersize=1.0,linewidth=0.5)
     
     col=0
     x,ker = get_kernel(col)
-    ax[0,3].set_title(f"Time domain kernel\nColumn #{col} of {lblock}")
+    ax[0,3].set_title(f"Column #{col} of {lblock}")
     ax[0,3].plot(x,ker,".-",color=c0,markersize=0.7,linewidth=0.5)
-    x,ker = get_kernel(col,trunkate=15)
-    ax[1,3].set_title(f"Zoomed col #{col} of {lblock}")
+    x,ker = get_kernel(col,trunkate=17)
+    ax[1,3].set_title(f"Zoomed, column #{col} of {lblock}")
     ax[1,3].plot(x,ker,".-",color=c1,markersize=1.0,linewidth=0.5)
     
     fig.suptitle(suptitle,fontsize=20)
