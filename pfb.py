@@ -71,20 +71,30 @@ def add_gaussian_noise(signal,sigma_proportion=0.001):
     sigma = sigma_proportion * np.mean(np.abs(signal))
     return signal + np.random.normal(0,sigma,size=signal.shape)
 
-def quantize_real(signal,delta=0.1):
-    """Quantize signal with interval delta, assume real valued signal"""
-    return np.floor(signal / delta) * delta + delta/2
+# Is this totally wrong?
+def quantize_real(signal, delta=0.353):
+    """Quantize signal with interval delta, assume real valued signal. 
+    Central quantization value is at zero. 
+    This is how it's implemented on our FPGA.
 
-def quantize(signal,delta=0.1):
+    signal : 1d array
+        Signal to be quantized
+    delta : float
+        Value separating quantization levels
+    """
+    signs=np.sign(signal)
+    return np.floor(np.abs(signal) / delta + 0.5) * signs * delta
+
+def quantize(signal, delta=0.1):
     """Quantizes signal in intervals of delta in both real and imaginary parts"""
     return quantize_real(np.real(signal),delta) + 1.0j*quantize_real(np.imag(signal),delta) 
 
-def quantize_8_bit_real(signal, delta=0.5):
+def quantize_8_bit_real(signal, delta=0.353):
     """8-bit Quantizes a real signal in 8 bits"""
     return np.clip(quantize_real(signal, delta), 
-            -128*delta + delta/2, 128*delta - delta/2)
+            -127*delta, 127*delta)
 
-def quantize_8_bit(signal, delta=0.5):
+def quantize_8_bit(signal, delta=0.353):
     """8-bit Quantizes the signal in intervals of delta in both real 
     and imaginary parts, 4 bits (=15 intervals) for each componant, 
     seperately"""
@@ -92,11 +102,9 @@ def quantize_8_bit(signal, delta=0.5):
     ## q is quantized, doesn't quantize to zero, only to non-zero values
     #q = lambda signal:np.floor((signal + delta) / delta) * delta - delta/2 
     real_quantized = np.clip(quantize_real(np.real(signal), delta),
-                             -8*delta + delta/2, 
-                             8*delta - delta/2) 
+                             -7*delta, 7*delta) 
     imag_quantized = np.clip(quantize_real(np.imag(signal), delta), 
-                                  -8*delta + delta/2, 
-                                  8*delta  - delta/2)
+                             -7*delta, 7*delta)
     return real_quantized + 1.0j*imag_quantized 
 
 def quantize_12_bit_real(signal, delta=0.3):
@@ -105,7 +113,7 @@ def quantize_12_bit_real(signal, delta=0.3):
                             -2**11*delta + delta/2,
                              2**11*delta - delta/2)
 
-def quantize_8_bit_spec_scaled_per_channel(spec, normalized_delta=0.2):
+def quantize_8_bit_spec_scaled_per_channel(spec, normalized_delta=0.353):
     """Figures out optimal quantization scales in form of a 'deltas' 
     array, then quantizes the spectrum in each channel
 
@@ -115,7 +123,7 @@ def quantize_8_bit_spec_scaled_per_channel(spec, normalized_delta=0.2):
     spec_norm = spec/stds # normalized spectrum
     spec_norm = quantize_8_bit(spec_norm, delta=normalized_delta) # quantize it
     return spec_norm * stds, stds
-    
+
 
 # def quantize_real(real_signal,delta=0.1):
 #     """Quantizes signal in intervals of delta."""
