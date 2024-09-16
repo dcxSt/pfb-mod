@@ -322,13 +322,16 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
 
 
 #%% Plotting Routines
-
+# This routine was written in the spirit of 
+# "The good is the enemy of the done"...
+# you have been warned
 def conj_grad_one_three_five_perc(
         x:np.ndarray, 
         delta:float=0.5,
         k:int=80,
         lblock:int=2048, 
-        verbose:bool=False
+        verbose:bool=False,
+        wiener_thresh:float=0.1
         ):
     """
     Computes PFB, quantizes, applies correction given 1%, 3%, 5% of data.
@@ -409,7 +412,7 @@ def conj_grad_one_three_five_perc(
     if get_indices_uniform is True:
         saved_idxs_3 = get_uniform_saved_indices(0.03, k, lblock)
     else:
-        if delta <= 0.3: npersave = 12
+        if delta <= 0.3: npersave = 12 # npsersave is just black magic
         else: npersave = 6
         _,saved_idxs_3 = get_saved_idxs(6, 0.03, k, lblock)
     # The noise matrix for the prior. 
@@ -447,8 +450,8 @@ def conj_grad_one_three_five_perc(
     
     """Optimize CHI squared using conjugate gradient method."""
     # x0 is the standard IPFB reconstruction
-    x0 = np.real(A_inv(d))
-    x0_wiener = np.real(A_inv_wiener(d, 0.25)) # Weiner threshold 0.25
+    x0 = np.real(A_inv(d)) 
+    x0_wiener = np.real(A_inv_wiener(d, wiener_thresh)) # Weiner threshold 0.25
     
     # print("\n\nd={}".format(d)) # trace, they are indeed real
     # print("\n\nx_0={}".format(x0)) # complex dtype but zero imag componant
@@ -469,8 +472,8 @@ def conj_grad_one_three_five_perc(
     rms_wiener = np.sqrt(np.mean(rms_wiener,axis=0))
     if verbose:
         plt.figure(figsize=(14,4))
-        plt.semilogy(rms_wiener[5:-5],label="rmse wiener filtered",color=colors[1]) 
-        plt.semilogy(rms_virgin[5:-5],label="rmse virgin ipfb",color=colors[0]) 
+        plt.semilogy(rms_wiener[5:-5],label=f"rmse wiener filtered, rms_net={rms_net_wiener}",color=colors[1]) 
+        plt.semilogy(rms_virgin[5:-5],label=f"rmse virgin ipfb, rms_net={rms_net_virgin}",color=colors[0]) 
         
         plt.grid(which="both") 
         plt.legend()
