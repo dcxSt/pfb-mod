@@ -58,7 +58,9 @@ def A_quantize(x, delta):
     # Quantize the filter bank
     # The sqrt is to account for the next IRFFT step
     # b = pfb.quantize(b, np.sqrt(2*(b.shape[1] - 1)) * delta) 
-    b = pfb.quantize_8_bit(b, np.sqrt(2*(b.shape[1] - 1)) * delta) 
+    #b = pfb.quantize_8_bit(b, np.sqrt(2*(b.shape[1] - 1)) * delta) 
+    std = ( np.std(np.real(b)) + np.std(np.imag(b)) )/2 # fixed quantization delta scaling with empirical std instead of faulty derived
+    b = pfb.quantize_8_bit(b, delta * std)
     # Inverse Fourier Transform
     b = irfft(b) # Same as apply along axis=1
     # Apply circulant boundary conditions
