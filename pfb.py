@@ -124,6 +124,11 @@ def quantize_8_bit_spec_scaled_per_channel(spec, normalized_delta=0.353):
     spec_norm = quantize_8_bit(spec_norm, delta=normalized_delta) # quantize it
     return spec_norm * stds, stds
 
+def quantize_1bit_complex(spec):
+    re = np.sign(np.real(spec))
+    im = np.sign(np.imag(spec))
+    return re + 1j*im
+
 
 # def quantize_real(real_signal,delta=0.1):
 #     """Quantizes signal in intervals of delta."""
@@ -143,7 +148,7 @@ def behead_infinite_values(arr):
 def bump_up_zero_values(arr):
     idxs = np.where(arr==0.0)[0]
     # arr[idxs] = 10**(-100)*np.ones(len(idxs)) # this is overkill
-    arr[idxs] = 0.1 # in practice this is at most a single value
+    arr[idxs] = 0.0001 # in practice this is at most a single value
     print(len(idxs))
     return # don't have to return anything because arrays arr is a pointer
 
@@ -201,8 +206,8 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
     nblocks = (sw_ts.shape[0] + ntap - 1)/ntap 
     if nblocks == int(nblocks): nblocks = int(nblocks)
     else: raise Exception("nblocks should be an integer, terminating.")
-    timestream = np.zeros((lblock, nblocks*ntap), dtype=np.complex128) 
 
+    timestream = np.zeros((lblock, nblocks*ntap)) 
     # Implement as for loop for now so as not to make it too confusing
     # but in theory we could use ndarrays and transposes
     for idx,(v,wslice) in enumerate(zip(sw_ts.T , win.reshape(ntap,lblock).T)):
@@ -221,7 +226,7 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
         # multiplying array and how convolutions are defined.
 
         # We can use rfft and irfft instead of fft and ifft, haven't got round to this yet... not sure if it's worth for our purposes really 
-        ft_wslice = fft(wslice_pad) # this is a column of the eigenmatrix
+        ft_wslice = rfft(wslice_pad) # this is a column of the eigenmatrix
         
         # Make sure there are no zero values, because we are inverting it
         filt = np.ones(len(ft_wslice))  
@@ -237,7 +242,7 @@ def inverse_pfb(spec, nchan = 1025, ntap = 4,
         
         # Below, might be impossible so use rfft and irfft because not 
         # 'exactly' real, could use rfft on np.real(thing)
-        gtilde = ifft(fft(np.concatenate((v,v[:ntap-1]))) * filt / ft_wslice) 
+        gtilde = irfft(rfft(np.concatenate((v,v[:ntap-1]))) * filt / ft_wslice) 
         timestream[idx] = gtilde 
 
 

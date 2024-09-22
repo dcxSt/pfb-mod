@@ -5,3 +5,5 @@
 little_scripts_testing/
 __pycache__/
 data/*raw
+*~
+*.swp

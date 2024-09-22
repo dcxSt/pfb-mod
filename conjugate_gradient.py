@@ -316,8 +316,137 @@ def conjugate_gradient_descent(B, u, x0=None, rmin=0.1, max_iter=20,
         if saveas is not None:
             plt.savefig(saveas)
         plt.show()
-    print("INFO: Conjugate Gradient descent completed.") 
+    #print("INFO: Conjugate Gradient descent completed.") 
     return x
+
+
+def conj_grad_with_prior(
+        x:np.ndarray, 
+        frac_prior:float=0.05,
+        delta:float=0.5,
+        k:int=80,
+        lblock:int=2048, 
+        verbose:bool=False,
+        wiener_thresh:float=0.1,
+        npersave:int=4, # For 4+4-bit quantization {1%:7,3%:5,5%:4,10%:3}
+        x0_wiener=None
+        ):
+    """
+    Computes PFB, quantizes, applies correction given 100 * frac_prior % of data.
+    Plots the RMSE with vs without Wiener filter, then with and without correction.
+    
+    Parameters
+    ----------
+    x : np.ndarray
+        Time-series signal
+    frac_prior : float
+        A number between 0 and 1 that represents the percentage of the prior given
+    delta : float
+        Width of the quantization interval
+    k : int
+        Number of frames to process at a time
+    lblock : int
+        Length of a frame
+    verbose : bool
+        If True, make and save plots. 
+    wiener_thresh : float
+        The threshold for Wiener filtering, if zero, no wiener filter is computed.
+    npersave : int
+        If we save y percent of indices, the optimal indices to save are where the
+        noise is most amplified, i.e. in the middle of each time-domain frame. 
+        However, we would be foolish to just pick the most ill conditioned channels, 
+        over-correcting the central channels and under-correcting the ones next to
+        them. So we make a wider selection in the center of the frames, wider by 
+        a factor of npersave, but we only pick 1/npersave of the channels in that 
+        range on each frame. 
+    x0_wiener : ndarray
+        This is the wiener filtered starting point of CG. Defaults to None. If none
+        will compute the wienered iPFB. 
+
+    Returns
+    -------
+    x0_wiener : np.ndarray
+        Wiener filtered iPFB
+    x_out : np.ndarray
+        CG optimized iPFB
+        
+    """
+    # Choose a photocopy & color-blind friendly colormap
+    colors=plt.get_cmap('Set2').colors # get list of RGB color values
+    # `d` is the output of the PFB with 4+4-bit quantization. 
+    d = A_quantize(x,delta) 
+    # `N_inv` and `Q_inv` are *diagonal* matrices, so we store them as 1D-arrays 
+    N_inv = np.ones(len(x)) * 6 / delta**2 
+
+    """100*frac_prior percent of original data given as prior."""
+    # Get the indices for all the data points we 'salvage' in data collection
+    _,saved_idxs = get_saved_idxs(npersave, 0.1, k, lblock)
+    # The noise matrix for the prior. 
+    prior = np.ones(len(x)) # What we know about x, information we salvaged. 
+    # The data we save will also be 8-bit quantized. 
+    prior[saved_idxs] = pfb.quantize_real(x[saved_idxs].copy() , delta) # Quantized original signal. 
+    
+    # Assumes prior on distribution, gaussian distributed with std=1
+    Q_inv = np.ones(len(x)) # this is a prior, change to zeros if you want zero for infinite uncertainty
+    Q_inv[saved_idxs] = np.ones(len(saved_idxs)) * (12 / delta**2) # 8 bits per real number (finer std because no complex) 
+    
+    B = lambda ts: AT(N_inv * A(ts)) + Q_inv * ts # think ts===x
+    u = AT(N_inv * d) + Q_inv * prior # this is same as mult prior by var=12/delta^2
+ 
+    """Optimize CHI squared using conjugate gradient method."""
+    # x0 is the standard IPFB reconstruction
+    x0 = None
+    if x0_wiener is None:
+        x0_wiener = np.real(A_inv_wiener(d, wiener_thresh)) # Weiner threshold 0.25
+    
+    # print("\n\nd={}".format(d)) # trace, they are indeed real
+    
+    # print("\nConjugate Gradient Descent, with 3% extra data (prior is a quantized 3% of original timestream)")
+    
+    if verbose:
+        x0 = np.real(A_inv(d)) 
+        # rms virgin pfb
+        rms_virgin = (x - x0)**2
+        rms_virgin = np.reshape(rms_virgin[5*lblock:-5*lblock],(k-10,lblock)) # bad practice to hard code k=80...? I just want to write this fast
+        rms_net_virgin = np.sqrt(np.mean(rms_virgin))
+        rms_virgin = np.sqrt(np.mean(rms_virgin,axis=0))
+        rms_virgin = mav(rms_virgin,5)
+        
+        # rms wiener filtered pfb
+        rms_wiener = (x - x0_wiener)**2
+        rms_wiener = np.reshape(rms_wiener[5*lblock:-5*lblock],(k-10,lblock)) 
+        rms_net_wiener = np.sqrt(np.mean(rms_wiener))
+        rms_wiener = np.sqrt(np.mean(rms_wiener,axis=0))
+        plt.figure(figsize=(14,4))
+        plt.semilogy(rms_wiener[5:-5],label=f"rmse wiener filtered, rms_net={rms_net_wiener}",color=colors[1]) 
+        plt.semilogy(rms_virgin[5:-5],label=f"rmse virgin ipfb, rms_net={rms_net_virgin}",color=colors[0]) 
+        
+        plt.grid(which="both") 
+        plt.legend()
+        #plt.title("Log IPFB RMS residuals (smoothed)\nrmse virgin = {:.3f} rmse wiener = {:.3f}".format(rms_net_virgin,rms_net_wiener),fontsize=20) 
+        plt.title("IPFB Root Mean Squared residuals (smoothed)",fontsize=20)
+        #plt.xlabel("Channel #",fontsize=13)
+        plt.ylabel("RMSE",fontsize=16)
+        plt.xlabel("Timestream Column Index",fontsize=16)
+        plt.tight_layout()
+        plt.savefig("img/RMSE_log_virgin_IPFB_residuals_wiener.png")
+        plt.show(block=False)
+        plt.pause(0.01)
+    
+    # Chose optimal max iter params
+    if delta<=0.3: 
+        max_iter10,max_iter5,max_iter3,max_iter1=3,2,2,2
+    else: # usually it's 0.5
+        max_iter10,max_iter5,max_iter3,max_iter1=18,15,10,5
+    max_iter = min(18, int(2.6 + 100*frac_prior*2.5)) # Rule of thumb
+    # RMS conj gradient descent
+    saveas = f"img/RMSE_conjugate_gradient_descent_{100*frac_prior:.1f}percent.png" if verbose else None
+    x_out = conjugate_gradient_descent(B, u, x0=x0_wiener, rmin=0.0,
+            max_iter=max_iter, k=k, lblock=lblock, verbose=verbose, x_true=x, 
+            title="RMSE smoothed gradient steps 10% data salvaged",
+            saveas=saveas)
+    return x0_wiener, x_out
+ 
 
 
 
@@ -331,7 +460,11 @@ def conj_grad_one_three_five_perc(
         k:int=80,
         lblock:int=2048, 
         verbose:bool=False,
-        wiener_thresh:float=0.1
+        wiener_thresh:float=0.1,
+        npersave1:int=7,
+        npersave3:int=5,
+        npersave5:int=4,
+        npersave10:int=3
         ):
     """
     Computes PFB, quantizes, applies correction given 1%, 3%, 5% of data.
@@ -355,7 +488,7 @@ def conj_grad_one_three_five_perc(
     """
     # Choose a photocopy & color-blind friendly colormap
     colors=plt.get_cmap('Set2').colors # get list of RGB color values
-    # `d` is the output of the PFB with 8-bit quantization. 
+    # `d` is the output of the PFB with 4+4-bit quantization. 
     d = A_quantize(x,delta) 
     # `N_inv` and `Q_inv` are *diagonal* matrices, so we store them as 1D-arrays 
     N_inv = np.ones(len(x)) * 6 / delta**2 
@@ -370,9 +503,7 @@ def conj_grad_one_three_five_perc(
     if get_indices_uniform is True:
         saved_idxs_10 = get_uniform_saved_indices(0.1, k, lblock)
     else:
-        if delta <= 0.3: npersave = 10
-        else: npersave = 5
-        _,saved_idxs_10 = get_saved_idxs(npersave, 0.1, k, lblock)
+        _,saved_idxs_10 = get_saved_idxs(npersave10, 0.1, k, lblock)
     # The noise matrix for the prior. 
     prior_10 = np.ones(len(x)) # What we know about x, information we salvaged. 
     # The data we save will also be 8-bit quantized. 
@@ -391,9 +522,7 @@ def conj_grad_one_three_five_perc(
     if get_indices_uniform is True:
         saved_idxs_5 = get_uniform_saved_indices(0.05, k, lblock)
     else:
-        if delta <= 0.3: npersave = 10
-        else: npersave = 5
-        _,saved_idxs_5 = get_saved_idxs(npersave, 0.05, k, lblock)
+        _,saved_idxs_5 = get_saved_idxs(npersave5, 0.05, k, lblock)
     # The noise matrix for the prior. 
     prior_5 = np.ones(len(x)) # What we know about x, information we salvaged. 
     # The data we save will also be 8-bit quantized. 
@@ -412,9 +541,7 @@ def conj_grad_one_three_five_perc(
     if get_indices_uniform is True:
         saved_idxs_3 = get_uniform_saved_indices(0.03, k, lblock)
     else:
-        if delta <= 0.3: npersave = 12 # npsersave is just black magic
-        else: npersave = 6
-        _,saved_idxs_3 = get_saved_idxs(6, 0.03, k, lblock)
+        _,saved_idxs_3 = get_saved_idxs(npersave3, 0.03, k, lblock)
     # The noise matrix for the prior. 
     prior_3 = np.zeros(len(x)) # What we know about x, information we salvaged. 
     # The data we save will also be 8-bit quantized. 
@@ -431,9 +558,7 @@ def conj_grad_one_three_five_perc(
     if get_indices_uniform is True:
         saved_idxs_1 = get_uniform_saved_indices(0.01, k, lblock)
     else:
-        if delta <= 0.3: npersave = 14
-        else: npersave = 7
-        _,saved_idxs_1 = get_saved_idxs(7, 0.01, k, lblock)
+        _,saved_idxs_1 = get_saved_idxs(npersave1, 0.01, k, lblock)
     # the noise matrix for the prior
     prior_1 = np.zeros(len(x)) # what we know about x, information we saved
     prior_1[saved_idxs_1] = pfb.quantize_real(x[saved_idxs_1].copy() , delta) # quantized original signal
