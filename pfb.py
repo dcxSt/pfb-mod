@@ -7,7 +7,7 @@ Author : Stephen Fay
 
 import numpy as np
 import helper as h
-from scipy.fft import rfft,irfft,fft,ifft
+from numpy.fft import rfft,irfft,fft,ifft
 
 
 # forward pfb as implemented in Richard Shaw's notebook

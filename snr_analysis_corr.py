@@ -1,9 +1,28 @@
+"""
+This script uses correlated SNRs to compare methods for filtering re-channelized quantized PFB'd data.
+
+Let x_n be an i.i.d. sequence-realization of the random variable X. The mean 
+<x_n> approximates the expected value <X>. The standard deviation of the
+sequence approximates the std of the R.V. 
+
+Let S be a R.V. that is the sky signal. Let N be a noise R.V. 
+Let S1 and S2 be two sequences which are the sum of the same sky-signal
+s, and two different noise signals N1, N2: 
+    S1 = S + N1
+    S2 = S + N2
+So S1 and S2 are two time series. We use a PFB to coarsly channelize 
+S1 and S2, we quantize the output to a few bits. Then we up-channelize
+and clean with a filter or optimization method (nothing, Wiener filt, CG). 
+
+Then we correlate. Because S and N are 
+"""
+
 import numpy as np
 from numpy.fft import rfft,irfft
 import matplotlib.pyplot as plt
 
 import pfb
-import conjugate_gradient as cg
+from conjugate_gradient_stripped import conj_grad_with_prior
 
 from datetime import datetime as dt
 import pickle
@@ -13,13 +32,16 @@ import argparse
 # Parser args, first and only arg is the pseudo random seed
 parser = argparse.ArgumentParser(description="Read first argument as int for pseudo random number generator seed.")
 parser.add_argument("prng_seed", type=int, help="The first argument (integer)")
-args = parser.parse_args() 
+parser.add_argument("n_epochs", type=int, help="The number of epochs to compute (integer)")
+args = parser.parse_args()
 PRNG_SEED = args.prng_seed
+N_EPOCHS = args.n_epochs
+
 
 
 # Constants
-N_EPOCHS       = 1 #64 #4096 #*4 # 3600 # one hour
-LEN_EPOCH      = 1<<26 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
+#LEN_EPOCH      = 1<<26 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
+LEN_EPOCH      = 1<<22 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
 DELTA_4BIT     = 0.353  # Optimal delta for 15-level quantization
 NFRAME         = 2048   # 1<<11
 NTAP           = 4      # 1<<2
@@ -185,6 +207,7 @@ for epoch in range(N_EPOCHS):
     spec1=rechannelize(sig1,**kwargs_upchan_time_domain_sig) # Just channelize original signal 
     spec2=rechannelize(sig2,**kwargs_upchan_time_domain_sig) # directly to higher resolution
     corrmean_fp.append(np.mean(spec1 * np.conj(spec2)))
+    del spec1, spec2
     timeC = time.time()
     print(f"{epoch+1}/{N_EPOCHS} mean power FP precision {np.real(corrmean_fp[-1]):.1f}\t({timeC-timeB:.1f} s)")
     
@@ -192,6 +215,7 @@ for epoch in range(N_EPOCHS):
     spec1=rechannelize(sig1,**kwargs_wien)
     spec2=rechannelize(sig2,**kwargs_wien)
     corrmean_wien.append(np.mean(spec1 * np.conj(spec2)))
+    del spec1, spec2
     timeD = time.time()
     print(f"{epoch+1}/{N_EPOCHS} mean power wiener filtered {np.real(corrmean_wien[-1]):.1f}\t({timeD-timeC:.1f} s)")
     
@@ -199,6 +223,7 @@ for epoch in range(N_EPOCHS):
     spec1=rechannelize(sig1,**kwargs_nofilt)
     spec2=rechannelize(sig2,**kwargs_nofilt)
     corrmean_nofilt.append(np.mean(spec1 * np.conj(spec2)))
+    del spec1, spec2
     timeE = time.time()
     print(f"{epoch+1}/{N_EPOCHS} mean power no filter {np.real(corrmean_nofilt[-1]):.1f}\t({timeE-timeD:.1f} s)")
     
@@ -208,37 +233,22 @@ for epoch in range(N_EPOCHS):
         "delta":DELTA_4BIT, 
         "k":LEN_EPOCH//NFRAME, 
         "lblock":NFRAME, 
-        "verbose":False, 
         "wiener_thresh":WIENER_THRESH,
         "npersave":7
     }
-    # _, _, sig1_10, sig1_x5, sig1_x3, sig1_x1 = cg.conj_grad_one_three_five_perc(
-    #     x=sig1,
-    #     delta=0.343,          # quantization delta in stds
-    #     k=LEN_EPOCH//NFRAME,     
-    #     lblock=NFRAME,
-    #     verbose=False,         # True for plots
-    #     wiener_thresh=0.1, npersave1=7, npersave3=5, npersave5=4, npersave10=3
-    # )
-    # _, _, sig2_10, sig2_x5, sig2_x3, sig2_x1 = cg.conj_grad_one_three_five_perc(
-    #     x=sig2,
-    #     delta=0.343,          # quantization delta in stds
-    #     k=LEN_EPOCH//NFRAME,     
-    #     lblock=NFRAME,
-    #     verbose=False,         # True for plots
-    #     wiener_thresh=0.1, npersave1=7, npersave3=5, npersave5=4, npersave10=3
-    # )
     for corrmean_list,frac_prior,npersave in zip((corrmean_1perc, corrmean_3perc, corrmean_5perc, corrmean_10perc),(0.01, 0.03, 0.05, 0.1), (7, 5, 4, 3)):
         timeF = time.time()
         conj_kwargs["frac_prior"] = frac_prior
         conj_kwargs["npersave"]   = npersave
-        _, sig1_10 = cg.conj_grad_with_prior(x=sig1,**conj_kwargs)
-        _, sig2_10 = cg.conj_grad_with_prior(x=sig2,**conj_kwargs)
-        spec1=rechannelize(sig1_10,**kwargs_upchan_time_domain_sig)
-        spec2=rechannelize(sig2_10,**kwargs_upchan_time_domain_sig)
+        _, sig1_cg = conj_grad_with_prior(x=sig1,**conj_kwargs)
+        _, sig2_cg = conj_grad_with_prior(x=sig2,**conj_kwargs)
+        spec1=rechannelize(sig1_cg,**kwargs_upchan_time_domain_sig)
+        spec2=rechannelize(sig2_cg,**kwargs_upchan_time_domain_sig)
         corrmean_list.append(np.mean(spec1 * np.conj(spec2)))
+        del _, spec1, spec2
         timeG = time.time()
         print(f"{epoch+1}/{N_EPOCHS} mean power CG {int(0.5+100*frac_prior)}% {np.real(corrmean_list[-1]):.1f}\t({timeG-timeF:.1f} s)")
+    del sig1, sig2
 
 
 time_total_end = time.time()
@@ -253,7 +263,7 @@ for method,corrmean,kwargs in zip(
     (kwargs_wien, kwargs_nofilt, kwargs_upchan_time_domain_sig, kwargs_upchan_time_domain_sig, kwargs_upchan_time_domain_sig, kwargs_upchan_time_domain_sig, kwargs_upchan_time_domain_sig)):
     dumpdict[method] = {"kwargs": kwargs, "CONSTS": CONSTS, "corrmean": corrmean}
 now = dt.now()
-with open(f'{now}_snr_measurement.pkl','wb') as f:
+with open(f'./snrdata/seed_{PRNG_SEED}_nepoch_{N_EPOCHS}_{now}_snr_measurement.pkl','wb') as f:
     pickle.dump(dumpdict, f)
 
 

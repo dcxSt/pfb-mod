@@ -4,6 +4,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # Loop through every file and run those with the py extension in python
 for file in $SCRIPT_DIR/*; do
   if [ ${file##*.} = "py" ]; then
-    python ${file}
+    python3 ${file}
   fi
 done;
