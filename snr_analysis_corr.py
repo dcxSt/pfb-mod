@@ -19,7 +19,6 @@ Then we correlate. Because S and N are
 
 import numpy as np
 from numpy.fft import rfft,irfft
-import matplotlib.pyplot as plt
 
 import pfb
 from conjugate_gradient_stripped import conj_grad_with_prior
@@ -38,10 +37,10 @@ PRNG_SEED = args.prng_seed
 N_EPOCHS = args.n_epochs
 
 
-
 # Constants
-#LEN_EPOCH      = 1<<26 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
-LEN_EPOCH      = 1<<22 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
+LEN_EPOCH_LOG2 = 25
+LEN_EPOCH      = 1<<LEN_EPOCH_LOG2 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
+#LEN_EPOCH      = 1<<24 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
 DELTA_4BIT     = 0.353  # Optimal delta for 15-level quantization
 NFRAME         = 2048   # 1<<11
 NTAP           = 4      # 1<<2
@@ -124,56 +123,44 @@ def rechannelize(sig, quantize=False, usepfb=True, isupchan=False,
         spec = spec[DROP_NROWS//2:-DROP_NROWS//2,:]
     return spec
 
-def get_snr_corr(sig1, sig2, verbose_plot=False, **kwargs):
-    """Estimate the Signal to Noise Ratio in each channel by correlating sig1 with sig2.
-    
-    Uses global constants (only capitalized variables). 
-
-    Parameters
-    ----------
-    sig1 : np.ndarray
-        1d numpy real, time-domain signal with noise, to be correlated with sig2
-    sig2 : np.ndarray
-        1d numpy real, time-domain signal with noise, to be correlated with sig1
-    verbose_plot : bool
-        Defaults to False. If True, plot stuff. 
-    **kwargs : dict
-        Arguments passed to rechannelize()
-
-    returns
-    -------
-    snr : np.ndarray
-        Signal to noise ratio in each channel, in dB
-    """
-    spec1 = rechannelize(sig1, **kwargs)
-    spec2 = rechannelize(sig2, **kwargs)
-    corr = (spec1 * np.conj(spec2)).mean(axis=0)
-    autocorr1 = (abs(spec1)**2).mean(axis=0)
-    autocorr2 = (abs(spec2)**2).mean(axis=0)
-    s = np.real(corr)             # Signal
-    n = autocorr1 - np.real(corr) # Noise
-    n2= autocorr2 - np.real(corr)
-    # print("s",s)
-    # print("n",n)
-    snr = 10 * np.log10(s/n)      # Signal to Noise Ratio
-    info_string = "{}{}{}{}\nSNR = {:.2f}".format("PFB" if kwargs.get("usepfb",False) else "FFT",
-        ", quantized" if kwargs.get("quantize",False) else "",
-        f", upchannelized by {kwargs.get('upchan_factor','<default>')}" if kwargs.get("isupchan",False) else "",
-        f", Wienered at {kwargs.get('wiener_thresh',False)}" if kwargs.get("wiener_thresh",False) else "",
-        snr.mean())
-    if verbose_plot is True:
-        plt.figure(figsize=(6,2))
-        plt.title(info_string,fontsize=9)
-        plt.plot(s,label="signal")
-        plt.plot(n,label=f"noise min={min(n)}")
-        plt.plot(n2,label=f"n2 min={min(n2)}")
-        # print(f"noise mean = {n.mean()}, std = {n.std()}")
-        plt.legend()
-        plt.tight_layout()
-        plt.show()
-    else:
-        print(info_string)
-    return snr
+#def get_snr_corr(sig1, sig2, **kwargs):
+#    """Estimate the Signal to Noise Ratio in each channel by correlating sig1 with sig2.
+#    
+#    Uses global constants (only capitalized variables). 
+#
+#    Parameters
+#    ----------
+#    sig1 : np.ndarray
+#        1d numpy real, time-domain signal with noise, to be correlated with sig2
+#    sig2 : np.ndarray
+#        1d numpy real, time-domain signal with noise, to be correlated with sig1
+#    **kwargs : dict
+#        Arguments passed to rechannelize()
+#
+#    returns
+#    -------
+#    snr : np.ndarray
+#        Signal to noise ratio in each channel, in dB
+#    """
+#    spec1 = rechannelize(sig1, **kwargs)
+#    spec2 = rechannelize(sig2, **kwargs)
+#    corr = (spec1 * np.conj(spec2)).mean(axis=0)
+#    autocorr1 = (abs(spec1)**2).mean(axis=0)
+#    autocorr2 = (abs(spec2)**2).mean(axis=0)
+#    s = np.real(corr)             # Signal
+#    n = autocorr1 - np.real(corr) # Noise
+#    n2= autocorr2 - np.real(corr)
+#    # print("s",s)
+#    # print("n",n)
+#    snr = 10 * np.log10(s/n)      # Signal to Noise Ratio
+#    info_string = "{}{}{}{}\nSNR = {:.2f}".format("PFB" if kwargs.get("usepfb",False) else "FFT",
+#        ", quantized" if kwargs.get("quantize",False) else "",
+#        f", upchannelized by {kwargs.get('upchan_factor','<default>')}" if kwargs.get("isupchan",False) else "",
+#        f", Wienered at {kwargs.get('wiener_thresh',False)}" if kwargs.get("wiener_thresh",False) else "",
+#        snr.mean())
+#    else:
+#        print(info_string)
+#    return snr
 
 
 
@@ -263,7 +250,7 @@ for method,corrmean,kwargs in zip(
     (kwargs_wien, kwargs_nofilt, kwargs_upchan_time_domain_sig, kwargs_upchan_time_domain_sig, kwargs_upchan_time_domain_sig, kwargs_upchan_time_domain_sig, kwargs_upchan_time_domain_sig)):
     dumpdict[method] = {"kwargs": kwargs, "CONSTS": CONSTS, "corrmean": corrmean}
 now = dt.now()
-with open(f'./snrdata/seed_{PRNG_SEED}_nepoch_{N_EPOCHS}_{now}_snr_measurement.pkl','wb') as f:
+with open(f'./snrdata/seed_{PRNG_SEED}_nepoch_{N_EPOCHS}_log2lenepoch_{LEN_EPOCH_LOG2}_{now}_snr_measurement.pkl','wb') as f:
     pickle.dump(dumpdict, f)
 
 
