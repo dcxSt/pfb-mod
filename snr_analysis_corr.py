@@ -98,8 +98,8 @@ def rechannelize(sig, quantize=False, usepfb=True, isupchan=False,
 
     returns
     -------
-    snr : np.ndarray
-        Signal to noise ratio in each channel, in dB
+    spec : np.ndarray
+        Sepctrum of shape (nrows, nchan) 
     """
     if usepfb is True:
         channelize = lambda x: pfb.forward_pfb(x, nchan=NFRAME//2+1, ntap=NTAP)
@@ -193,7 +193,7 @@ for epoch in range(N_EPOCHS):
     # Infinite precision
     spec1=rechannelize(sig1,**kwargs_upchan_time_domain_sig) # Just channelize original signal 
     spec2=rechannelize(sig2,**kwargs_upchan_time_domain_sig) # directly to higher resolution
-    corrmean_fp.append(np.mean(spec1 * np.conj(spec2)))
+    corrmean_fp.append(np.mean(spec1 * np.conj(spec2), axis=0))
     del spec1, spec2
     timeC = time.time()
     print(f"{epoch+1}/{N_EPOCHS} mean power FP precision {np.real(corrmean_fp[-1]):.1f}\t({timeC-timeB:.1f} s)")
@@ -201,7 +201,7 @@ for epoch in range(N_EPOCHS):
     # Wiener filtered
     spec1=rechannelize(sig1,**kwargs_wien)
     spec2=rechannelize(sig2,**kwargs_wien)
-    corrmean_wien.append(np.mean(spec1 * np.conj(spec2)))
+    corrmean_wien.append(np.mean(spec1 * np.conj(spec2), axis=0))
     del spec1, spec2
     timeD = time.time()
     print(f"{epoch+1}/{N_EPOCHS} mean power wiener filtered {np.real(corrmean_wien[-1]):.1f}\t({timeD-timeC:.1f} s)")
@@ -209,7 +209,7 @@ for epoch in range(N_EPOCHS):
     # No filter
     spec1=rechannelize(sig1,**kwargs_nofilt)
     spec2=rechannelize(sig2,**kwargs_nofilt)
-    corrmean_nofilt.append(np.mean(spec1 * np.conj(spec2)))
+    corrmean_nofilt.append(np.mean(spec1 * np.conj(spec2), axis=0))
     del spec1, spec2
     timeE = time.time()
     print(f"{epoch+1}/{N_EPOCHS} mean power no filter {np.real(corrmean_nofilt[-1]):.1f}\t({timeE-timeD:.1f} s)")
@@ -231,7 +231,7 @@ for epoch in range(N_EPOCHS):
         _, sig2_cg = conj_grad_with_prior(x=sig2,**conj_kwargs)
         spec1=rechannelize(sig1_cg,**kwargs_upchan_time_domain_sig)
         spec2=rechannelize(sig2_cg,**kwargs_upchan_time_domain_sig)
-        corrmean_list.append(np.mean(spec1 * np.conj(spec2)))
+        corrmean_list.append(np.mean(spec1 * np.conj(spec2), axis=0))
         del _, spec1, spec2
         timeG = time.time()
         print(f"{epoch+1}/{N_EPOCHS} mean power CG {int(0.5+100*frac_prior)}% {np.real(corrmean_list[-1]):.1f}\t({timeG-timeF:.1f} s)")
