@@ -38,7 +38,7 @@ N_EPOCHS = args.n_epochs
 
 
 # Constants
-LEN_EPOCH_LOG2 = 25
+LEN_EPOCH_LOG2 = 22 # For debugjob 22, real job 25 or 1/8 of a second
 LEN_EPOCH      = 1<<LEN_EPOCH_LOG2 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
 #LEN_EPOCH      = 1<<24 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
 DELTA_4BIT     = 0.353  # Optimal delta for 15-level quantization
@@ -196,7 +196,7 @@ for epoch in range(N_EPOCHS):
     corrmean_fp.append(np.mean(spec1 * np.conj(spec2), axis=0))
     del spec1, spec2
     timeC = time.time()
-    print(f"{epoch+1}/{N_EPOCHS} mean power FP precision {np.real(corrmean_fp[-1]):.1f}\t({timeC-timeB:.1f} s)")
+    print(f"{epoch+1}/{N_EPOCHS} mean power FP precision {np.mean(np.real(corrmean_fp[-1])):.1f}\t({timeC-timeB:.1f} s)")
     
     # Wiener filtered
     spec1=rechannelize(sig1,**kwargs_wien)
@@ -204,7 +204,7 @@ for epoch in range(N_EPOCHS):
     corrmean_wien.append(np.mean(spec1 * np.conj(spec2), axis=0))
     del spec1, spec2
     timeD = time.time()
-    print(f"{epoch+1}/{N_EPOCHS} mean power wiener filtered {np.real(corrmean_wien[-1]):.1f}\t({timeD-timeC:.1f} s)")
+    print(f"{epoch+1}/{N_EPOCHS} mean power wiener filtered {np.mean(np.real(corrmean_wien[-1])):.1f}\t({timeD-timeC:.1f} s)")
     
     # No filter
     spec1=rechannelize(sig1,**kwargs_nofilt)
@@ -212,7 +212,7 @@ for epoch in range(N_EPOCHS):
     corrmean_nofilt.append(np.mean(spec1 * np.conj(spec2), axis=0))
     del spec1, spec2
     timeE = time.time()
-    print(f"{epoch+1}/{N_EPOCHS} mean power no filter {np.real(corrmean_nofilt[-1]):.1f}\t({timeE-timeD:.1f} s)")
+    print(f"{epoch+1}/{N_EPOCHS} mean power no filter {np.mean(np.real(corrmean_nofilt[-1])):.1f}\t({timeE-timeD:.1f} s)")
     
     # Optimize with CG
     conj_kwargs = {
@@ -234,7 +234,7 @@ for epoch in range(N_EPOCHS):
         corrmean_list.append(np.mean(spec1 * np.conj(spec2), axis=0))
         del _, spec1, spec2
         timeG = time.time()
-        print(f"{epoch+1}/{N_EPOCHS} mean power CG {int(0.5+100*frac_prior)}% {np.real(corrmean_list[-1]):.1f}\t({timeG-timeF:.1f} s)")
+        print(f"{epoch+1}/{N_EPOCHS} mean power CG {int(0.5+100*frac_prior)}% {np.mean(np.real(corrmean_list[-1])):.1f}\t({timeG-timeF:.1f} s)")
     del sig1, sig2
 
 
