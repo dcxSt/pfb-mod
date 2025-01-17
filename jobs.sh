@@ -4,8 +4,8 @@
 #SBATCH --ntasks-per-node=32
 #SBATCH --cpus-per-task=1
 #SBATCH --time=11:59:00
-#SBATCH --job-name snr
-#SBATCH --output=snr_%j.txt
+#SBATCH --job-name upchan_ipfb_stats
+#SBATCH --output=upchan_ipfb_stats_%j.txt
 #SBATCH --mail-user=stephen.fay@mail.mcgill.ca
 #SBATCH --mail-type=ALL
 

@@ -38,7 +38,7 @@ N_EPOCHS = args.n_epochs
 
 
 # Constants
-LEN_EPOCH_LOG2 = 22 # For debugjob 22, real job 25 or 1/8 of a second
+LEN_EPOCH_LOG2 = 25 # For debugjob 22, real job 25 or 1/8 of a second
 LEN_EPOCH      = 1<<LEN_EPOCH_LOG2 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
 #LEN_EPOCH      = 1<<24 # 1<<26  # 1<<28 samples ~1.07 second's worth of data at 250 MSPS
 DELTA_4BIT     = 0.353  # Optimal delta for 15-level quantization
