@@ -22,9 +22,9 @@ mat_eig = h.r_window_to_matrix_eig(sinc * np.hanning(ntap*lblock),
 plt.figure(figsize=(8.5,7))
 #plt.title("Eigenvalues ntap={} lblock={}".format(ntap,lblock),fontsize=22)
 plt.imshow(np.abs(mat_eig.T), aspect='auto',cmap="BrBG") # colorblind cmap
-plt.title("Eigenvalues",fontsize=20)
-plt.xlabel("Timestream Column Index", fontsize=16)
-plt.ylabel("FFT of zero padded sinc-hanning 'chunks'", fontsize=16)
+plt.title("PFB Eigenvalues (Magnitude)",fontsize=22)
+plt.xlabel("Frame Index", fontsize=17)
+plt.ylabel("FFT of zero padded Sinc-Hann-derived kernels", fontsize=17)
 plt.colorbar()
 plt.tight_layout()
 # Optionally save the figure

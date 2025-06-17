@@ -89,17 +89,17 @@ rmse_wiener_avg = np.sqrt(np.mean(se_wiener_avg, axis=0))
 #plt.grid(which="both")
 #
 #plt.subplot(212)
-plt.figure(figsize=(14,4))
+plt.figure(figsize=(10,4))
 plt.semilogy(rmse_virgin_avg[:20*lblock],label="no filter",color=colors[0])
 plt.semilogy(rmse_wiener_avg[:20*lblock],label="wiener filter",color=colors[1])
 plt.legend()
-plt.xlabel("Timestream Column Index",fontsize=16)
+plt.xlabel("Frame Index",fontsize=16)
 plt.ylabel("RMSE, signal to noise ratio",fontsize=16)
 plt.title("Normalized RMSE",fontsize=20)
 plt.grid(which="both")
 
 plt.tight_layout()
-plt.savefig("img/RMSE_wiener_lblock.png")
+plt.savefig("img/RMSE_wiener_lblock.png",dpi=250)
 
 plt.show(block=True)
 
@@ -117,7 +117,7 @@ plt.show(block=True)
 #plt.grid(which="both")
 #
 #plt.subplot(212)
-plt.figure(figsize=(14,4))
+plt.figure(figsize=(10,4))
 plt.semilogy(rmse_virgin[:20*lblock], label="no filter",color=colors[0])
 plt.semilogy(rmse_wiener[:20*lblock], label="wiener filter",color=colors[1])
 plt.legend()
@@ -127,7 +127,7 @@ plt.title("RMSE over time",fontsize=20)
 plt.grid(which="both")
 
 plt.tight_layout()
-plt.savefig("img/RMSE_wiener_long_time.png")
+plt.savefig("img/RMSE_wiener_long_time.png",dpi=250)
 
 plt.show(block=True)
 
