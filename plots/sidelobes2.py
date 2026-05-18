@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['DejaVu Serif']
+plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+
 NX=5000 # global var, number of x times to sample
 FREQ_BIN=100 # center frequency bin chosen arbitrarily
 colors=plt.get_cmap('Set2').colors # get list of RGB color values
@@ -13,7 +17,7 @@ def sinc_win(ntap,nframe):
 def response_of_freq_x_in_bin_fft(x_freq, freq_bin, nframe, taper):
     time_arr = np.linspace(0, 1, nframe)
     tapered_sine_wave = taper(nframe) * np.exp(2j*np.pi*x_freq*time_arr)
-    return np.abs(np.fft.rfft(tapered_sine_wave)[freq_bin])**2
+    return np.abs(np.fft.rfft(np.real(tapered_sine_wave))[freq_bin])**2
 
 def get_power_fft(nframe, taper=np.hanning):
     """Get the freq response of a tapered DFT"""
@@ -76,7 +80,7 @@ plt.ylabel('Relative power (dB)',fontsize=12)
 plt.xlabel('Frequency offset (channel)',fontsize=12)
 plt.ylim(-80,1)
 plt.tight_layout()
-plt.savefig("img/sidelobes2.png",dpi=450)
+plt.savefig("img/sidelobes2.svg")
 plt.show()
 
 
