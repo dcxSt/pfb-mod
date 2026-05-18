@@ -80,7 +80,7 @@ plt.ylabel('Relative power (dB)',fontsize=12)
 plt.xlabel('Frequency offset (channel)',fontsize=12)
 plt.ylim(-80,1)
 plt.tight_layout()
-plt.savefig("img/sidelobes2.svg")
+plt.savefig("img/sidelobes2.png",dpi=900)
 plt.show()
 
 
