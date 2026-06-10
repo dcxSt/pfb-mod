@@ -5,6 +5,10 @@ import helper as h
 import numpy as np
 import matplotlib.pyplot as plt
 
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['DejaVu Serif']
+plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+
 # `ntap` is the number of taps
 # `lblock` is `2*nchan` which is the number of channels before transform
 ntap, lblock = 4, 2048
@@ -51,15 +55,15 @@ irfft=np.fft.irfft
 # x=np.linspace(0,1024)
 # xlims=(512-100,512+100)
 # Plot data on each panel
-ax1.plot(shift(irfft(1/mat_eig[col1,:])), color=colors[0], linewidth=2, alpha=0.5)
-ax2.plot(shift(irfft(1/mat_eig[col2,:])), color=colors[1], linewidth=2, alpha=0.5)
-ax3.plot(shift(irfft(1/mat_eig[col3,:])), color=colors[2], linewidth=2, alpha=0.5)
-ax4.plot(shift(irfft(1/mat_eig[col4,:])), color=colors[3], linewidth=2, alpha=0.5)
+ax1.plot(shift(irfft(1/mat_eig[col1,:])), color=colors[0], linewidth=2, alpha=0.5, label='Unfiltered')
+ax2.plot(shift(irfft(1/mat_eig[col2,:])), color=colors[1], linewidth=2, alpha=0.5, label='Unfiltered')
+ax3.plot(shift(irfft(1/mat_eig[col3,:])), color=colors[2], linewidth=2, alpha=0.5, label='Unfiltered')
+ax4.plot(shift(irfft(1/mat_eig[col4,:])), color=colors[3], linewidth=2, alpha=0.5, label='Unfiltered')
 
-ax1.plot(shift(irfft(wien(mat_eig[col1,:],phi)/mat_eig[col1,:])), color=colors[0], linewidth=1, alpha=1)
-ax2.plot(shift(irfft(wien(mat_eig[col2,:],phi)/mat_eig[col2,:])), color=colors[1], linewidth=1, alpha=1)
-ax3.plot(shift(irfft(wien(mat_eig[col3,:],phi)/mat_eig[col3,:])), color=colors[2], linewidth=1, alpha=1)
-ax4.plot(shift(irfft(wien(mat_eig[col4,:],phi)/mat_eig[col4,:])), color=colors[3], linewidth=1, alpha=1)
+ax1.plot(shift(irfft(wien(mat_eig[col1,:],phi)/mat_eig[col1,:])), color=colors[0], linewidth=1, alpha=1, label='Filtered')
+ax2.plot(shift(irfft(wien(mat_eig[col2,:],phi)/mat_eig[col2,:])), color=colors[1], linewidth=1, alpha=1, label='Filtered')
+ax3.plot(shift(irfft(wien(mat_eig[col3,:],phi)/mat_eig[col3,:])), color=colors[2], linewidth=1, alpha=1, label='Filtered')
+ax4.plot(shift(irfft(wien(mat_eig[col4,:],phi)/mat_eig[col4,:])), color=colors[3], linewidth=1, alpha=1, label='Filtered')
 
 # Add panel labels
 ax1.set_title(f'Frame index {col1} of 2048', fontsize=12)
@@ -91,14 +95,12 @@ for ax in [ax1, ax2, ax3, ax4]:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.patch.set_alpha(0.0)  # Make subplot backgrounds transparent
-
-# Add suptitle
-fig.suptitle('Filtered vs Unfiltered Deconvolution Kernels', 
-             fontsize=18, y=0.92)
+    ax.legend(loc='upper right', fontsize=8, frameon=True,
+              framealpha=0.6, edgecolor='lightgray')
 
 # Apply tight layout with some padding
-plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.tight_layout()
 
 # Show the plot
-plt.savefig("./img/filtered-unfiltered-kernels.png")
+plt.savefig("./img/filtered-unfiltered-kernels.png", dpi=150)
 plt.show()

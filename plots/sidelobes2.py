@@ -7,7 +7,8 @@ plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 NX=5000 # global var, number of x times to sample
 FREQ_BIN=100 # center frequency bin chosen arbitrarily
-colors=plt.get_cmap('Set2').colors # get list of RGB color values
+fft_colors = ['#6baed6', '#08519c']            # light/dark blue for FFT
+pfb_colors = ['#fcae91', '#de2d26', '#a50f15'] # light/med/dark red for PFB
 
 def sinc_win(ntap,nframe):
     n=nframe*ntap
@@ -65,13 +66,11 @@ print(f"Shapes: {pos1.shape}, {pos2.shape}, {pos3.shape}, {pos4.shape}")
 
 #xl=np.linspace(-4,4,NX) # depricated
 plt.figure(0)
-plt.title('PFB vs FFT filter-bank response in each band')
-plt.plot(freqs-FREQ_BIN,decibel(pos1),"--",label='FFT, no window',color=colors[0])
-plt.plot(freqs-FREQ_BIN,decibel(pos2),"-.",label='FFT, Hann window',color=colors[1])
-plt.plot(freqs-FREQ_BIN,decibel(pos5),"--",label='PFB, 4 Taps, no window',color=colors[4])
-plt.plot(freqs-FREQ_BIN,decibel(pos4),"-",label='PFB, 4 Taps, Hann window',color=colors[3])
-plt.plot(freqs-FREQ_BIN,decibel(pos3),"-",label='PFB, 8 Taps, Hann window',color=colors[2])
-plt.plot(freqs-FREQ_BIN,decibel(pos3),"-",label='PFB, 8 Taps, Hann window',color=colors[2])
+plt.plot(freqs-FREQ_BIN,decibel(pos1),"--",label='FFT, no window',color=fft_colors[0])
+plt.plot(freqs-FREQ_BIN,decibel(pos2),"-", label='FFT, Hann window',color=fft_colors[1])
+plt.plot(freqs-FREQ_BIN,decibel(pos5),"--",label='PFB, 4 Taps, no window',color=pfb_colors[0])
+plt.plot(freqs-FREQ_BIN,decibel(pos4),"-.",label='PFB, 4 Taps, Hann window',color=pfb_colors[1])
+plt.plot(freqs-FREQ_BIN,decibel(pos3),"-", label='PFB, 8 Taps, Hann window',color=pfb_colors[2])
 plt.axvspan(-.5, .5, color='lightgrey', alpha=0.5)
 #plt.axvline(.5,color='lightgrey',linestyle='--')
 #plt.axvline(-.5,color='lightgrey',linestyle='-')
