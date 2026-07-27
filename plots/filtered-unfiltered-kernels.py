@@ -35,7 +35,7 @@ plt.rcParams['axes.facecolor'] = 'none'
 # Create figure with subplots
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
     2, 2, 
-    figsize=(8, 5),
+    figsize=(8*0.8, 5*0.8),
     sharex='col',  # Share x-axis vertically (by column)
     sharey='row'   # Share y-axis horizontally (by row)
 )
@@ -47,31 +47,31 @@ fig.patch.set_alpha(0.0)
 colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A']
 
 
-
-
 col1,col2,col3,col4 = 1024,1022,1000,800
 shift=np.fft.fftshift
 irfft=np.fft.irfft
-# x=np.linspace(0,1024)
-# xlims=(512-100,512+100)
-# Plot data on each panel
-ax1.plot(shift(irfft(1/mat_eig[col1,:])), color=colors[0], linewidth=2, alpha=0.5, label='Unfiltered')
-ax2.plot(shift(irfft(1/mat_eig[col2,:])), color=colors[1], linewidth=2, alpha=0.5, label='Unfiltered')
-ax3.plot(shift(irfft(1/mat_eig[col3,:])), color=colors[2], linewidth=2, alpha=0.5, label='Unfiltered')
-ax4.plot(shift(irfft(1/mat_eig[col4,:])), color=colors[3], linewidth=2, alpha=0.5, label='Unfiltered')
 
-ax1.plot(shift(irfft(wien(mat_eig[col1,:],phi)/mat_eig[col1,:])), color=colors[0], linewidth=1, alpha=1, label='Filtered')
-ax2.plot(shift(irfft(wien(mat_eig[col2,:],phi)/mat_eig[col2,:])), color=colors[1], linewidth=1, alpha=1, label='Filtered')
-ax3.plot(shift(irfft(wien(mat_eig[col3,:],phi)/mat_eig[col3,:])), color=colors[2], linewidth=1, alpha=1, label='Filtered')
-ax4.plot(shift(irfft(wien(mat_eig[col4,:],phi)/mat_eig[col4,:])), color=colors[3], linewidth=1, alpha=1, label='Filtered')
+# Sample axis centered at 0: after fftshift the peak sits at the middle index,
+# so shift the x-axis so that index N//2 maps to sample 0.
+n = len(shift(irfft(1/mat_eig[col1,:])))
+x = np.arange(n) - n//2
+
+# Plot data on each panel
+ax1.plot(x, shift(irfft(1/mat_eig[col1,:])), color=colors[0], linewidth=2, alpha=0.5, label='Unfiltered')
+ax2.plot(x, shift(irfft(1/mat_eig[col2,:])), color=colors[1], linewidth=2, alpha=0.5, label='Unfiltered')
+ax3.plot(x, shift(irfft(1/mat_eig[col3,:])), color=colors[2], linewidth=2, alpha=0.5, label='Unfiltered')
+ax4.plot(x, shift(irfft(1/mat_eig[col4,:])), color=colors[3], linewidth=2, alpha=0.5, label='Unfiltered')
+
+ax1.plot(x, shift(irfft(wien(mat_eig[col1,:],phi)/mat_eig[col1,:])), color=colors[0], linewidth=1, alpha=1, label='Filtered')
+ax2.plot(x, shift(irfft(wien(mat_eig[col2,:],phi)/mat_eig[col2,:])), color=colors[1], linewidth=1, alpha=1, label='Filtered')
+ax3.plot(x, shift(irfft(wien(mat_eig[col3,:],phi)/mat_eig[col3,:])), color=colors[2], linewidth=1, alpha=1, label='Filtered')
+ax4.plot(x, shift(irfft(wien(mat_eig[col4,:],phi)/mat_eig[col4,:])), color=colors[3], linewidth=1, alpha=1, label='Filtered')
 
 # Add panel labels
 ax1.set_title(f'Frame index {col1} of 2048', fontsize=12)
 ax2.set_title(f'Frame index {col2} of 2048', fontsize=12)
 ax3.set_title(f'Frame index {col3} of 2048', fontsize=12)
 ax4.set_title(f'Frame index {col4} of 2048', fontsize=12)
-
-
 
 
 # Remove tick labels where specified
@@ -102,5 +102,5 @@ for ax in [ax1, ax2, ax3, ax4]:
 plt.tight_layout()
 
 # Show the plot
-plt.savefig("./img/filtered-unfiltered-kernels.png", dpi=150)
+plt.savefig("./img/filtered-unfiltered-kernels.png", dpi=300)
 plt.show()

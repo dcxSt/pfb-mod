@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-02-11T14:35:48.417105</dc:date>
+    <dc:date>2026-06-12T13:31:57.362546</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.8.0, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.9.4, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -41,7 +41,7 @@ z
    </g>
    <g id="PolyCollection_1">
     <defs>
-     <path id="md16978cbdf" d="M 35.899091 -26.845372 
+     <path id="maf87377384" d="M 35.899091 -26.845372 
 L 35.899091 -26.845372 
 L 35.951061 -26.843483 
 L 36.00303 -26.841593 
@@ -4142,8 +4142,8 @@ L 35.899091 -26.845372
 z
 " style="stroke: #66c2a5; stroke-opacity: 0.4"/>
     </defs>
-    <g clip-path="url(#pe82912b9a8)">
-     <use xlink:href="#md16978cbdf" x="0" y="144" style="fill: #66c2a5; fill-opacity: 0.4; stroke: #66c2a5; stroke-opacity: 0.4"/>
+    <g clip-path="url(#p661a9303fd)">
+     <use xlink:href="#maf87377384" x="0" y="144" style="fill: #66c2a5; fill-opacity: 0.4; stroke: #66c2a5; stroke-opacity: 0.4"/>
     </g>
    </g>
    <g id="matplotlib.axis_1"/>
@@ -4151,70 +4151,70 @@ z
     <g id="ytick_1">
      <g id="line2d_1">
       <defs>
-       <path id="m9e477c8c50" d="M 0 0 
+       <path id="mb9d2ebf7d7" d="M 0 0 
 L -3.5 0 
 " style="stroke: #000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#m9e477c8c50" x="30.58" y="117.154628" style="stroke: #000000; stroke-width: 0.8"/>
+       <use xlink:href="#mb9d2ebf7d7" x="30.58" y="117.154628" style="stroke: #000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
       <!-- 0 -->
       <g transform="translate(10.855 124.753065) scale(0.2 -0.2)">
        <defs>
-        <path id="DejaVuSans-30" d="M 2034 4250 
-Q 1547 4250 1301 3770 
-Q 1056 3291 1056 2328 
-Q 1056 1369 1301 889 
-Q 1547 409 2034 409 
-Q 2525 409 2770 889 
-Q 3016 1369 3016 2328 
-Q 3016 3291 2770 3770 
-Q 2525 4250 2034 4250 
+        <path id="DejaVuSerif-30" d="M 2034 219 
+Q 2513 219 2750 744 
+Q 2988 1269 2988 2328 
+Q 2988 3391 2750 3916 
+Q 2513 4441 2034 4441 
+Q 1556 4441 1318 3916 
+Q 1081 3391 1081 2328 
+Q 1081 1269 1318 744 
+Q 1556 219 2034 219 
 z
-M 2034 4750 
-Q 2819 4750 3233 4129 
-Q 3647 3509 3647 2328 
-Q 3647 1150 3233 529 
-Q 2819 -91 2034 -91 
-Q 1250 -91 836 529 
-Q 422 1150 422 2328 
-Q 422 3509 836 4129 
-Q 1250 4750 2034 4750 
+M 2034 -91 
+Q 1275 -91 848 546 
+Q 422 1184 422 2328 
+Q 422 3475 848 4112 
+Q 1275 4750 2034 4750 
+Q 2797 4750 3222 4112 
+Q 3647 3475 3647 2328 
+Q 3647 1184 3222 546 
+Q 2797 -91 2034 -91 
 z
 " transform="scale(0.015625)"/>
        </defs>
-       <use xlink:href="#DejaVuSans-30"/>
+       <use xlink:href="#DejaVuSerif-30"/>
       </g>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="#m9e477c8c50" x="30.58" y="20.468591" style="stroke: #000000; stroke-width: 0.8"/>
+       <use xlink:href="#mb9d2ebf7d7" x="30.58" y="20.468591" style="stroke: #000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
       <!-- 1 -->
       <g transform="translate(10.855 28.067028) scale(0.2 -0.2)">
        <defs>
-        <path id="DejaVuSans-31" d="M 794 531 
-L 1825 531 
-L 1825 4091 
-L 703 3866 
-L 703 4441 
-L 1819 4666 
-L 2450 4666 
-L 2450 531 
-L 3481 531 
-L 3481 0 
-L 794 0 
-L 794 531 
+        <path id="DejaVuSerif-31" d="M 909 0 
+L 909 331 
+L 1722 331 
+L 1722 4213 
+L 781 3603 
+L 781 4013 
+L 1919 4750 
+L 2350 4750 
+L 2350 331 
+L 3163 331 
+L 3163 0 
+L 909 0 
 z
 " transform="scale(0.015625)"/>
        </defs>
-       <use xlink:href="#DejaVuSans-31"/>
+       <use xlink:href="#DejaVuSerif-31"/>
       </g>
      </g>
     </g>
@@ -4237,7 +4237,7 @@ L 135.836676 119.891873
 L 139.266671 118.552994 
 L 142.280909 117.173734 
 L 142.280909 117.173734 
-" clip-path="url(#pe82912b9a8)" style="fill: none; stroke: #66c2a5; stroke-width: 4; stroke-linecap: square"/>
+" clip-path="url(#p661a9303fd)" style="fill: none; stroke: #66c2a5; stroke-width: 4; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
     <path d="M 30.58 133.2 
@@ -4262,7 +4262,7 @@ L 147.6 10.8
   </g>
  </g>
  <defs>
-  <clipPath id="pe82912b9a8">
+  <clipPath id="p661a9303fd">
    <rect x="30.58" y="10.8" width="117.02" height="122.4"/>
   </clipPath>
  </defs>
